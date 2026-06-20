@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BBB Log">
+<meta name="theme-color" content="#1a1a1a">
+<title>5/3/1 BBB Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --chalk: #e8e6df;
+    --plate-red: #d4543d;
+    --plate-blue: #5b8fd9;
+    --plate-green: #6fae6f;
+    --plate-amber: #d9a441;
+    --iron: #1a1a1a;
+    --iron-soft: #232323;
+    --iron-raised: #2c2c2c;
+    --line: #4a4a4a;
+    --dim: #aeaba2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--iron);
+    color: var(--chalk);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 70px 0;
+  }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 24px 16px 18px 16px; border-bottom: 3px solid var(--chalk); }
+  header .wrap { padding: 0 16px; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--plate-red);
+    text-transform: uppercase;
+  }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.02em; line-height: 1; margin-top: 4px; }
+  .sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); margin-top: 6px; }
+
+  .daybar { display: flex; gap: 8px; margin: 16px 0 0 0; }
+  .daybtn {
+    flex: 1; background: var(--iron-soft); color: var(--chalk); border: 2px solid var(--line);
+    padding: 10px 4px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.05em; cursor: pointer; text-transform: uppercase; border-radius: 3px;
+  }
+  .daybtn.active { background: var(--plate-red); border-color: var(--plate-red); color: #1a1a1a; font-weight: 700; }
+
+  main { padding-top: 18px; }
+
+  /* PHASE + WEEK CONTROLS */
+  .nav-card {
+    background: var(--iron-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .nav-row + .nav-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .nav-label-group { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .nav-value { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.02em; color: var(--chalk); }
+  .nav-value .week-type { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--plate-amber); letter-spacing: 0.04em; margin-left: 8px; }
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .step-btn {
+    width: 40px; height: 40px;
+    background: var(--iron-raised); border: 2px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
+    cursor: pointer; border-radius: 6px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-btn:active { background: var(--plate-red); border-color: var(--plate-red); color: #1a1a1a; }
+
+  .week-pills { display: flex; gap: 6px; margin-top: 10px; }
+  .week-pill {
+    flex: 1; text-align: center; padding: 8px 2px;
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.03em;
+    border: 2px solid var(--line); border-radius: 5px; color: var(--dim); cursor: pointer; background: var(--iron-raised);
+  }
+  .week-pill.active { background: var(--plate-amber); border-color: var(--plate-amber); color: #1a1a1a; font-weight: 700; }
+
+  .phase-advance-btn {
+    width: 100%; margin-top: 12px; padding: 11px; background: transparent;
+    border: 1.5px dashed var(--plate-blue); color: var(--plate-blue);
+    font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 5px; cursor: pointer;
+  }
+  .phase-advance-btn:hover { background: rgba(91,143,217,0.1); }
+
+  /* TM BLOCK */
+  .tm-block { border: 1px solid var(--line); background: var(--iron-soft); border-radius: 6px; padding: 14px; margin-bottom: 14px; }
+  .tm-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.02em; margin-bottom: 10px; }
+  .tm-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .tm-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
+  .tm-input {
+    background: var(--iron-raised); border: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 14px; padding: 7px 10px; width: 90px;
+    text-align: right; border-radius: 4px;
+  }
+  .tm-input:focus { outline: none; border-color: var(--plate-blue); }
+  .tm-result { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); display: flex; gap: 16px; }
+  .tm-stat-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; }
+  .tm-stat-val { font-family: 'DM Mono', monospace; font-size: 17px; color: var(--chalk); margin-top: 2px; }
+
+  /* BLOCKS */
+  .block { border: 1px solid var(--line); background: var(--iron-soft); margin-bottom: 14px; border-radius: 6px; overflow: hidden; }
+  .block-head { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  .block-title { font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.02em; }
+  .block-tag {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 7px; color: #1a1a1a; border-radius: 3px; font-weight: 700;
+  }
+  .tag-warmup { background: var(--dim); }
+  .tag-main { background: var(--plate-amber); }
+  .tag-bbb { background: var(--chalk); }
+  .tag-primary { background: var(--plate-red); }
+
+  .set-table { width: 100%; border-collapse: collapse; }
+  .set-table th {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--dim); text-align: left; padding: 8px 14px 6px 14px; font-weight: 400;
+  }
+  .set-table th.num { text-align: center; width: 28px; }
+  .set-table th.check { text-align: center; width: 38px; }
+  .set-table td { padding: 4px 14px; }
+  .set-table td.num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); text-align: center; }
+  .set-table td.pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); }
+
+  .set-row { transition: background 0.2s ease; }
+  .set-row.done { background: rgba(111, 174, 111, 0.16); }
+  .set-row.done td.num { color: var(--plate-green); }
+  .set-row.amrap td.num::after { content: "+"; color: var(--plate-amber); }
+
+  .cell-input {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 14px; padding: 7px 2px;
+  }
+  .cell-input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .cell-input::placeholder { color: #6b6b6b; }
+  .set-row.done .cell-input { border-bottom-color: var(--plate-green); }
+
+  .check-cell { text-align: center; }
+  .check-box {
+    width: 26px; height: 26px; border: 2px solid var(--line); border-radius: 5px; background: transparent;
+    cursor: pointer; color: transparent; font-size: 15px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .check-box.checked { background: var(--plate-green); border-color: var(--plate-green); color: #1a1a1a; font-weight: 700; }
+
+  .set-row td { padding-bottom: 8px; padding-top: 4px; }
+
+  .section-divider {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--dim); padding: 10px 14px 4px 14px; border-top: 1px solid var(--line);
+  }
+  .section-divider:first-child { border-top: none; }
+
+  /* ACCESSORIES */
+  .acc-card {
+    border-top: 1px solid var(--line);
+    padding: 10px 14px 12px 14px;
+  }
+  .acc-card:first-of-type { border-top: none; }
+  .acc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .acc-name-input {
+    background: transparent; border: none; border-bottom: 1px solid var(--line); color: var(--chalk);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 6px 2px; flex: 1; min-width: 0;
+  }
+  .acc-name-input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .acc-remove { background: none; border: none; color: var(--dim); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px 6px; }
+  .acc-remove:hover { color: var(--plate-red); }
+
+  .acc-suggest-line { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--plate-amber); margin-bottom: 6px; }
+
+  .acc-set-header, .acc-set-row {
+    display: grid; grid-template-columns: 24px 1fr 1fr 1fr 36px; gap: 6px; align-items: center; padding: 3px 0;
+  }
+  .acc-set-header span {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; text-align: center;
+  }
+  .acc-set-row .num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-align: center; }
+  .acc-set-row input {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 13px; text-align: center; padding: 6px 0;
+  }
+  .acc-set-row input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .acc-set-row.done { background: rgba(111, 174, 111, 0.12); }
+  .acc-set-row.done input { border-bottom-color: var(--plate-green); }
+  .acc-set-row .check-box { width: 22px; height: 22px; font-size: 13px; margin: 0 auto; }
+
+  .acc-add-set {
+    margin-top: 6px; background: transparent; border: 1px dashed var(--line); color: var(--dim);
+    font-family: 'DM Mono', monospace; font-size: 11px; padding: 6px 10px; cursor: pointer; border-radius: 4px;
+  }
+
+  .add-acc {
+    width: 100%; background: transparent; border: none; border-top: 1px dashed var(--line); color: var(--dim);
+    font-family: 'DM Mono', monospace; font-size: 12px; padding: 10px 14px; cursor: pointer; text-align: left; letter-spacing: 0.04em;
+  }
+  .add-acc:hover { color: var(--chalk); }
+
+  .suggest-row { padding: 10px 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 6px; }
+  .suggest-label { width: 100%; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+  .chip { background: transparent; border: 1px solid var(--line); color: var(--dim); font-family: 'DM Mono', monospace; font-size: 11px; padding: 6px 10px; cursor: pointer; border-radius: 4px; }
+  .chip:hover { border-color: var(--chalk); color: var(--chalk); }
+  .chip.primary-chip { border-color: var(--plate-red); color: var(--plate-red); }
+
+  .save-state { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-align: center; padding: 16px 0 0 0; letter-spacing: 0.04em; }
+  .save-state.saved { color: var(--plate-green); }
+
+  .history-toggle {
+    width: 100%; background: var(--iron-soft); border: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 12px; padding: 12px; cursor: pointer; margin-top: 8px;
+    letter-spacing: 0.06em; border-radius: 6px;
+  }
+  .history-toggle:hover { border-color: var(--chalk); }
+  .history-list { margin-top: 10px; }
+  .history-entry { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .history-entry .he-top { display: flex; justify-content: space-between; color: var(--dim); margin-bottom: 6px; }
+  .history-entry .he-day { color: var(--chalk); font-weight: 500; }
+
+  /* TIMER */
+  .timer-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--plate-green); color: #1a1a1a;
+    padding: 12px 14px; display: none; align-items: center; justify-content: space-between;
+    font-family: 'DM Mono', monospace; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.4); flex-wrap: wrap; gap: 8px;
+  }
+  .timer-bar.active { display: flex; }
+  .timer-bar.warn { background: var(--plate-red); }
+  .timer-left { display: flex; align-items: center; gap: 10px; }
+  .timer-label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
+  .timer-sub { font-size: 9px; opacity: 0.6; }
+  .timer-clock { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .timer-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+  .timer-btn {
+    background: rgba(26,26,26,0.15); border: 1.5px solid #1a1a1a; color: #1a1a1a;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; padding: 7px 9px; border-radius: 4px; cursor: pointer;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--iron); }
+  ::-webkit-scrollbar-thumb { background: var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">5/3/1 — Boring But Big</div>
+    <h1>BBB LOG</h1>
+    <div class="sub">Main lifts · warmups · BBB · accessories</div>
+    <div class="daybar" id="dayBar"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main>
+
+    <div class="nav-card">
+      <div class="nav-row">
+        <div class="nav-label-group">
+          <span class="nav-label">Phase (Cycle)</span>
+          <span class="nav-value" id="phaseValue">1</span>
+        </div>
+        <button class="phase-advance-btn" id="phaseAdvanceBtn" style="width:auto;margin-top:0;white-space:nowrap;">NEXT PHASE →</button>
+      </div>
+      <div class="nav-row">
+        <div class="nav-label-group">
+          <span class="nav-label">Week</span>
+          <span class="nav-value" id="weekValue">1<span class="week-type" id="weekTypeLabel"></span></span>
+        </div>
+      </div>
+      <div class="week-pills" id="weekPills"></div>
+      <div style="text-align:center;margin-top:10px;">
+        <button class="acc-add-set" id="phaseBackBtn" style="font-size:11px;">← review previous phase</button>
+      </div>
+    </div>
+
+    <div id="content"></div>
+
+    <div class="save-state" id="saveState">loading…</div>
+
+    <button class="history-toggle" id="historyToggle">VIEW HISTORY ▾</button>
+    <div class="history-list" id="historyList" style="display:none;"></div>
+  </main>
+</div>
+
+<div class="timer-bar" id="timerBar">
+  <div class="timer-left">
+    <div>
+      <div class="timer-label" id="timerLabel">Rest</div>
+      <div class="timer-clock" id="timerClock">3:00</div>
+    </div>
+  </div>
+  <div class="timer-actions">
+    <button class="timer-btn" id="timerMinus30">−30s</button>
+    <button class="timer-btn" id="timerAdd15">+15s</button>
+    <button class="timer-btn" id="timerAdd30">+30s</button>
+    <button class="timer-btn" id="timerSkip">Skip</button>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+
+const DAYS = {
+  squat: {
+    label: "Squat", lift: "Squat",
+    primaries: ["Leg Curl", "Hanging Leg Raise"],
+    suggestions: ["Leg Extension", "Walking Lunge", "Calf Raise", "Back Extension"]
+  },
+  bench: {
+    label: "Bench", lift: "Bench Press",
+    primaries: ["DB Row", "Face Pull"],
+    suggestions: ["Tricep Pushdown", "DB Curl", "Lateral Raise", "Barbell Row"]
+  },
+  deadlift: {
+    label: "Deadlift", lift: "Deadlift",
+    primaries: ["Ab Wheel", "Leg Curl"],
+    suggestions: ["Back Extension / GHR", "Push-up", "Calf Raise", "DB Bench"]
+  },
+  ohp: {
+    label: "OHP", lift: "Overhead Press",
+    primaries: ["Lat Pulldown", "Face Pull"],
+    suggestions: ["Tricep Pushdown", "DB Curl", "Lateral Raise"]
+  }
+};
+const DAY_KEYS = ["squat", "bench", "deadlift", "ohp"];
+
+/* ============ STORAGE (localStorage-backed, GitHub Pages version) ============
+   Mimics the same get/set/list interface the original Claude-artifact
+   storage used, so the rest of the app's logic didn't need to change.
+   Everything is namespaced under a "bbblog:" prefix in localStorage so it
+   won't collide with anything else on the page/domain. */
+window.storage = {
+  async get(key) {
+    const raw = localStorage.getItem('bbblog:' + key);
+    if (raw === null) return null;
+    return { key, value: raw, shared: false };
+  },
+  async set(key, value) {
+    localStorage.setItem('bbblog:' + key, value);
+    return { key, value, shared: false };
+  },
+  async delete(key) {
+    const existed = localStorage.getItem('bbblog:' + key) !== null;
+    localStorage.removeItem('bbblog:' + key);
+    return { key, deleted: existed, shared: false };
+  },
+  async list(prefix) {
+    const fullPrefix = 'bbblog:' + (prefix || '');
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(fullPrefix)) keys.push(k.slice('bbblog:'.length));
+    }
+    return { keys, prefix, shared: false };
+  }
+};
+
+// Wendler week types within a phase (4-week cycle)
+const WEEK_TYPES = {
+  1: { name: "5/5/5+", mainPct: [0.65, 0.75, 0.85], mainReps: [5, 5, 5], amrapLast: true, bbbPct: 0.50 },
+  2: { name: "3/3/3+", mainPct: [0.70, 0.80, 0.90], mainReps: [3, 3, 3], amrapLast: true, bbbPct: 0.55 },
+  3: { name: "5/3/1+", mainPct: [0.75, 0.85, 0.95], mainReps: [5, 3, 1], amrapLast: true, bbbPct: 0.60 },
+  4: { name: "Deload", mainPct: [0.40, 0.50, 0.60], mainReps: [5, 5, 5], amrapLast: false, bbbPct: 0.40 }
+};
+const WARMUP_PCT = [0.40, 0.50, 0.60];
+const WARMUP_REPS = [5, 5, 5];
+
+const REST_MAIN = 180;     // 3 min
+const REST_AMRAP = 300;    // 5 min
+const REST_ACCESSORY = 90; // 90 sec
+
+let currentDay = "squat";
+let currentPhase = 1;
+let currentWeek = 1; // 1-4 within phase
+let saveTimer = null;
+let currentData = null;
+let restInterval = null;
+let restSecondsLeft = 0;
+let timerContext = "main"; // main | amrap | accessory
+
+/* ============ HELPERS ============ */
+
+function roundToFive(n) { return Math.round(n / 5) * 5; }
+
+function calcTM(oneRM) {
+  const v = parseFloat(oneRM);
+  if (!v || v <= 0) return null;
+  return Math.round(v * 0.9 * 2) / 2;
+}
+
+function phaseKey(p) { return `phase${p}`; }
+function dayPhaseKey(dayKey, phase) { return `bbb:${dayKey}:${phaseKey(phase)}`; }
+function dayWeekKey(dayKey, phase, week) { return `bbb:${dayKey}:${phaseKey(phase)}:week${week}`; }
+
+function emptyPhaseData() {
+  // stores 1RM snapshot used to derive TM for this phase
+  return { oneRM: "" };
+}
+
+function emptyWeekData(dayKey) {
+  const day = DAYS[dayKey];
+  return {
+    warmup: WARMUP_PCT.map(() => ({ weight: "", reps: "", done: false })),
+    main: [0,1,2].map(() => ({ weight: "", reps: "", done: false })),
+    bbb: Array.from({length: 5}, () => ({ weight: "", reps: "", done: false })),
+    accessories: day.primaries.map(name => ({
+      name, role: 'primary',
+      sets: [ { suggested: "", actual: "", reps: "", done: false } ]
+    }))
+  };
+}
+
+async function loadPhaseData(dayKey, phase) {
+  try {
+    const r = await window.storage.get(dayPhaseKey(dayKey, phase));
+    if (r && r.value) return JSON.parse(r.value);
+  } catch (e) {}
+  return emptyPhaseData();
+}
+
+async function savePhaseData(dayKey, phase, data) {
+  try { await window.storage.set(dayPhaseKey(dayKey, phase), JSON.stringify(data)); } catch (e) {}
+}
+
+// find most recent 1RM across phases (look back) so new phases aren't blank
+async function findLastOneRM(dayKey, beforePhase) {
+  for (let p = beforePhase; p >= 1 && p >= beforePhase - 12; p--) {
+    try {
+      const r = await window.storage.get(dayPhaseKey(dayKey, p));
+      if (r && r.value) {
+        const parsed = JSON.parse(r.value);
+        if (parsed.oneRM) return parsed.oneRM;
+      }
+    } catch (e) {}
+  }
+  return "";
+}
+
+async function loadWeekData(dayKey, phase, week) {
+  const key = dayWeekKey(dayKey, phase, week);
+  try {
+    const r = await window.storage.get(key);
+    if (r && r.value) {
+      const parsed = JSON.parse(r.value);
+      if (!parsed.warmup) parsed.warmup = WARMUP_PCT.map(() => ({ weight: "", reps: "", done: false }));
+      if (!parsed.main) parsed.main = [0,1,2].map(() => ({ weight: "", reps: "", done: false }));
+      parsed.bbb.forEach(s => { if (s.done === undefined) s.done = false; });
+      parsed.accessories.forEach(a => {
+        if (!a.sets) a.sets = [{ suggested: "", actual: a.actual || "", reps: a.reps || "", done: false }];
+      });
+      return parsed;
+    }
+  } catch (e) { /* key not found yet — fine, use empty defaults */ }
+  return emptyWeekData(dayKey);
+}
+
+async function saveWeekData(dayKey, phase, week, data) {
+  const key = dayWeekKey(dayKey, phase, week);
+  const stateEl = document.getElementById('saveState');
+  stateEl.textContent = 'saving…';
+  stateEl.classList.remove('saved');
+  try {
+    const payload = JSON.stringify(data);
+    await window.storage.set(key, payload);
+    stateEl.textContent = 'saved ✓';
+    stateEl.classList.add('saved');
+  } catch (e) {
+    stateEl.textContent = 'save failed';
+  }
+}
+
+function queueSave() {
+  // capture context NOW so a tab/week switch before the debounce fires
+  // doesn't write this edit under the wrong key
+  const dayKey = currentDay, phase = currentPhase, week = currentWeek, data = currentData;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveWeekData(dayKey, phase, week, data), 500);
+}
+
+// flush any pending debounced save immediately (call before navigating away)
+// returns a Promise so callers can await it and guarantee the write lands
+// before any subsequent load for the same key
+function flushPendingSave() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  // always save current state synchronously relative to navigation,
+  // using current globals since this is called before they change
+  return saveWeekData(currentDay, currentPhase, currentWeek, currentData);
+}
+
+// find last logged ACTUAL weight for an accessory name, searching backward through weeks/phases
+async function findLastAccessoryWeight(dayKey, accName) {
+  let p = currentPhase, w = currentWeek;
+  for (let i = 0; i < 16; i++) {
+    w -= 1;
+    if (w < 1) { w = 4; p -= 1; }
+    if (p < 1) break;
+    try {
+      const r = await window.storage.get(dayWeekKey(dayKey, p, w));
+      if (r && r.value) {
+        const parsed = JSON.parse(r.value);
+        const match = (parsed.accessories || []).find(a => a.name.toLowerCase() === accName.toLowerCase());
+        if (match && match.sets) {
+          const lastSet = [...match.sets].reverse().find(s => s.actual);
+          if (lastSet) return lastSet.actual;
+        }
+      }
+    } catch (e) {}
+  }
+  return "";
+}
+
+/* ============ RENDER: TOP NAV ============ */
+
+function buildDayBar() {
+  const bar = document.getElementById('dayBar');
+  bar.innerHTML = "";
+  DAY_KEYS.forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'daybtn' + (key === currentDay ? ' active' : '');
+    btn.textContent = DAYS[key].label;
+    btn.onclick = async () => { await flushPendingSave(); currentDay = key; await renderAll(); };
+    bar.appendChild(btn);
+  });
+}
+
+function buildWeekPills() {
+  const pillWrap = document.getElementById('weekPills');
+  pillWrap.innerHTML = "";
+  for (let w = 1; w <= 4; w++) {
+    const pill = document.createElement('button');
+    pill.className = 'week-pill' + (w === currentWeek ? ' active' : '');
+    pill.textContent = WEEK_TYPES[w].name;
+    pill.onclick = async () => { await flushPendingSave(); currentWeek = w; await renderAll(); };
+    pillWrap.appendChild(pill);
+  }
+}
+
+document.getElementById('phaseBackBtn').addEventListener('click', async () => {
+  if (currentPhase > 1) {
+    await flushPendingSave();
+    currentPhase -= 1;
+    currentWeek = 1;
+    await renderAll();
+  }
+});
+
+document.getElementById('phaseAdvanceBtn').addEventListener('click', async () => {
+  await flushPendingSave();
+  const day = DAYS[currentDay];
+  const lift = day.lift;
+  const isLower = (currentDay === 'squat' || currentDay === 'deadlift');
+  const defaultIncrement = isLower ? 10 : 5;
+  const proceed = confirm(`Start Phase ${currentPhase + 1} for ${lift}?\n\nThis typically adds +${defaultIncrement} lbs to your 1RM (lower body +10, upper body +5). Click OK to auto-increase, or Cancel to set it manually after advancing.`);
+  const phaseData = await loadPhaseData(currentDay, currentPhase);
+  const newPhase = currentPhase + 1;
+  let newOneRM = phaseData.oneRM;
+  if (proceed && phaseData.oneRM) {
+    newOneRM = (parseFloat(phaseData.oneRM) + defaultIncrement).toString();
+  }
+  await savePhaseData(currentDay, newPhase, { oneRM: newOneRM });
+  currentPhase = newPhase;
+  currentWeek = 1;
+  await renderAll();
+});
+
+/* ============ RENDER: MAIN ============ */
+
+async function renderAll() {
+  buildDayBar();
+  buildWeekPills();
+  document.getElementById('phaseValue').textContent = currentPhase;
+  document.getElementById('weekValue').firstChild.textContent = currentWeek + " ";
+  document.getElementById('weekTypeLabel').textContent = WEEK_TYPES[currentWeek].name;
+
+  const day = DAYS[currentDay];
+  const phaseData = await loadPhaseData(currentDay, currentPhase);
+  if (!phaseData.oneRM) {
+    const last = await findLastOneRM(currentDay, currentPhase);
+    if (last) phaseData.oneRM = last;
+  }
+  currentData = await loadWeekData(currentDay, currentPhase, currentWeek);
+
+  const content = document.getElementById('content');
+  content.innerHTML = "";
+
+  /* --- TM BLOCK --- */
+  const tmBlock = document.createElement('div');
+  tmBlock.className = 'tm-block';
+  tmBlock.innerHTML = `
+    <div class="tm-title">${day.lift} — 1RM &amp; Training Max</div>
+    <div class="tm-row">
+      <span class="tm-label">1 Rep Max (lbs) — Phase ${currentPhase}</span>
+      <input class="tm-input" type="number" inputmode="decimal" placeholder="0" id="oneRMInput" value="${phaseData.oneRM}">
+    </div>
+    <div class="tm-result" id="tmResult"></div>
+  `;
+  content.appendChild(tmBlock);
+  const oneRMInput = tmBlock.querySelector('#oneRMInput');
+  const tmResult = tmBlock.querySelector('#tmResult');
+
+  let tm = null;
+  function updateTM() {
+    tm = calcTM(oneRMInput.value);
+    if (!tm) {
+      tmResult.innerHTML = `<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);">Enter your 1RM to calculate everything below.</span>`;
+    } else {
+      tmResult.innerHTML = `
+        <div><div class="tm-stat-label">Training Max</div><div class="tm-stat-val">${tm}</div></div>
+        <div><div class="tm-stat-label">Week Type</div><div class="tm-stat-val" style="color:var(--plate-amber);">${WEEK_TYPES[currentWeek].name}</div></div>
+      `;
+    }
+  }
+  updateTM();
+  let oneRMSaveTimer = null;
+  oneRMInput.addEventListener('input', () => {
+    phaseData.oneRM = oneRMInput.value;
+    updateTM();
+    refreshMainLiftTargets();
+    const dayKey = currentDay, phase = currentPhase, snapshot = { ...phaseData };
+    clearTimeout(oneRMSaveTimer);
+    oneRMSaveTimer = setTimeout(() => savePhaseData(dayKey, phase, snapshot), 500);
+  });
+
+  let refreshMainLiftTargets = () => {}; // reassigned once the block below builds
+
+  renderMainLifts();
+
+  function renderMainLifts() {
+  const wt = WEEK_TYPES[currentWeek];
+  const mainBlock = document.createElement('div');
+  mainBlock.className = 'block';
+  mainBlock.innerHTML = `
+    <div class="block-head">
+      <span class="block-title">${day.lift}</span>
+      <span class="block-tag tag-main">${wt.name}</span>
+    </div>
+    <div class="section-divider">Warmup</div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="warmupBody"></tbody></table>
+    <div class="section-divider">Working Sets</div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="mainBody"></tbody></table>
+  `;
+  content.appendChild(mainBlock);
+  renderWarmupAndMainInto(mainBlock);
+  refreshMainLiftTargets = () => renderWarmupAndMainInto(mainBlock);
+
+  function renderWarmupAndMainInto(blockEl) {
+    const safeTm = tm || 0;
+    const warmupBody = blockEl.querySelector('#warmupBody');
+    warmupBody.innerHTML = "";
+    currentData.warmup.forEach((set, i) => {
+      const target = roundToFive(safeTm * WARMUP_PCT[i]);
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}</td>
+        <td class="pct">${Math.round(WARMUP_PCT[i]*100)}%</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="warmup" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="${WARMUP_REPS[i]}" value="${set.reps}" data-group="warmup" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="warmup" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
+      `;
+      warmupBody.appendChild(tr);
+    });
+
+    const mainBody = blockEl.querySelector('#mainBody');
+    mainBody.innerHTML = "";
+    currentData.main.forEach((set, i) => {
+      const target = roundToFive(safeTm * wt.mainPct[i]);
+      const isLast = i === 2;
+      const isAmrap = isLast && wt.amrapLast;
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '') + (isAmrap ? ' amrap' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}</td>
+        <td class="pct">${Math.round(wt.mainPct[i]*100)}%</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="main" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="text" inputmode="numeric" placeholder="${wt.mainReps[i]}${isAmrap ? '+' : ''}" value="${set.reps}" data-group="main" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="main" data-idx="${i}" data-amrap="${isAmrap}">${set.done ? '✓' : ''}</button></td>
+      `;
+      mainBody.appendChild(tr);
+    });
+
+    blockEl.querySelectorAll('input[data-group]').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const group = e.target.dataset.group;
+        const idx = parseInt(e.target.dataset.idx);
+        const field = e.target.dataset.field;
+        currentData[group][idx][field] = e.target.value;
+        queueSave();
+      });
+    });
+    blockEl.querySelectorAll('.check-box[data-group]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const group = e.currentTarget.dataset.group;
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        const isAmrap = e.currentTarget.dataset.amrap === 'true';
+        const set = currentData[group][idx];
+        const nowDone = !set.done;
+        set.done = nowDone;
+        if (nowDone) {
+          if (!set.weight) {
+            const target = group === 'warmup' ? roundToFive(safeTm * WARMUP_PCT[idx]) : roundToFive(safeTm * wt.mainPct[idx]);
+            set.weight = target;
+          }
+          if (!set.reps) set.reps = group === 'warmup' ? WARMUP_REPS[idx] : wt.mainReps[idx];
+        }
+        renderWarmupAndMainInto(blockEl);
+        queueSave();
+        if (nowDone) {
+          if (group === 'main' && isAmrap) startRestTimer('amrap');
+          else startRestTimer('main');
+        }
+      });
+    });
+  }
+
+  /* --- BBB BLOCK --- */
+  const bbbBlock = document.createElement('div');
+  bbbBlock.className = 'block';
+  bbbBlock.innerHTML = `
+    <div class="block-head">
+      <span class="block-title">${day.lift} — 5×10</span>
+      <span class="block-tag tag-bbb">BBB · ${Math.round(wt.bbbPct*100)}%</span>
+    </div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="bbbBody"></tbody></table>
+  `;
+  content.appendChild(bbbBlock);
+  const bbbBody = bbbBlock.querySelector('#bbbBody');
+  function renderBbb() {
+    const bbbTarget = roundToFive((tm || 0) * wt.bbbPct);
+    bbbBody.innerHTML = "";
+    currentData.bbb.forEach((set, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? bbbTarget : '—'}" value="${set.weight}" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="10" value="${set.reps}" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
+      `;
+      bbbBody.appendChild(tr);
+    });
+    bbbBody.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        currentData.bbb[idx][e.target.dataset.field] = e.target.value;
+        queueSave();
+      });
+    });
+    bbbBody.querySelectorAll('.check-box').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        const set = currentData.bbb[idx];
+        set.done = !set.done;
+        if (set.done) {
+          if (!set.weight) set.weight = bbbTarget;
+          if (!set.reps) set.reps = "10";
+        }
+        renderBbb();
+        queueSave();
+        if (set.done) startRestTimer('main');
+      });
+    });
+  }
+  renderBbb();
+  refreshMainLiftTargets = () => { renderWarmupAndMainInto(mainBlock); renderBbb(); };
+  } // end renderMainLifts
+
+  /* --- ACCESSORY BLOCK --- */
+  const accBlock = document.createElement('div');
+  accBlock.className = 'block';
+  accBlock.innerHTML = `
+    <div class="block-head"><span class="block-title">Accessories</span></div>
+    <div id="accCardsWrap"></div>
+    <button class="add-acc" id="addAccBtn">+ ADD MOVEMENT</button>
+    <div class="suggest-row" id="suggestRow"><div class="suggest-label">Suggested for ${day.lift} day</div></div>
+  `;
+  content.appendChild(accBlock);
+  const accCardsWrap = accBlock.querySelector('#accCardsWrap');
+
+  async function renderAccCards() {
+    accCardsWrap.innerHTML = "";
+    for (let i = 0; i < currentData.accessories.length; i++) {
+      const acc = currentData.accessories[i];
+      const card = document.createElement('div');
+      card.className = 'acc-card';
+      const tagHtml = acc.role === 'primary' ? '<span class="block-tag tag-primary" style="font-size:9px;padding:2px 5px;">PRI</span>' : '';
+
+      let suggestedWeight = acc.sets[0] && acc.sets[0].suggested;
+      if (!suggestedWeight && acc.name) {
+        suggestedWeight = await findLastAccessoryWeight(currentDay, acc.name);
+        if (suggestedWeight) acc.sets[0].suggested = suggestedWeight;
+      }
+
+      card.innerHTML = `
+        <div class="acc-card-top">
+          <input class="acc-name-input" type="text" placeholder="Movement name" value="${escapeHtml(acc.name)}" data-acc="${i}">
+          ${tagHtml}
+          <button class="acc-remove" data-acc="${i}" title="Remove">×</button>
+        </div>
+        <div class="acc-suggest-line">${suggestedWeight ? `Last time: ${suggestedWeight} lbs` : 'No previous weight logged yet'}</div>
+        <div class="acc-set-header"><span>#</span><span>Target</span><span>Actual</span><span>Reps</span><span>✓</span></div>
+        <div id="accSets${i}"></div>
+        <button class="acc-add-set" data-acc="${i}">+ ADD SET</button>
+      `;
+      accCardsWrap.appendChild(card);
+
+      const setsWrap = card.querySelector(`#accSets${i}`);
+      function renderAccSets() {
+        setsWrap.innerHTML = "";
+        acc.sets.forEach((s, si) => {
+          const row = document.createElement('div');
+          row.className = 'acc-set-row' + (s.done ? ' done' : '');
+          row.innerHTML = `
+            <span class="num">${si+1}</span>
+            <input type="text" placeholder="${suggestedWeight || '—'}" value="${suggestedWeight || ''}" disabled style="opacity:0.5;">
+            <input type="number" inputmode="decimal" placeholder="lbs" value="${s.actual}" data-acc="${i}" data-set="${si}" data-field="actual">
+            <input type="text" inputmode="numeric" placeholder="reps" value="${s.reps}" data-acc="${i}" data-set="${si}" data-field="reps">
+            <button class="check-box" data-acc="${i}" data-set="${si}" style="width:22px;height:22px;font-size:13px;">${s.done ? '✓' : ''}</button>
+          `;
+          setsWrap.appendChild(row);
+        });
+        setsWrap.querySelectorAll('input[data-field]').forEach(inp => {
+          inp.addEventListener('input', (e) => {
+            const si = parseInt(e.target.dataset.set);
+            acc.sets[si][e.target.dataset.field] = e.target.value;
+            queueSave();
+          });
+        });
+        setsWrap.querySelectorAll('.check-box').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const si = parseInt(e.currentTarget.dataset.set);
+            const s = acc.sets[si];
+            s.done = !s.done;
+            if (s.done) {
+              if (!s.actual && suggestedWeight) s.actual = suggestedWeight;
+            }
+            renderAccSets();
+            queueSave();
+            if (s.done) startRestTimer('accessory');
+          });
+        });
+      }
+      renderAccSets();
+
+      card.querySelector('.acc-add-set').addEventListener('click', () => {
+        acc.sets.push({ suggested: suggestedWeight || "", actual: "", reps: "", done: false });
+        renderAccSets();
+        queueSave();
+      });
+      card.querySelector('.acc-name-input').addEventListener('input', (e) => {
+        acc.name = e.target.value;
+        queueSave();
+      });
+      card.querySelector('.acc-remove').addEventListener('click', () => {
+        currentData.accessories.splice(i, 1);
+        renderAccCards();
+        queueSave();
+      });
+    }
+  }
+  await renderAccCards();
+
+  accBlock.querySelector('#addAccBtn').onclick = async () => {
+    currentData.accessories.push({ name: "", role: "secondary", sets: [{ suggested: "", actual: "", reps: "", done: false }] });
+    await renderAccCards();
+    queueSave();
+  };
+
+  const suggestRow = accBlock.querySelector('#suggestRow');
+  const existingNames = currentData.accessories.map(a => a.name.toLowerCase());
+  day.primaries.forEach(name => {
+    if (!existingNames.includes(name.toLowerCase())) {
+      const chip = document.createElement('button');
+      chip.className = 'chip primary-chip';
+      chip.textContent = '+ ' + name;
+      chip.onclick = async () => {
+        currentData.accessories.push({ name, role: 'primary', sets: [{ suggested: "", actual: "", reps: "", done: false }] });
+        await renderAccCards();
+        queueSave();
+        chip.remove();
+      };
+      suggestRow.appendChild(chip);
+    }
+  });
+  day.suggestions.forEach(name => {
+    if (!existingNames.includes(name.toLowerCase())) {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = '+ ' + name;
+      chip.onclick = async () => {
+        currentData.accessories.push({ name, role: 'secondary', sets: [{ suggested: "", actual: "", reps: "", done: false }] });
+        await renderAccCards();
+        queueSave();
+        chip.remove();
+      };
+      suggestRow.appendChild(chip);
+    }
+  });
+
+  document.getElementById('saveState').textContent = '';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+/* ============ TIMER ============ */
+
+const timerBar = document.getElementById('timerBar');
+const timerClock = document.getElementById('timerClock');
+const timerLabel = document.getElementById('timerLabel');
+
+function formatClock(s) {
+  const m = Math.floor(Math.abs(s) / 60);
+  const sec = Math.abs(s) % 60;
+  return `${s < 0 ? '+' : ''}${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function durationFor(context) {
+  if (context === 'amrap') return REST_AMRAP;
+  if (context === 'accessory') return REST_ACCESSORY;
+  return REST_MAIN;
+}
+
+function labelFor(context) {
+  if (context === 'amrap') return 'Rest — AMRAP set';
+  if (context === 'accessory') return 'Rest — Accessory';
+  return 'Rest — Main set';
+}
+
+function tick() {
+  restSecondsLeft -= 1;
+  timerClock.textContent = formatClock(restSecondsLeft);
+  if (restSecondsLeft <= 0 && !timerBar.classList.contains('warn')) {
+    timerBar.classList.add('warn');
+    if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch(e) {} }
+  }
+}
+
+function startRestTimer(context) {
+  timerContext = context;
+  clearInterval(restInterval);
+  restSecondsLeft = durationFor(context);
+  timerBar.classList.remove('warn');
+  timerBar.classList.add('active');
+  timerLabel.textContent = labelFor(context);
+  timerClock.textContent = formatClock(restSecondsLeft);
+  restInterval = setInterval(tick, 1000);
+}
+
+function ensureRunning() {
+  if (!restInterval) restInterval = setInterval(tick, 1000);
+}
+
+document.getElementById('timerMinus30').addEventListener('click', () => {
+  restSecondsLeft -= 30;
+  timerClock.textContent = formatClock(restSecondsLeft);
+  if (restSecondsLeft <= 0) timerBar.classList.add('warn');
+  ensureRunning();
+});
+document.getElementById('timerAdd15').addEventListener('click', () => {
+  restSecondsLeft += 15;
+  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
+  timerClock.textContent = formatClock(restSecondsLeft);
+  ensureRunning();
+});
+document.getElementById('timerAdd30').addEventListener('click', () => {
+  restSecondsLeft += 30;
+  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
+  timerClock.textContent = formatClock(restSecondsLeft);
+  ensureRunning();
+});
+document.getElementById('timerSkip').addEventListener('click', () => {
+  clearInterval(restInterval);
+  restInterval = null;
+  timerBar.classList.remove('active', 'warn');
+});
+
+/* ============ HISTORY ============ */
+
+document.getElementById('historyToggle').addEventListener('click', async () => {
+  const list = document.getElementById('historyList');
+  const toggle = document.getElementById('historyToggle');
+  if (list.style.display === 'none') {
+    list.style.display = 'block';
+    toggle.textContent = 'HIDE HISTORY ▴';
+    await renderHistory(list);
+  } else {
+    list.style.display = 'none';
+    toggle.textContent = 'VIEW HISTORY ▾';
+  }
+});
+
+async function renderHistory(container) {
+  container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">loading…</div>';
+  try {
+    const result = await window.storage.list('bbb:');
+    if (!result || !result.keys || result.keys.length === 0) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No entries yet.</div>';
+      return;
+    }
+    const entries = [];
+    for (const key of result.keys) {
+      const parts = key.split(':'); // bbb:dayKey:phaseN:weekN  OR  bbb:dayKey:phaseN (phase meta, skip)
+      if (parts.length < 4) continue;
+      try {
+        const r = await window.storage.get(key);
+        if (r && r.value) {
+          const data = JSON.parse(r.value);
+          const dayKey = parts[1];
+          const hasData = (data.bbb || []).some(s => s.weight || s.reps || s.done) ||
+                           (data.main || []).some(s => s.weight || s.reps || s.done) ||
+                           (data.accessories || []).some(a => a.sets && a.sets.some(s => s.actual || s.reps));
+          if (hasData) entries.push({ dayKey, phase: parts[2].replace('phase',''), week: parts[3].replace('week',''), data });
+        }
+      } catch (e) {}
+    }
+    if (entries.length === 0) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No logged data yet.</div>';
+      return;
+    }
+    entries.sort((a, b) => (a.phase - b.phase) || (a.week - b.week) || a.dayKey.localeCompare(b.dayKey));
+    container.innerHTML = "";
+    entries.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'history-entry';
+      const dayLabel = DAYS[entry.dayKey] ? DAYS[entry.dayKey].label : entry.dayKey;
+      const mainSummary = (entry.data.main || [])
+        .filter(s => s.weight || s.reps)
+        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
+      const bbbSummary = (entry.data.bbb || [])
+        .filter(s => s.weight || s.reps)
+        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
+      const accSummary = (entry.data.accessories || [])
+        .filter(a => a.name)
+        .map(a => `${a.name}: ` + a.sets.filter(s=>s.actual||s.reps).map(s => `${s.actual||'-'}×${s.reps||'-'}`).join(',')).join(' · ');
+      div.innerHTML = `
+        <div class="he-top"><span class="he-day">${dayLabel} — Phase ${entry.phase}, Week ${entry.week}</span></div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">MAIN</div>
+        <div style="color:var(--chalk);margin-bottom:6px;">${mainSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">BBB</div>
+        <div style="color:var(--chalk);margin-bottom:6px;">${bbbSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
+        <div style="color:var(--dim);font-size:11px;">${accSummary || 'no accessories logged'}</div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">Could not load history.</div>';
+  }
+}
+
+// flush any pending save if the page is backgrounded or closed —
+// this is the most reliable cross-browser signal for "user is leaving"
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && saveTimer) {
+    flushPendingSave();
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (saveTimer) flushPendingSave();
+});
+
+renderAll();
+</script>
+
+</body>
+</html>
