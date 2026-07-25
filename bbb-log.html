@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BBB Log">
+<meta name="theme-color" content="#faf8f4">
+<title>5/3/1 BBB Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --chalk: #1a1a16;        /* primary text — darker for stronger contrast on white */
+    --plate-red: #a8351f;
+    --plate-blue: #2a5694;
+    --plate-green: #3d7d40;
+    --plate-amber: #96680f;
+    --iron: #f5f2ea;         /* page background — slightly more saturated cream */
+    --iron-soft: #ffffff;    /* card background */
+    --iron-raised: #ebe6d9;  /* input/raised surface — more contrast from card */
+    --line: #b8b0a0;         /* darker borders, easier to see */
+    --dim: #4a463e;          /* darker secondary text — was too faint before */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--iron);
+    color: var(--chalk);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 90px 0;
+  }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 24px 16px 18px 16px; border-bottom: 3px solid var(--chalk); }
+  header .wrap { padding: 0 16px; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--plate-red);
+    text-transform: uppercase;
+  }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.02em; line-height: 1; margin-top: 4px; }
+  .sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); margin-top: 6px; }
+
+  .daybar { display: flex; gap: 8px; margin: 16px 0 0 0; }
+  .daybtn {
+    flex: 1; background: var(--iron-soft); color: var(--chalk); border: 2px solid var(--line);
+    padding: 11px 4px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.04em; cursor: pointer; text-transform: uppercase; border-radius: 5px;
+  }
+  .daybtn.active { background: var(--plate-red); border-color: var(--plate-red); color: #fff; font-weight: 700; }
+
+  main { padding-top: 18px; }
+
+  /* PHASE + WEEK CONTROLS */
+  .nav-card {
+    background: var(--iron-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .nav-row + .nav-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .nav-label-group { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .nav-value { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.02em; color: var(--chalk); }
+  .nav-value .week-type { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--plate-amber); letter-spacing: 0.04em; margin-left: 8px; }
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .step-btn {
+    width: 40px; height: 40px;
+    background: var(--iron-raised); border: 2px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
+    cursor: pointer; border-radius: 6px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-btn:active { background: var(--plate-red); border-color: var(--plate-red); color: #fff; }
+
+  .week-pills { display: flex; gap: 6px; margin-top: 10px; }
+  .week-pill {
+    flex: 1; text-align: center; padding: 9px 2px;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+    border: 2px solid var(--line); border-radius: 5px; color: var(--dim); cursor: pointer; background: var(--iron-raised);
+  }
+  .week-pill.active { background: var(--plate-amber); border-color: var(--plate-amber); color: #fff; font-weight: 700; }
+
+  .phase-advance-btn {
+    width: 100%; margin-top: 12px; padding: 12px; background: transparent;
+    border: 1.5px dashed var(--plate-blue); color: var(--plate-blue);
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    border-radius: 5px; cursor: pointer;
+  }
+  .phase-advance-btn:hover { background: rgba(42,86,148,0.08); }
+
+  /* TM BLOCK */
+  .tm-block { border: 1px solid var(--line); background: var(--iron-soft); border-radius: 6px; padding: 14px; margin-bottom: 14px; }
+  .tm-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.02em; margin-bottom: 10px; }
+  .tm-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .tm-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
+  .tm-input {
+    background: var(--iron-raised); border: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 600; padding: 8px 10px; width: 100px;
+    text-align: right; border-radius: 4px;
+  }
+  .tm-input:focus { outline: none; border-color: var(--plate-blue); }
+  .tm-result { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); display: flex; gap: 16px; }
+  .tm-stat-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .tm-stat-val { font-family: 'DM Mono', monospace; font-size: 21px; font-weight: 700; color: var(--chalk); margin-top: 2px; }
+
+  /* BLOCKS */
+  .block { border: 1px solid var(--line); background: var(--iron-soft); margin-bottom: 14px; border-radius: 6px; overflow: hidden; }
+  .block-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); gap: 8px; flex-wrap: wrap; }
+  .block-title { font-family: 'Bebas Neue', sans-serif; font-size: 23px; letter-spacing: 0.02em; }
+  .block-tag {
+    font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 5px 10px; color: #ffffff; border-radius: 4px; font-weight: 700; white-space: nowrap;
+  }
+  .tag-warmup { background: #5a564c; }
+  .tag-main { background: var(--plate-amber); }
+  .tag-bbb { background: var(--plate-blue); }
+  .tag-primary { background: var(--plate-red); }
+
+  .set-table { width: 100%; border-collapse: collapse; }
+  .set-table th {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--dim); text-align: left; padding: 9px 14px 7px 14px; font-weight: 600;
+  }
+  .set-table th.num { text-align: center; width: 32px; }
+  .set-table th.check { text-align: center; width: 40px; }
+  .set-table td { padding: 6px 14px; }
+  .set-table td.num { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--dim); text-align: center; white-space: nowrap; }
+  .set-table td.pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
+
+  .amrap-badge {
+    display: inline-block; background: var(--plate-amber); color: #fff; font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 6px; border-radius: 3px;
+    vertical-align: middle; margin-left: 3px;
+  }
+
+  .set-row { transition: background 0.2s ease; }
+  .set-row.done { background: rgba(61, 125, 64, 0.13); }
+  .set-row.done td.num { color: var(--plate-green); }
+  .set-row.amrap { background: rgba(150, 104, 15, 0.09); }
+
+  .cell-input {
+    width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--line);
+    color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; padding: 8px 2px;
+  }
+  .cell-input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .cell-input::placeholder { color: #9a9486; font-weight: 400; }
+  .set-row.done .cell-input { border-bottom-color: var(--plate-green); }
+
+  .check-cell { text-align: center; }
+  .check-box {
+    width: 26px; height: 26px; border: 2px solid var(--line); border-radius: 5px; background: transparent;
+    cursor: pointer; color: transparent; font-size: 15px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .check-box.checked { background: var(--plate-green); border-color: var(--plate-green); color: #fff; font-weight: 700; }
+
+  /* PLATE POPOVER */
+  .weight-cell-wrap { position: relative; width: 100%; }
+  .plate-trigger { cursor: pointer; }
+  .plate-popover {
+    position: fixed; z-index: 500;
+    background: var(--iron-soft); border: 1.5px solid var(--plate-blue); border-radius: 6px;
+    padding: 10px 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); width: 200px;
+    font-family: 'DM Mono', monospace;
+  }
+  .plate-popover-backdrop {
+    position: fixed; inset: 0; z-index: 499; background: transparent;
+  }
+  .plate-popover .pp-total { font-size: 13px; font-weight: 700; color: var(--chalk); margin-bottom: 6px; }
+  .plate-popover .pp-bar { font-size: 10px; color: var(--dim); margin-bottom: 6px; }
+  .plate-popover .pp-side-label { font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .plate-popover .pp-plates { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+  .plate-chip {
+    background: var(--plate-blue); color: #fff; font-size: 11px; font-weight: 700;
+    padding: 4px 7px; border-radius: 3px;
+  }
+  .plate-popover .pp-warn { font-size: 10px; color: var(--plate-amber); margin-top: 4px; }
+  .plate-popover .pp-close { font-size: 9px; color: var(--dim); text-align: right; margin-top: 6px; cursor: pointer; }
+
+  /* SETTINGS PANEL */
+  .settings-btn {
+    width: 100%; background: var(--iron-soft); border: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; padding: 13px; cursor: pointer; margin-top: 8px;
+    letter-spacing: 0.05em; border-radius: 6px;
+  }
+  .settings-panel {
+    border: 1px solid var(--line); background: var(--iron-soft); border-radius: 6px;
+    padding: 14px; margin-top: 8px;
+  }
+  .settings-section-label {
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--chalk); text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 8px; margin-top: 14px;
+  }
+  .settings-section-label:first-child { margin-top: 0; }
+  .bar-toggle { display: flex; gap: 8px; }
+  .bar-option {
+    flex: 1; text-align: center; padding: 11px; border: 2px solid var(--line); border-radius: 5px;
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--iron-raised); color: var(--chalk);
+  }
+  .bar-option.active { background: var(--plate-blue); border-color: var(--plate-blue); color: #fff; font-weight: 700; }
+  .plate-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .plate-toggle {
+    padding: 11px 15px; border: 2px solid var(--line); border-radius: 5px; background: var(--iron-raised);
+    color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .plate-toggle.active { background: var(--plate-amber); border-color: var(--plate-amber); color: #fff; }
+  .settings-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
+
+  .set-row td { padding-bottom: 8px; padding-top: 4px; }
+
+  .section-divider {
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--chalk); padding: 12px 14px 6px 14px; border-top: 1px solid var(--line);
+  }
+  .section-divider:first-child { border-top: none; }
+
+  /* ACCESSORIES */
+  .acc-card {
+    border-top: 1px solid var(--line);
+    padding: 10px 14px 12px 14px;
+  }
+  .acc-card:first-of-type { border-top: none; }
+  .acc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .acc-name-input {
+    background: transparent; border: none; border-bottom: 1px solid var(--line); color: var(--chalk);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 6px 2px; flex: 1; min-width: 0;
+  }
+  .acc-name-input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .acc-remove { background: none; border: none; color: var(--dim); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px 6px; }
+  .acc-remove:hover { color: var(--plate-red); }
+
+  .acc-suggest-line { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--plate-amber); margin-bottom: 6px; }
+
+  .acc-set-header, .acc-set-row {
+    display: grid; grid-template-columns: 26px 1fr 1fr 1fr 36px; gap: 6px; align-items: center; padding: 5px 0;
+  }
+  .acc-set-header span {
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; font-weight: 700;
+  }
+  .acc-set-row .num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--dim); text-align: center; }
+  .acc-set-row input {
+    width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 600; text-align: center; padding: 7px 0;
+  }
+  .acc-set-row input:focus { outline: none; border-bottom-color: var(--plate-blue); }
+  .acc-set-row.done { background: rgba(61, 125, 64, 0.13); }
+  .acc-set-row.done input { border-bottom-color: var(--plate-green); }
+  .acc-set-row .check-box { width: 24px; height: 24px; font-size: 14px; margin: 0 auto; }
+
+  .acc-add-set {
+    margin-top: 6px; background: transparent; border: 1px dashed var(--line); color: var(--dim);
+    font-family: 'DM Mono', monospace; font-size: 12px; padding: 7px 10px; cursor: pointer; border-radius: 4px;
+  }
+
+  .add-acc {
+    width: 100%; background: transparent; border: none; border-top: 1px dashed var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; padding: 13px 14px; cursor: pointer; text-align: left; letter-spacing: 0.03em;
+  }
+  .add-acc:hover { color: var(--plate-blue); }
+
+  .suggest-row { padding: 12px 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; }
+  .suggest-label { width: 100%; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+  .chip { background: var(--iron-raised); border: 1.5px solid var(--line); color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; padding: 8px 12px; cursor: pointer; border-radius: 5px; }
+  .chip:hover { border-color: var(--plate-blue); color: var(--plate-blue); }
+  .chip.primary-chip { border-color: var(--plate-red); color: var(--plate-red); background: rgba(168, 53, 31, 0.06); }
+
+  .save-state { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); text-align: center; padding: 16px 0 0 0; letter-spacing: 0.04em; }
+  .save-state.saved { color: var(--plate-green); }
+
+  .history-toggle {
+    width: 100%; background: var(--iron-soft); border: 1px solid var(--line); color: var(--chalk);
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; padding: 13px; cursor: pointer; margin-top: 8px;
+    letter-spacing: 0.05em; border-radius: 6px;
+  }
+  .history-toggle:hover { border-color: var(--chalk); }
+  .history-list { margin-top: 10px; }
+  .history-entry { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .history-entry .he-top { display: flex; justify-content: space-between; color: var(--dim); margin-bottom: 6px; }
+  .history-entry .he-day { color: var(--chalk); font-weight: 500; }
+
+  /* TIMER */
+  .timer-bar {
+    position: fixed; bottom: 14px; left: 14px; right: 14px; background: var(--plate-green); color: #ffffff;
+    padding: 16px 18px; display: none; align-items: center; justify-content: space-between;
+    font-family: 'DM Mono', monospace; z-index: 100; box-shadow: 0 6px 24px rgba(0,0,0,0.3); flex-wrap: wrap; gap: 10px;
+    border-radius: 12px;
+  }
+  .timer-bar.active { display: flex; }
+  .timer-bar.warn { background: var(--plate-red); }
+  .timer-left { display: flex; align-items: center; gap: 10px; }
+  .timer-label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.92; }
+  .timer-sub { font-size: 10px; opacity: 0.75; }
+  .timer-clock { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .timer-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .timer-btn {
+    background: rgba(255,255,255,0.18); border: 1.5px solid #ffffff; color: #ffffff;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; padding: 9px 11px; border-radius: 5px; cursor: pointer;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--iron); }
+  ::-webkit-scrollbar-thumb { background: var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">5/3/1 — Boring But Big</div>
+    <h1>BBB LOG</h1>
+    <div class="sub">Main lifts · warmups · BBB · accessories</div>
+    <div class="daybar" id="dayBar"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main>
+
+    <div class="nav-card">
+      <div class="nav-row">
+        <div class="nav-label-group">
+          <span class="nav-label">Phase (Cycle)</span>
+          <span class="nav-value" id="phaseValue">1</span>
+        </div>
+        <button class="phase-advance-btn" id="phaseAdvanceBtn" style="width:auto;margin-top:0;white-space:nowrap;">NEXT PHASE →</button>
+      </div>
+      <div class="nav-row">
+        <div class="nav-label-group">
+          <span class="nav-label">Week</span>
+          <span class="nav-value" id="weekValue">1<span class="week-type" id="weekTypeLabel"></span></span>
+        </div>
+      </div>
+      <div class="week-pills" id="weekPills"></div>
+      <div style="text-align:center;margin-top:10px;">
+        <button class="acc-add-set" id="phaseBackBtn" style="font-size:12px;">← review previous phase</button>
+      </div>
+    </div>
+
+    <div id="content"></div>
+
+    <div class="save-state" id="saveState">loading…</div>
+
+    <button class="history-toggle" id="historyToggle">VIEW HISTORY ▾</button>
+    <div class="history-list" id="historyList" style="display:none;"></div>
+
+    <button class="settings-btn" id="settingsToggle">PLATE SETTINGS ▾</button>
+    <div class="settings-panel" id="settingsPanel" style="display:none;">
+      <div class="settings-section-label">Bar Type</div>
+      <div class="bar-toggle" id="barToggle"></div>
+
+      <div class="settings-section-label">Plates Available (per side)</div>
+      <div class="plate-grid" id="plateGrid"></div>
+
+      <div class="settings-hint">Tap a plate to toggle it on/off. These are what's "in the room" — the calculator will only suggest combinations using plates you've marked available. Tap any weight number on a set to see the breakdown.</div>
+    </div>
+  </main>
+</div>
+
+<div class="timer-bar" id="timerBar">
+  <div class="timer-left">
+    <div>
+      <div class="timer-label" id="timerLabel">Rest</div>
+      <div class="timer-clock" id="timerClock">3:00</div>
+    </div>
+  </div>
+  <div class="timer-actions">
+    <button class="timer-btn" id="timerMinus30">−30s</button>
+    <button class="timer-btn" id="timerAdd15">+15s</button>
+    <button class="timer-btn" id="timerAdd30">+30s</button>
+    <button class="timer-btn" id="timerSkip">Skip</button>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+
+const DAYS = {
+  squat: {
+    label: "Squat", lift: "Squat",
+    primaries: ["Leg Curl", "Hanging Leg Raise"],
+    suggestions: ["Leg Extension", "Walking Lunge", "Calf Raise", "Back Extension"]
+  },
+  bench: {
+    label: "Bench", lift: "Bench Press",
+    primaries: ["DB Row", "Face Pull"],
+    suggestions: ["Tricep Pushdown", "DB Curl", "Lateral Raise", "Barbell Row"]
+  },
+  deadlift: {
+    label: "Deadlift", lift: "Deadlift",
+    primaries: ["Ab Wheel", "Leg Curl"],
+    suggestions: ["Back Extension / GHR", "Push-up", "Calf Raise", "DB Bench"]
+  },
+  ohp: {
+    label: "OHP", lift: "Overhead Press",
+    primaries: ["Lat Pulldown", "Face Pull"],
+    suggestions: ["Tricep Pushdown", "DB Curl", "Lateral Raise"]
+  }
+};
+const DAY_KEYS = ["squat", "bench", "deadlift", "ohp"];
+
+// Standard sets x reps for each accessory movement — used to auto-fill
+// new accessory cards so the person doesn't have to set this up manually.
+// Most hypertrophy accessories land in 3x10-12. Smaller/fast-recovering
+// muscle groups (rear delts, calves, abs, biceps/triceps) get bumped to
+// 4 sets since they tolerate more volume without adding much fatigue cost,
+// and they're common weak points worth the extra work.
+const ACCESSORY_DEFAULTS = {
+  "leg curl":            { sets: 3, reps: "10-12" },
+  "hanging leg raise":   { sets: 4, reps: "12-15" },
+  "leg extension":       { sets: 3, reps: "10-12" },
+  "walking lunge":       { sets: 3, reps: "10-12" },
+  "calf raise":          { sets: 4, reps: "15" },
+  "back extension":      { sets: 3, reps: "12-15" },
+  "back extension / ghr":{ sets: 3, reps: "12-15" },
+  "db row":              { sets: 3, reps: "10-12" },
+  "barbell row":         { sets: 3, reps: "8-10" },
+  "face pull":           { sets: 4, reps: "15" },
+  "tricep pushdown":     { sets: 4, reps: "12-15" },
+  "db curl":             { sets: 4, reps: "10-12" },
+  "lateral raise":       { sets: 4, reps: "15" },
+  "ab wheel":            { sets: 4, reps: "10-12" },
+  "push-up":             { sets: 3, reps: "12-15" },
+  "db bench":            { sets: 3, reps: "10-12" },
+  "lat pulldown":        { sets: 4, reps: "8-12" }
+};
+function getAccessoryDefault(name) {
+  return ACCESSORY_DEFAULTS[(name || '').toLowerCase().trim()] || { sets: 3, reps: "10-12" };
+}
+
+/* ============ PLATE CALCULATOR ============ */
+
+const BAR_WEIGHTS = { mens: 45, womens: 35 };
+const DEFAULT_PLATE_INVENTORY = [45, 35, 25, 10, 5, 2.5]; // per side, what's "on hand"
+const ALL_POSSIBLE_PLATES = [55, 45, 35, 25, 10, 5, 2.5, 1];
+
+let plateSettings = { barType: 'mens', plates: [...DEFAULT_PLATE_INVENTORY] };
+
+async function loadPlateSettings() {
+  try {
+    const r = await window.storage.get('settings:plates');
+    if (r && r.value) {
+      const parsed = JSON.parse(r.value);
+      if (parsed.barType) plateSettings.barType = parsed.barType;
+      if (Array.isArray(parsed.plates) && parsed.plates.length) plateSettings.plates = parsed.plates;
+    }
+  } catch (e) { /* use defaults */ }
+}
+
+async function savePlateSettings() {
+  try { await window.storage.set('settings:plates', JSON.stringify(plateSettings)); } catch (e) {}
+}
+
+// Returns { perSide: [platesOneSide], barWeight, total, exact } or null if weight < bar
+function calcPlateBreakdown(targetWeight) {
+  const bar = BAR_WEIGHTS[plateSettings.barType] || 45;
+  const w = parseFloat(targetWeight);
+  if (!w || isNaN(w)) return null;
+  let remaining = (w - bar) / 2; // weight needed per side
+  if (remaining < 0) return { perSide: [], barWeight: bar, total: bar, exact: w === bar, tooLight: true };
+
+  const available = [...plateSettings.plates].sort((a, b) => b - a); // largest first
+  const perSide = [];
+  let eps = 0.001;
+  for (const plate of available) {
+    while (remaining >= plate - eps) {
+      perSide.push(plate);
+      remaining -= plate;
+    }
+  }
+  const achievedPerSide = perSide.reduce((a, b) => a + b, 0);
+  const total = bar + achievedPerSide * 2;
+  return { perSide, barWeight: bar, total, exact: Math.abs(total - w) < eps, remainder: remaining };
+}
+
+function formatPlateNum(n) {
+  return n % 1 === 0 ? n.toString() : n.toString();
+}
+
+/* ============ STORAGE (localStorage-backed, GitHub Pages version) ============
+   Mimics the same get/set/list interface the original Claude-artifact
+   storage used, so the rest of the app's logic didn't need to change.
+   Everything is namespaced under a "bbblog:" prefix in localStorage so it
+   won't collide with anything else on the page/domain. */
+window.storage = {
+  async get(key) {
+    const raw = localStorage.getItem('bbblog:' + key);
+    if (raw === null) return null;
+    return { key, value: raw, shared: false };
+  },
+  async set(key, value) {
+    localStorage.setItem('bbblog:' + key, value);
+    return { key, value, shared: false };
+  },
+  async delete(key) {
+    const existed = localStorage.getItem('bbblog:' + key) !== null;
+    localStorage.removeItem('bbblog:' + key);
+    return { key, deleted: existed, shared: false };
+  },
+  async list(prefix) {
+    const fullPrefix = 'bbblog:' + (prefix || '');
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(fullPrefix)) keys.push(k.slice('bbblog:'.length));
+    }
+    return { keys, prefix, shared: false };
+  }
+};
+
+// Wendler week types within a phase (4-week cycle)
+const WEEK_TYPES = {
+  1: { name: "5/5/5+", mainPct: [0.65, 0.75, 0.85], mainReps: [5, 5, 5], amrapLast: true, bbbPct: 0.50 },
+  2: { name: "3/3/3+", mainPct: [0.70, 0.80, 0.90], mainReps: [3, 3, 3], amrapLast: true, bbbPct: 0.55 },
+  3: { name: "5/3/1+", mainPct: [0.75, 0.85, 0.95], mainReps: [5, 3, 1], amrapLast: true, bbbPct: 0.60 },
+  4: { name: "Deload", mainPct: [0.40, 0.50, 0.60], mainReps: [5, 5, 5], amrapLast: false, bbbPct: 0.40 }
+};
+// Standard warmup: 3 sets ramping up to the first working set.
+// Deload warmup: just 1 light set — deload's own working sets (40/50/60%)
+// are already light, so a full warmup ramp would be redundant volume on
+// a week that's specifically meant to reduce total stress.
+const WARMUP_PCT = [0.40, 0.50, 0.60];
+const WARMUP_REPS = [5, 5, 5];
+const DELOAD_WARMUP_PCT = [0.30];
+const DELOAD_WARMUP_REPS = [5];
+
+function getWarmupScheme(week) {
+  return week === 4
+    ? { pct: DELOAD_WARMUP_PCT, reps: DELOAD_WARMUP_REPS }
+    : { pct: WARMUP_PCT, reps: WARMUP_REPS };
+}
+
+const REST_WARMUP = 75;        // 60-90 sec — light sets, just need blood flowing
+const REST_LAST_WARMUP = 120;  // 2 min — extra gear-up time before real working weight
+const REST_MAIN = 150;         // 2.5 min — standard for working sets in the 65-90% range
+const REST_PRE_AMRAP = 300;    // 5 min — full recovery before your hardest set (set 2 of working sets)
+const REST_AMRAP = 300;        // 5 min — full recovery after the AMRAP set too
+const REST_ACCESSORY = 75;     // 60-90 sec — standard hypertrophy rest
+
+let currentDay = "squat";
+let currentPhase = 1;
+let currentWeek = 1; // 1-4 within phase
+let saveTimer = null;
+let currentData = null;
+let restInterval = null;
+let restSecondsLeft = 0;
+let timerContext = "main"; // main | amrap | accessory
+
+/* ============ HELPERS ============ */
+
+function roundToFive(n) { return Math.round(n / 5) * 5; }
+
+function calcTM(oneRM) {
+  const v = parseFloat(oneRM);
+  if (!v || v <= 0) return null;
+  return Math.round(v * 0.9 * 2) / 2;
+}
+
+function phaseKey(p) { return `phase${p}`; }
+function dayPhaseKey(dayKey, phase) { return `bbb:${dayKey}:${phaseKey(phase)}`; }
+function dayWeekKey(dayKey, phase, week) { return `bbb:${dayKey}:${phaseKey(phase)}:week${week}`; }
+
+function emptyPhaseData() {
+  // stores 1RM snapshot used to derive TM for this phase
+  return { oneRM: "" };
+}
+
+function emptyWeekData(dayKey, week) {
+  const day = DAYS[dayKey];
+  const scheme = getWarmupScheme(week);
+  return {
+    warmup: scheme.pct.map(() => ({ weight: "", reps: "", done: false })),
+    main: [0,1,2].map(() => ({ weight: "", reps: "", done: false })),
+    bbb: Array.from({length: 5}, () => ({ weight: "", reps: "", done: false })),
+    accessories: day.primaries.map(name => {
+      const def = getAccessoryDefault(name);
+      return {
+        name, role: 'primary',
+        sets: Array.from({ length: def.sets }, () => ({ suggested: "", actual: "", reps: def.reps, done: false }))
+      };
+    })
+  };
+}
+
+async function loadPhaseData(dayKey, phase) {
+  try {
+    const r = await window.storage.get(dayPhaseKey(dayKey, phase));
+    if (r && r.value) return JSON.parse(r.value);
+  } catch (e) {}
+  return emptyPhaseData();
+}
+
+async function savePhaseData(dayKey, phase, data) {
+  try { await window.storage.set(dayPhaseKey(dayKey, phase), JSON.stringify(data)); } catch (e) {}
+}
+
+// find most recent 1RM across phases (look back) so new phases aren't blank
+async function findLastOneRM(dayKey, beforePhase) {
+  for (let p = beforePhase; p >= 1 && p >= beforePhase - 12; p--) {
+    try {
+      const r = await window.storage.get(dayPhaseKey(dayKey, p));
+      if (r && r.value) {
+        const parsed = JSON.parse(r.value);
+        if (parsed.oneRM) return parsed.oneRM;
+      }
+    } catch (e) {}
+  }
+  return "";
+}
+
+async function loadWeekData(dayKey, phase, week) {
+  const key = dayWeekKey(dayKey, phase, week);
+  const scheme = getWarmupScheme(week);
+  try {
+    const r = await window.storage.get(key);
+    if (r && r.value) {
+      const parsed = JSON.parse(r.value);
+      if (!parsed.warmup || parsed.warmup.length !== scheme.pct.length) {
+        parsed.warmup = scheme.pct.map(() => ({ weight: "", reps: "", done: false }));
+      }
+      if (!parsed.main) parsed.main = [0,1,2].map(() => ({ weight: "", reps: "", done: false }));
+      parsed.bbb.forEach(s => { if (s.done === undefined) s.done = false; });
+      parsed.accessories.forEach(a => {
+        if (!a.sets) a.sets = [{ suggested: "", actual: a.actual || "", reps: a.reps || "", done: false }];
+      });
+      return parsed;
+    }
+  } catch (e) { /* key not found yet — fine, use empty defaults */ }
+  return emptyWeekData(dayKey, week);
+}
+
+async function saveWeekData(dayKey, phase, week, data) {
+  const key = dayWeekKey(dayKey, phase, week);
+  const stateEl = document.getElementById('saveState');
+  stateEl.textContent = 'saving…';
+  stateEl.classList.remove('saved');
+  try {
+    const payload = JSON.stringify(data);
+    await window.storage.set(key, payload);
+    stateEl.textContent = 'saved ✓';
+    stateEl.classList.add('saved');
+  } catch (e) {
+    stateEl.textContent = 'save failed';
+  }
+}
+
+function queueSave() {
+  // capture context NOW so a tab/week switch before the debounce fires
+  // doesn't write this edit under the wrong key
+  const dayKey = currentDay, phase = currentPhase, week = currentWeek, data = currentData;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveWeekData(dayKey, phase, week, data), 500);
+}
+
+// flush any pending debounced save immediately (call before navigating away)
+// returns a Promise so callers can await it and guarantee the write lands
+// before any subsequent load for the same key
+function flushPendingSave() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  // always save current state synchronously relative to navigation,
+  // using current globals since this is called before they change
+  return saveWeekData(currentDay, currentPhase, currentWeek, currentData);
+}
+
+// find last logged ACTUAL weight for an accessory name, searching backward through weeks/phases
+async function findLastAccessoryWeight(dayKey, accName) {
+  let p = currentPhase, w = currentWeek;
+  for (let i = 0; i < 16; i++) {
+    w -= 1;
+    if (w < 1) { w = 4; p -= 1; }
+    if (p < 1) break;
+    try {
+      const r = await window.storage.get(dayWeekKey(dayKey, p, w));
+      if (r && r.value) {
+        const parsed = JSON.parse(r.value);
+        const match = (parsed.accessories || []).find(a => a.name.toLowerCase() === accName.toLowerCase());
+        if (match && match.sets) {
+          const lastSet = [...match.sets].reverse().find(s => s.actual);
+          if (lastSet) return lastSet.actual;
+        }
+      }
+    } catch (e) {}
+  }
+  return "";
+}
+
+/* ============ RENDER: TOP NAV ============ */
+
+function buildDayBar() {
+  const bar = document.getElementById('dayBar');
+  bar.innerHTML = "";
+  DAY_KEYS.forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'daybtn' + (key === currentDay ? ' active' : '');
+    btn.textContent = DAYS[key].label;
+    btn.onclick = async () => { await flushPendingSave(); currentDay = key; await renderAll(); };
+    bar.appendChild(btn);
+  });
+}
+
+function buildWeekPills() {
+  const pillWrap = document.getElementById('weekPills');
+  pillWrap.innerHTML = "";
+  for (let w = 1; w <= 4; w++) {
+    const pill = document.createElement('button');
+    pill.className = 'week-pill' + (w === currentWeek ? ' active' : '');
+    pill.textContent = WEEK_TYPES[w].name;
+    pill.onclick = async () => { await flushPendingSave(); currentWeek = w; await renderAll(); };
+    pillWrap.appendChild(pill);
+  }
+}
+
+document.getElementById('phaseBackBtn').addEventListener('click', async () => {
+  if (currentPhase > 1) {
+    await flushPendingSave();
+    currentPhase -= 1;
+    currentWeek = 1;
+    await renderAll();
+  }
+});
+
+document.getElementById('phaseAdvanceBtn').addEventListener('click', async () => {
+  await flushPendingSave();
+  const day = DAYS[currentDay];
+  const lift = day.lift;
+  const isLower = (currentDay === 'squat' || currentDay === 'deadlift');
+  const defaultIncrement = isLower ? 10 : 5;
+  const proceed = confirm(`Start Phase ${currentPhase + 1} for ${lift}?\n\nThis typically adds +${defaultIncrement} lbs to your 1RM (lower body +10, upper body +5). Click OK to auto-increase, or Cancel to set it manually after advancing.`);
+  const phaseData = await loadPhaseData(currentDay, currentPhase);
+  const newPhase = currentPhase + 1;
+  let newOneRM = phaseData.oneRM;
+  if (proceed && phaseData.oneRM) {
+    newOneRM = (parseFloat(phaseData.oneRM) + defaultIncrement).toString();
+  }
+  await savePhaseData(currentDay, newPhase, { oneRM: newOneRM });
+  currentPhase = newPhase;
+  currentWeek = 1;
+  await renderAll();
+});
+
+/* ============ RENDER: MAIN ============ */
+
+async function renderAll() {
+  buildDayBar();
+  buildWeekPills();
+  document.getElementById('phaseValue').textContent = currentPhase;
+  document.getElementById('weekValue').firstChild.textContent = currentWeek + " ";
+  document.getElementById('weekTypeLabel').textContent = WEEK_TYPES[currentWeek].name;
+
+  const day = DAYS[currentDay];
+  const phaseData = await loadPhaseData(currentDay, currentPhase);
+  if (!phaseData.oneRM) {
+    const last = await findLastOneRM(currentDay, currentPhase);
+    if (last) phaseData.oneRM = last;
+  }
+  currentData = await loadWeekData(currentDay, currentPhase, currentWeek);
+
+  const content = document.getElementById('content');
+  content.innerHTML = "";
+
+  /* --- TM BLOCK --- */
+  const tmBlock = document.createElement('div');
+  tmBlock.className = 'tm-block';
+  tmBlock.innerHTML = `
+    <div class="tm-title">${day.lift} — 1RM &amp; Training Max</div>
+    <div class="tm-row">
+      <span class="tm-label">1 Rep Max (lbs) — Phase ${currentPhase}</span>
+      <input class="tm-input" type="number" inputmode="decimal" placeholder="0" id="oneRMInput" value="${phaseData.oneRM}">
+    </div>
+    <div class="tm-result" id="tmResult"></div>
+  `;
+  content.appendChild(tmBlock);
+  const oneRMInput = tmBlock.querySelector('#oneRMInput');
+  const tmResult = tmBlock.querySelector('#tmResult');
+
+  let tm = null;
+  function updateTM() {
+    tm = calcTM(oneRMInput.value);
+    if (!tm) {
+      tmResult.innerHTML = `<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);">Enter your 1RM to calculate everything below.</span>`;
+    } else {
+      tmResult.innerHTML = `
+        <div><div class="tm-stat-label">Training Max</div><div class="tm-stat-val">${tm}</div></div>
+        <div><div class="tm-stat-label">Week Type</div><div class="tm-stat-val" style="color:var(--plate-amber);">${WEEK_TYPES[currentWeek].name}</div></div>
+      `;
+    }
+  }
+  updateTM();
+  let oneRMSaveTimer = null;
+  oneRMInput.addEventListener('input', () => {
+    phaseData.oneRM = oneRMInput.value;
+    updateTM();
+    refreshMainLiftTargets();
+    const dayKey = currentDay, phase = currentPhase, snapshot = { ...phaseData };
+    clearTimeout(oneRMSaveTimer);
+    oneRMSaveTimer = setTimeout(() => savePhaseData(dayKey, phase, snapshot), 500);
+  });
+
+  let refreshMainLiftTargets = () => {}; // reassigned once the block below builds
+
+  renderMainLifts();
+
+  function renderMainLifts() {
+  const wt = WEEK_TYPES[currentWeek];
+  const warmupScheme = getWarmupScheme(currentWeek);
+  const mainBlock = document.createElement('div');
+  mainBlock.className = 'block';
+  mainBlock.innerHTML = `
+    <div class="block-head">
+      <span class="block-title">${day.lift}</span>
+      <span class="block-tag tag-main">${wt.name}</span>
+    </div>
+    <div class="section-divider">Warmup${currentWeek === 4 ? ' (light — deload)' : ''}</div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="warmupBody"></tbody></table>
+    <div class="section-divider">Working Sets</div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="mainBody"></tbody></table>
+  `;
+  content.appendChild(mainBlock);
+  renderWarmupAndMainInto(mainBlock);
+  refreshMainLiftTargets = () => renderWarmupAndMainInto(mainBlock);
+
+  function renderWarmupAndMainInto(blockEl) {
+    const safeTm = tm || 0;
+    const warmupBody = blockEl.querySelector('#warmupBody');
+    warmupBody.innerHTML = "";
+    currentData.warmup.forEach((set, i) => {
+      const target = roundToFive(safeTm * warmupScheme.pct[i]);
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}</td>
+        <td class="pct">${Math.round(warmupScheme.pct[i]*100)}%</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="warmup" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="${warmupScheme.reps[i]}" value="${set.reps}" data-group="warmup" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="warmup" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
+      `;
+      warmupBody.appendChild(tr);
+    });
+
+    const mainBody = blockEl.querySelector('#mainBody');
+    mainBody.innerHTML = "";
+    currentData.main.forEach((set, i) => {
+      const target = roundToFive(safeTm * wt.mainPct[i]);
+      const isLast = i === 2;
+      const isAmrap = isLast && wt.amrapLast;
+      const repsLabel = `${wt.mainReps[i]}${isAmrap ? '+' : ''}`;
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '') + (isAmrap ? ' amrap' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}${isAmrap ? ' <span class="amrap-badge">AMRAP</span>' : ''}</td>
+        <td class="pct">${Math.round(wt.mainPct[i]*100)}%</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="main" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="text" inputmode="numeric" placeholder="${repsLabel}" value="${set.reps}" data-group="main" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="main" data-idx="${i}" data-amrap="${isAmrap}">${set.done ? '✓' : ''}</button></td>
+      `;
+      mainBody.appendChild(tr);
+    });
+
+    blockEl.querySelectorAll('input[data-group]').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const group = e.target.dataset.group;
+        const idx = parseInt(e.target.dataset.idx);
+        const field = e.target.dataset.field;
+        currentData[group][idx][field] = e.target.value;
+        queueSave();
+      });
+    });
+    blockEl.querySelectorAll('input[data-group][data-field="weight"]').forEach(inp => {
+      attachPlateTap(inp, () => {
+        const group = inp.dataset.group;
+        const idx = parseInt(inp.dataset.idx);
+        return inp.value || inp.placeholder;
+      });
+    });
+    blockEl.querySelectorAll('.check-box[data-group]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const group = e.currentTarget.dataset.group;
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        const isAmrap = e.currentTarget.dataset.amrap === 'true';
+        const set = currentData[group][idx];
+        const nowDone = !set.done;
+        set.done = nowDone;
+        if (nowDone) {
+          if (!set.weight) {
+            const target = group === 'warmup' ? roundToFive(safeTm * warmupScheme.pct[idx]) : roundToFive(safeTm * wt.mainPct[idx]);
+            set.weight = target;
+          }
+          if (!set.reps) set.reps = group === 'warmup' ? warmupScheme.reps[idx] : wt.mainReps[idx];
+        }
+        renderWarmupAndMainInto(blockEl);
+        queueSave();
+        if (nowDone) {
+          if (group === 'warmup') {
+            const isLastWarmup = idx === currentData.warmup.length - 1;
+            startRestTimer(isLastWarmup ? 'last-warmup' : 'warmup');
+          } else if (group === 'main') {
+            if (isAmrap) {
+              startRestTimer('amrap'); // resting AFTER the AMRAP set
+            } else if (idx === 1 && wt.amrapLast) {
+              startRestTimer('pre-amrap'); // resting before the AMRAP set (set 2 done, set 3 is AMRAP)
+            } else {
+              startRestTimer('main');
+            }
+          }
+        }
+      });
+    });
+  }
+
+  /* --- BBB BLOCK --- */
+  const bbbBlock = document.createElement('div');
+  bbbBlock.className = 'block';
+  bbbBlock.innerHTML = `
+    <div class="block-head">
+      <span class="block-title">${day.lift} — 5×10</span>
+      <span class="block-tag tag-bbb">BBB · ${Math.round(wt.bbbPct*100)}%</span>
+    </div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="bbbBody"></tbody></table>
+  `;
+  content.appendChild(bbbBlock);
+  const bbbBody = bbbBlock.querySelector('#bbbBody');
+  function renderBbb() {
+    const bbbTarget = roundToFive((tm || 0) * wt.bbbPct);
+    bbbBody.innerHTML = "";
+    currentData.bbb.forEach((set, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${i+1}</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? bbbTarget : '—'}" value="${set.weight}" data-idx="${i}" data-field="weight"></td>
+        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="10" value="${set.reps}" data-idx="${i}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
+      `;
+      bbbBody.appendChild(tr);
+    });
+    bbbBody.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        currentData.bbb[idx][e.target.dataset.field] = e.target.value;
+        queueSave();
+      });
+    });
+    bbbBody.querySelectorAll('input[data-field="weight"]').forEach(inp => {
+      attachPlateTap(inp, () => inp.value || inp.placeholder);
+    });
+    bbbBody.querySelectorAll('.check-box').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        const set = currentData.bbb[idx];
+        set.done = !set.done;
+        if (set.done) {
+          if (!set.weight) set.weight = bbbTarget;
+          if (!set.reps) set.reps = "10";
+        }
+        renderBbb();
+        queueSave();
+        if (set.done) startRestTimer('main');
+      });
+    });
+  }
+  renderBbb();
+  refreshMainLiftTargets = () => { renderWarmupAndMainInto(mainBlock); renderBbb(); };
+  } // end renderMainLifts
+
+  /* --- ACCESSORY BLOCK --- */
+  const accBlock = document.createElement('div');
+  accBlock.className = 'block';
+  accBlock.innerHTML = `
+    <div class="block-head"><span class="block-title">Accessories</span></div>
+    <div id="accCardsWrap"></div>
+    <button class="add-acc" id="addAccBtn">+ ADD MOVEMENT</button>
+    <div class="suggest-row" id="suggestRow"><div class="suggest-label">Suggested for ${day.lift} day</div></div>
+  `;
+  content.appendChild(accBlock);
+  const accCardsWrap = accBlock.querySelector('#accCardsWrap');
+
+  async function renderAccCards() {
+    accCardsWrap.innerHTML = "";
+    for (let i = 0; i < currentData.accessories.length; i++) {
+      const acc = currentData.accessories[i];
+      const card = document.createElement('div');
+      card.className = 'acc-card';
+      const tagHtml = acc.role === 'primary' ? '<span class="block-tag tag-primary" style="font-size:10px;padding:4px 8px;">PRIMARY</span>' : '';
+
+      let suggestedWeight = acc.sets[0] && acc.sets[0].suggested;
+      if (!suggestedWeight && acc.name) {
+        suggestedWeight = await findLastAccessoryWeight(currentDay, acc.name);
+        if (suggestedWeight) acc.sets[0].suggested = suggestedWeight;
+      }
+
+      card.innerHTML = `
+        <div class="acc-card-top">
+          <input class="acc-name-input" type="text" placeholder="Movement name" value="${escapeHtml(acc.name)}" data-acc="${i}">
+          ${tagHtml}
+          <button class="acc-remove" data-acc="${i}" title="Remove">×</button>
+        </div>
+        <div class="acc-suggest-line">${suggestedWeight ? `Last time: ${suggestedWeight} lbs` : 'No previous weight logged yet'}</div>
+        <div class="acc-set-header"><span>#</span><span>Target</span><span>Actual</span><span>Reps</span><span>✓</span></div>
+        <div id="accSets${i}"></div>
+        <button class="acc-add-set" data-acc="${i}">+ ADD SET</button>
+      `;
+      accCardsWrap.appendChild(card);
+
+      const setsWrap = card.querySelector(`#accSets${i}`);
+      function renderAccSets() {
+        setsWrap.innerHTML = "";
+        acc.sets.forEach((s, si) => {
+          const row = document.createElement('div');
+          row.className = 'acc-set-row' + (s.done ? ' done' : '');
+          row.innerHTML = `
+            <span class="num">${si+1}</span>
+            <input type="text" placeholder="${suggestedWeight || '—'}" value="${suggestedWeight || ''}" disabled style="opacity:0.5;">
+            <input type="number" inputmode="decimal" placeholder="lbs" value="${s.actual}" data-acc="${i}" data-set="${si}" data-field="actual">
+            <input type="text" inputmode="numeric" placeholder="reps" value="${s.reps}" data-acc="${i}" data-set="${si}" data-field="reps">
+            <button class="check-box ${s.done ? 'checked' : ''}" data-acc="${i}" data-set="${si}" style="width:22px;height:22px;font-size:13px;">${s.done ? '✓' : ''}</button>
+          `;
+          setsWrap.appendChild(row);
+        });
+        setsWrap.querySelectorAll('input[data-field]').forEach(inp => {
+          inp.addEventListener('input', (e) => {
+            const si = parseInt(e.target.dataset.set);
+            acc.sets[si][e.target.dataset.field] = e.target.value;
+            queueSave();
+          });
+        });
+        setsWrap.querySelectorAll('input[data-field="actual"]').forEach(inp => {
+          attachPlateTap(inp, () => inp.value || suggestedWeight || inp.placeholder);
+        });
+        setsWrap.querySelectorAll('.check-box').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const si = parseInt(e.currentTarget.dataset.set);
+            const s = acc.sets[si];
+            s.done = !s.done;
+            if (s.done) {
+              if (!s.actual && suggestedWeight) s.actual = suggestedWeight;
+            }
+            renderAccSets();
+            queueSave();
+            if (s.done) startRestTimer('accessory');
+          });
+        });
+      }
+      renderAccSets();
+
+      card.querySelector('.acc-add-set').addEventListener('click', () => {
+        acc.sets.push({ suggested: suggestedWeight || "", actual: "", reps: "", done: false });
+        renderAccSets();
+        queueSave();
+      });
+      card.querySelector('.acc-name-input').addEventListener('input', (e) => {
+        acc.name = e.target.value;
+        queueSave();
+      });
+      card.querySelector('.acc-remove').addEventListener('click', () => {
+        currentData.accessories.splice(i, 1);
+        renderAccCards();
+        queueSave();
+      });
+    }
+  }
+  await renderAccCards();
+
+  accBlock.querySelector('#addAccBtn').onclick = async () => {
+    currentData.accessories.push({ name: "", role: "secondary", sets: [{ suggested: "", actual: "", reps: "", done: false }] });
+    await renderAccCards();
+    queueSave();
+  };
+
+  function buildDefaultSets(name) {
+    const def = getAccessoryDefault(name);
+    return Array.from({ length: def.sets }, () => ({ suggested: "", actual: "", reps: def.reps, done: false }));
+  }
+
+  const suggestRow = accBlock.querySelector('#suggestRow');
+  const existingNames = currentData.accessories.map(a => a.name.toLowerCase());
+  day.primaries.forEach(name => {
+    if (!existingNames.includes(name.toLowerCase())) {
+      const chip = document.createElement('button');
+      chip.className = 'chip primary-chip';
+      chip.textContent = '+ ' + name;
+      chip.onclick = async () => {
+        currentData.accessories.push({ name, role: 'primary', sets: buildDefaultSets(name) });
+        await renderAccCards();
+        queueSave();
+        chip.remove();
+      };
+      suggestRow.appendChild(chip);
+    }
+  });
+  day.suggestions.forEach(name => {
+    if (!existingNames.includes(name.toLowerCase())) {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = '+ ' + name;
+      chip.onclick = async () => {
+        currentData.accessories.push({ name, role: 'secondary', sets: buildDefaultSets(name) });
+        await renderAccCards();
+        queueSave();
+        chip.remove();
+      };
+      suggestRow.appendChild(chip);
+    }
+  });
+
+  document.getElementById('saveState').textContent = '';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+/* ============ TIMER ============ */
+
+const timerBar = document.getElementById('timerBar');
+const timerClock = document.getElementById('timerClock');
+const timerLabel = document.getElementById('timerLabel');
+
+function formatClock(s) {
+  const m = Math.floor(Math.abs(s) / 60);
+  const sec = Math.abs(s) % 60;
+  return `${s < 0 ? '+' : ''}${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function durationFor(context) {
+  if (context === 'amrap') return REST_AMRAP;
+  if (context === 'pre-amrap') return REST_PRE_AMRAP;
+  if (context === 'last-warmup') return REST_LAST_WARMUP;
+  if (context === 'warmup') return REST_WARMUP;
+  if (context === 'accessory') return REST_ACCESSORY;
+  return REST_MAIN;
+}
+
+function labelFor(context) {
+  if (context === 'amrap') return 'Rest — after AMRAP set';
+  if (context === 'pre-amrap') return 'Rest — before AMRAP set';
+  if (context === 'last-warmup') return 'Rest — gearing up for working weight';
+  if (context === 'warmup') return 'Rest — warmup';
+  if (context === 'accessory') return 'Rest — accessory';
+  return 'Rest — working set';
+}
+
+function tick() {
+  restSecondsLeft -= 1;
+  timerClock.textContent = formatClock(restSecondsLeft);
+  if (restSecondsLeft <= 0 && !timerBar.classList.contains('warn')) {
+    timerBar.classList.add('warn');
+    if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch(e) {} }
+  }
+}
+
+function startRestTimer(context) {
+  timerContext = context;
+  clearInterval(restInterval);
+  restSecondsLeft = durationFor(context);
+  timerBar.classList.remove('warn');
+  timerBar.classList.add('active');
+  timerLabel.textContent = labelFor(context);
+  timerClock.textContent = formatClock(restSecondsLeft);
+  restInterval = setInterval(tick, 1000);
+}
+
+function ensureRunning() {
+  if (!restInterval) restInterval = setInterval(tick, 1000);
+}
+
+document.getElementById('timerMinus30').addEventListener('click', () => {
+  restSecondsLeft -= 30;
+  timerClock.textContent = formatClock(restSecondsLeft);
+  if (restSecondsLeft <= 0) timerBar.classList.add('warn');
+  ensureRunning();
+});
+document.getElementById('timerAdd15').addEventListener('click', () => {
+  restSecondsLeft += 15;
+  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
+  timerClock.textContent = formatClock(restSecondsLeft);
+  ensureRunning();
+});
+document.getElementById('timerAdd30').addEventListener('click', () => {
+  restSecondsLeft += 30;
+  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
+  timerClock.textContent = formatClock(restSecondsLeft);
+  ensureRunning();
+});
+document.getElementById('timerSkip').addEventListener('click', () => {
+  clearInterval(restInterval);
+  restInterval = null;
+  timerBar.classList.remove('active', 'warn');
+});
+
+/* ============ HISTORY ============ */
+
+document.getElementById('historyToggle').addEventListener('click', async () => {
+  const list = document.getElementById('historyList');
+  const toggle = document.getElementById('historyToggle');
+  if (list.style.display === 'none') {
+    list.style.display = 'block';
+    toggle.textContent = 'HIDE HISTORY ▴';
+    await renderHistory(list);
+  } else {
+    list.style.display = 'none';
+    toggle.textContent = 'VIEW HISTORY ▾';
+  }
+});
+
+/* ============ SETTINGS PANEL ============ */
+
+function renderBarToggle() {
+  const wrap = document.getElementById('barToggle');
+  wrap.innerHTML = `
+    <button class="bar-option ${plateSettings.barType === 'mens' ? 'active' : ''}" data-bar="mens">Men's — 45 lb</button>
+    <button class="bar-option ${plateSettings.barType === 'womens' ? 'active' : ''}" data-bar="womens">Women's — 35 lb</button>
+  `;
+  wrap.querySelectorAll('.bar-option').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      plateSettings.barType = btn.dataset.bar;
+      await savePlateSettings();
+      renderBarToggle();
+      closeAnyOpenPlatePopover();
+    });
+  });
+}
+
+function renderPlateGrid() {
+  const wrap = document.getElementById('plateGrid');
+  wrap.innerHTML = "";
+  ALL_POSSIBLE_PLATES.forEach(plate => {
+    const isActive = plateSettings.plates.includes(plate);
+    const btn = document.createElement('button');
+    btn.className = 'plate-toggle' + (isActive ? ' active' : '');
+    btn.textContent = formatPlateNum(plate);
+    btn.addEventListener('click', async () => {
+      if (plateSettings.plates.includes(plate)) {
+        plateSettings.plates = plateSettings.plates.filter(p => p !== plate);
+      } else {
+        plateSettings.plates.push(plate);
+      }
+      await savePlateSettings();
+      renderPlateGrid();
+      closeAnyOpenPlatePopover();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+document.getElementById('settingsToggle').addEventListener('click', () => {
+  const panel = document.getElementById('settingsPanel');
+  const toggle = document.getElementById('settingsToggle');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    toggle.textContent = 'HIDE PLATE SETTINGS ▴';
+    renderBarToggle();
+    renderPlateGrid();
+  } else {
+    panel.style.display = 'none';
+    toggle.textContent = 'PLATE SETTINGS ▾';
+  }
+});
+
+/* ============ PLATE POPOVER (tap any weight to see breakdown) ============ */
+
+function closeAnyOpenPlatePopover() {
+  document.querySelectorAll('.plate-popover, .plate-popover-backdrop').forEach(el => el.remove());
+}
+
+function positionPopover(pop, anchorEl) {
+  const rect = anchorEl.getBoundingClientRect();
+  const popWidth = 200; // matches CSS width
+  document.body.appendChild(pop); // append first so offsetHeight is measurable
+  const popHeight = pop.offsetHeight;
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const margin = 8;
+
+  // horizontal: align left edge with input, clamp so it never runs off-screen
+  let left = rect.left;
+  if (left + popWidth + margin > viewportW) left = viewportW - popWidth - margin;
+  if (left < margin) left = margin;
+
+  // vertical: prefer below the input; flip above if not enough room below
+  const spaceBelow = viewportH - rect.bottom;
+  const spaceAbove = rect.top;
+  let top;
+  if (spaceBelow >= popHeight + margin || spaceBelow >= spaceAbove) {
+    top = rect.bottom + 6;
+    if (top + popHeight + margin > viewportH) top = viewportH - popHeight - margin;
+  } else {
+    top = rect.top - popHeight - 6;
+    if (top < margin) top = margin;
+  }
+
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+
+function attachPlateTap(inputEl, getWeightValue) {
+  inputEl.classList.add('plate-trigger');
+  if (inputEl.dataset.plateTapBound) return; // avoid double-binding on re-renders
+  inputEl.dataset.plateTapBound = 'true';
+
+  inputEl.addEventListener('click', (e) => {
+    const wasOpen = document.querySelector('.plate-popover');
+    closeAnyOpenPlatePopover();
+    if (wasOpen) { e.stopPropagation(); return; } // toggle: tapping again closes it
+
+    const weightVal = getWeightValue();
+    const breakdown = calcPlateBreakdown(weightVal);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'plate-popover-backdrop';
+    backdrop.addEventListener('click', closeAnyOpenPlatePopover);
+    document.body.appendChild(backdrop);
+
+    const pop = document.createElement('div');
+    pop.className = 'plate-popover';
+
+    if (!breakdown) {
+      pop.innerHTML = `<div class="pp-total">Enter a weight to see plates</div><div class="pp-close">close ✕</div>`;
+    } else if (breakdown.tooLight) {
+      pop.innerHTML = `
+        <div class="pp-total">${weightVal} lbs</div>
+        <div class="pp-bar">Lighter than an empty ${breakdown.barWeight}lb bar — bodyweight or no plates needed</div>
+        <div class="pp-close">close ✕</div>
+      `;
+    } else {
+      const chips = breakdown.perSide.length
+        ? breakdown.perSide.map(p => `<span class="plate-chip">${formatPlateNum(p)}</span>`).join('')
+        : '<span style="color:var(--dim);font-size:11px;">bar only</span>';
+      const warn = !breakdown.exact
+        ? `<div class="pp-warn">Closest with your plates: ${breakdown.total} lbs (target was ${weightVal})</div>`
+        : '';
+      pop.innerHTML = `
+        <div class="pp-total">${breakdown.total} lbs total</div>
+        <div class="pp-bar">${breakdown.barWeight}lb bar + plates each side</div>
+        <div class="pp-side-label">Per Side</div>
+        <div class="pp-plates">${chips}</div>
+        ${warn}
+        <div class="pp-close">close ✕</div>
+      `;
+    }
+
+    positionPopover(pop, inputEl);
+    pop.querySelector('.pp-close').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      closeAnyOpenPlatePopover();
+    });
+    e.stopPropagation();
+  });
+}
+
+// reposition/close on scroll or resize so it never sits stale over the wrong spot
+window.addEventListener('scroll', closeAnyOpenPlatePopover, true);
+window.addEventListener('resize', closeAnyOpenPlatePopover);
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.plate-popover') && !e.target.classList.contains('plate-trigger')) {
+    closeAnyOpenPlatePopover();
+  }
+});
+
+async function renderHistory(container) {
+  container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">loading…</div>';
+  try {
+    const result = await window.storage.list('bbb:');
+    if (!result || !result.keys || result.keys.length === 0) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No entries yet.</div>';
+      return;
+    }
+    const entries = [];
+    for (const key of result.keys) {
+      const parts = key.split(':'); // bbb:dayKey:phaseN:weekN  OR  bbb:dayKey:phaseN (phase meta, skip)
+      if (parts.length < 4) continue;
+      try {
+        const r = await window.storage.get(key);
+        if (r && r.value) {
+          const data = JSON.parse(r.value);
+          const dayKey = parts[1];
+          const hasData = (data.bbb || []).some(s => s.weight || s.reps || s.done) ||
+                           (data.main || []).some(s => s.weight || s.reps || s.done) ||
+                           (data.accessories || []).some(a => a.sets && a.sets.some(s => s.actual || s.reps));
+          if (hasData) entries.push({ dayKey, phase: parts[2].replace('phase',''), week: parts[3].replace('week',''), data });
+        }
+      } catch (e) {}
+    }
+    if (entries.length === 0) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No logged data yet.</div>';
+      return;
+    }
+    entries.sort((a, b) => (a.phase - b.phase) || (a.week - b.week) || a.dayKey.localeCompare(b.dayKey));
+    container.innerHTML = "";
+    entries.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'history-entry';
+      const dayLabel = DAYS[entry.dayKey] ? DAYS[entry.dayKey].label : entry.dayKey;
+      const mainSummary = (entry.data.main || [])
+        .filter(s => s.weight || s.reps)
+        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
+      const bbbSummary = (entry.data.bbb || [])
+        .filter(s => s.weight || s.reps)
+        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
+      const accSummary = (entry.data.accessories || [])
+        .filter(a => a.name)
+        .map(a => `${a.name}: ` + a.sets.filter(s=>s.actual||s.reps).map(s => `${s.actual||'-'}×${s.reps||'-'}`).join(',')).join(' · ');
+      div.innerHTML = `
+        <div class="he-top"><span class="he-day">${dayLabel} — Phase ${entry.phase}, Week ${entry.week}</span></div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">MAIN</div>
+        <div style="color:var(--chalk);margin-bottom:6px;">${mainSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">BBB</div>
+        <div style="color:var(--chalk);margin-bottom:6px;">${bbbSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
+        <div style="color:var(--dim);font-size:11px;">${accSummary || 'no accessories logged'}</div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">Could not load history.</div>';
+  }
+}
+
+// flush any pending save if the page is backgrounded or closed —
+// this is the most reliable cross-browser signal for "user is leaving"
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && saveTimer) {
+    flushPendingSave();
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (saveTimer) flushPendingSave();
+});
+
+(async () => {
+  await loadPlateSettings();
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
