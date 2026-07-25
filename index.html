@@ -58,73 +58,49 @@
 
   main { padding-top: 18px; }
 
-  /* PHASE + WEEK CONTROLS */
-  .nav-card {
+  /* DAY HEADER */
+  .day-header {
     background: var(--iron-soft);
     border: 1px solid var(--line);
     border-radius: 6px;
     padding: 14px;
     margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
   }
-  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .nav-row + .nav-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .nav-label-group { display: flex; flex-direction: column; gap: 2px; }
-  .nav-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
-  .nav-value { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.02em; color: var(--chalk); }
-  .nav-value .week-type { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--plate-amber); letter-spacing: 0.04em; margin-left: 8px; }
-  .stepper { display: flex; align-items: center; gap: 6px; }
-  .step-btn {
-    width: 40px; height: 40px;
-    background: var(--iron-raised); border: 2px solid var(--line); color: var(--chalk);
-    font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
-    cursor: pointer; border-radius: 6px; line-height: 1;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step-btn:active { background: var(--plate-red); border-color: var(--plate-red); color: #fff; }
-
-  .week-pills { display: flex; gap: 6px; margin-top: 10px; }
-  .week-pill {
-    flex: 1; text-align: center; padding: 9px 2px;
-    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-    border: 2px solid var(--line); border-radius: 5px; color: var(--dim); cursor: pointer; background: var(--iron-raised);
-  }
-  .week-pill.active { background: var(--plate-amber); border-color: var(--plate-amber); color: #fff; font-weight: 700; }
-
-  .phase-advance-btn {
-    width: 100%; margin-top: 12px; padding: 12px; background: transparent;
+  .day-header-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.02em; color: var(--chalk); }
+  .day-header-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .start-session-btn {
+    padding: 12px 16px; background: transparent;
     border: 1.5px dashed var(--plate-blue); color: var(--plate-blue);
     font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
-    border-radius: 5px; cursor: pointer;
+    border-radius: 5px; cursor: pointer; white-space: nowrap;
   }
-  .phase-advance-btn:hover { background: rgba(42,86,148,0.08); }
-
-  /* TM BLOCK */
-  .tm-block { border: 1px solid var(--line); background: var(--iron-soft); border-radius: 6px; padding: 14px; margin-bottom: 14px; }
-  .tm-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.02em; margin-bottom: 10px; }
-  .tm-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-  .tm-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
-  .tm-input {
-    background: var(--iron-raised); border: 1px solid var(--line); color: var(--chalk);
-    font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 600; padding: 8px 10px; width: 100px;
-    text-align: right; border-radius: 4px;
-  }
-  .tm-input:focus { outline: none; border-color: var(--plate-blue); }
-  .tm-result { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); display: flex; gap: 16px; }
-  .tm-stat-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-  .tm-stat-val { font-family: 'DM Mono', monospace; font-size: 21px; font-weight: 700; color: var(--chalk); margin-top: 2px; }
+  .start-session-btn:hover { background: rgba(42,86,148,0.08); }
 
   /* BLOCKS */
   .block { border: 1px solid var(--line); background: var(--iron-soft); margin-bottom: 14px; border-radius: 6px; overflow: hidden; }
   .block-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); gap: 8px; flex-wrap: wrap; }
+  .block-title-group { display: flex; flex-direction: column; gap: 2px; }
   .block-title { font-family: 'Bebas Neue', sans-serif; font-size: 23px; letter-spacing: 0.02em; }
+  .block-rep-range { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
   .block-tag {
     font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 5px 10px; color: #ffffff; border-radius: 4px; font-weight: 700; white-space: nowrap;
   }
-  .tag-warmup { background: #5a564c; }
-  .tag-main { background: var(--plate-amber); }
-  .tag-bbb { background: var(--plate-blue); }
-  .tag-primary { background: var(--plate-red); }
+  .tag-compound { background: var(--plate-red); }
+  .tag-moderate { background: var(--plate-blue); }
+  .tag-isolation { background: var(--plate-amber); }
+  .tag-burnout { background: #5a564c; }
+
+  .exercise-reference {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim);
+    padding: 10px 14px 0 14px;
+  }
+  .ready-badge {
+    display: inline-block; margin: 8px 14px 0 14px; background: var(--plate-green); color: #fff;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 5px 9px; border-radius: 4px;
+  }
 
   .set-table { width: 100%; border-collapse: collapse; }
   .set-table th {
@@ -135,18 +111,10 @@
   .set-table th.check { text-align: center; width: 40px; }
   .set-table td { padding: 6px 14px; }
   .set-table td.num { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--dim); text-align: center; white-space: nowrap; }
-  .set-table td.pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
-
-  .amrap-badge {
-    display: inline-block; background: var(--plate-amber); color: #fff; font-family: 'DM Mono', monospace;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 6px; border-radius: 3px;
-    vertical-align: middle; margin-left: 3px;
-  }
 
   .set-row { transition: background 0.2s ease; }
   .set-row.done { background: rgba(61, 125, 64, 0.13); }
   .set-row.done td.num { color: var(--plate-green); }
-  .set-row.amrap { background: rgba(150, 104, 15, 0.09); }
 
   .cell-input {
     width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--line);
@@ -218,62 +186,6 @@
 
   .set-row td { padding-bottom: 8px; padding-top: 4px; }
 
-  .section-divider {
-    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--chalk); padding: 12px 14px 6px 14px; border-top: 1px solid var(--line);
-  }
-  .section-divider:first-child { border-top: none; }
-
-  /* ACCESSORIES */
-  .acc-card {
-    border-top: 1px solid var(--line);
-    padding: 10px 14px 12px 14px;
-  }
-  .acc-card:first-of-type { border-top: none; }
-  .acc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .acc-name-input {
-    background: transparent; border: none; border-bottom: 1px solid var(--line); color: var(--chalk);
-    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 6px 2px; flex: 1; min-width: 0;
-  }
-  .acc-name-input:focus { outline: none; border-bottom-color: var(--plate-blue); }
-  .acc-remove { background: none; border: none; color: var(--dim); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px 6px; }
-  .acc-remove:hover { color: var(--plate-red); }
-
-  .acc-suggest-line { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--plate-amber); margin-bottom: 6px; }
-
-  .acc-set-header, .acc-set-row {
-    display: grid; grid-template-columns: 26px 1fr 1fr 1fr 36px; gap: 6px; align-items: center; padding: 5px 0;
-  }
-  .acc-set-header span {
-    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; font-weight: 700;
-  }
-  .acc-set-row .num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--dim); text-align: center; }
-  .acc-set-row input {
-    width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--line); color: var(--chalk);
-    font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 600; text-align: center; padding: 7px 0;
-  }
-  .acc-set-row input:focus { outline: none; border-bottom-color: var(--plate-blue); }
-  .acc-set-row.done { background: rgba(61, 125, 64, 0.13); }
-  .acc-set-row.done input { border-bottom-color: var(--plate-green); }
-  .acc-set-row .check-box { width: 24px; height: 24px; font-size: 14px; margin: 0 auto; }
-
-  .acc-add-set {
-    margin-top: 6px; background: transparent; border: 1px dashed var(--line); color: var(--dim);
-    font-family: 'DM Mono', monospace; font-size: 12px; padding: 7px 10px; cursor: pointer; border-radius: 4px;
-  }
-
-  .add-acc {
-    width: 100%; background: transparent; border: none; border-top: 1px dashed var(--line); color: var(--chalk);
-    font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; padding: 13px 14px; cursor: pointer; text-align: left; letter-spacing: 0.03em;
-  }
-  .add-acc:hover { color: var(--plate-blue); }
-
-  .suggest-row { padding: 12px 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; }
-  .suggest-label { width: 100%; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
-  .chip { background: var(--iron-raised); border: 1.5px solid var(--line); color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; padding: 8px 12px; cursor: pointer; border-radius: 5px; }
-  .chip:hover { border-color: var(--plate-blue); color: var(--plate-blue); }
-  .chip.primary-chip { border-color: var(--plate-red); color: var(--plate-red); background: rgba(168, 53, 31, 0.06); }
-
   .save-state { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); text-align: center; padding: 16px 0 0 0; letter-spacing: 0.04em; }
   .save-state.saved { color: var(--plate-green); }
 
@@ -326,24 +238,12 @@
 <div class="wrap">
   <main>
 
-    <div class="nav-card">
-      <div class="nav-row">
-        <div class="nav-label-group">
-          <span class="nav-label">Phase (Cycle)</span>
-          <span class="nav-value" id="phaseValue">1</span>
-        </div>
-        <button class="phase-advance-btn" id="phaseAdvanceBtn" style="width:auto;margin-top:0;white-space:nowrap;">NEXT PHASE →</button>
+    <div class="day-header">
+      <div>
+        <div class="day-header-title" id="dayHeaderTitle"></div>
+        <div class="day-header-sub" id="dayHeaderSub"></div>
       </div>
-      <div class="nav-row">
-        <div class="nav-label-group">
-          <span class="nav-label">Week</span>
-          <span class="nav-value" id="weekValue">1<span class="week-type" id="weekTypeLabel"></span></span>
-        </div>
-      </div>
-      <div class="week-pills" id="weekPills"></div>
-      <div style="text-align:center;margin-top:10px;">
-        <button class="acc-add-set" id="phaseBackBtn" style="font-size:12px;">← review previous phase</button>
-      </div>
+      <button class="start-session-btn" id="startSessionBtn">START NEW SESSION</button>
     </div>
 
     <div id="content"></div>
@@ -637,43 +537,10 @@ function buildDayBar() {
   });
 }
 
-function buildWeekPills() {
-  const pillWrap = document.getElementById('weekPills');
-  pillWrap.innerHTML = "";
-  for (let w = 1; w <= 4; w++) {
-    const pill = document.createElement('button');
-    pill.className = 'week-pill' + (w === currentWeek ? ' active' : '');
-    pill.textContent = WEEK_TYPES[w].name;
-    pill.onclick = async () => { await flushPendingSave(); currentWeek = w; await renderAll(); };
-    pillWrap.appendChild(pill);
-  }
-}
-
-document.getElementById('phaseBackBtn').addEventListener('click', async () => {
-  if (currentPhase > 1) {
-    await flushPendingSave();
-    currentPhase -= 1;
-    currentWeek = 1;
-    await renderAll();
-  }
-});
-
-document.getElementById('phaseAdvanceBtn').addEventListener('click', async () => {
+document.getElementById('startSessionBtn').addEventListener('click', async () => {
   await flushPendingSave();
-  const day = DAYS[currentDay];
-  const lift = day.lift;
-  const isLower = (currentDay === 'squat' || currentDay === 'deadlift');
-  const defaultIncrement = isLower ? 10 : 5;
-  const proceed = confirm(`Start Phase ${currentPhase + 1} for ${lift}?\n\nThis typically adds +${defaultIncrement} lbs to your 1RM (lower body +10, upper body +5). Click OK to auto-increase, or Cancel to set it manually after advancing.`);
-  const phaseData = await loadPhaseData(currentDay, currentPhase);
-  const newPhase = currentPhase + 1;
-  let newOneRM = phaseData.oneRM;
-  if (proceed && phaseData.oneRM) {
-    newOneRM = (parseFloat(phaseData.oneRM) + defaultIncrement).toString();
-  }
-  await savePhaseData(currentDay, newPhase, { oneRM: newOneRM });
-  currentPhase = newPhase;
-  currentWeek = 1;
+  currentData = emptySessionData(currentDay);
+  await saveSessionData(currentDay, currentData);
   await renderAll();
 });
 
@@ -681,376 +548,99 @@ document.getElementById('phaseAdvanceBtn').addEventListener('click', async () =>
 
 async function renderAll() {
   buildDayBar();
-  buildWeekPills();
-  document.getElementById('phaseValue').textContent = currentPhase;
-  document.getElementById('weekValue').firstChild.textContent = currentWeek + " ";
-  document.getElementById('weekTypeLabel').textContent = WEEK_TYPES[currentWeek].name;
-
   const day = DAYS[currentDay];
-  const phaseData = await loadPhaseData(currentDay, currentPhase);
-  if (!phaseData.oneRM) {
-    const last = await findLastOneRM(currentDay, currentPhase);
-    if (last) phaseData.oneRM = last;
-  }
-  currentData = await loadWeekData(currentDay, currentPhase, currentWeek);
+  document.getElementById('dayHeaderTitle').textContent = day.label;
+
+  currentData = await loadActiveSession(currentDay);
+  document.getElementById('dayHeaderSub').textContent =
+    `Session: ${new Date(currentData.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
   const content = document.getElementById('content');
   content.innerHTML = "";
 
-  /* --- TM BLOCK --- */
-  const tmBlock = document.createElement('div');
-  tmBlock.className = 'tm-block';
-  tmBlock.innerHTML = `
-    <div class="tm-title">${day.lift} — 1RM &amp; Training Max</div>
-    <div class="tm-row">
-      <span class="tm-label">1 Rep Max (lbs) — Phase ${currentPhase}</span>
-      <input class="tm-input" type="number" inputmode="decimal" placeholder="0" id="oneRMInput" value="${phaseData.oneRM}">
-    </div>
-    <div class="tm-result" id="tmResult"></div>
-  `;
-  content.appendChild(tmBlock);
-  const oneRMInput = tmBlock.querySelector('#oneRMInput');
-  const tmResult = tmBlock.querySelector('#tmResult');
-
-  let tm = null;
-  function updateTM() {
-    tm = calcTM(oneRMInput.value);
-    if (!tm) {
-      tmResult.innerHTML = `<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);">Enter your 1RM to calculate everything below.</span>`;
-    } else {
-      tmResult.innerHTML = `
-        <div><div class="tm-stat-label">Training Max</div><div class="tm-stat-val">${tm}</div></div>
-        <div><div class="tm-stat-label">Week Type</div><div class="tm-stat-val" style="color:var(--plate-amber);">${WEEK_TYPES[currentWeek].name}</div></div>
-      `;
-    }
+  for (let idx = 0; idx < day.exercises.length; idx++) {
+    await renderExerciseBlock(content, day.exercises[idx], idx);
   }
-  updateTM();
-  let oneRMSaveTimer = null;
-  oneRMInput.addEventListener('input', () => {
-    phaseData.oneRM = oneRMInput.value;
-    updateTM();
-    refreshMainLiftTargets();
-    const dayKey = currentDay, phase = currentPhase, snapshot = { ...phaseData };
-    clearTimeout(oneRMSaveTimer);
-    oneRMSaveTimer = setTimeout(() => savePhaseData(dayKey, phase, snapshot), 500);
-  });
-
-  let refreshMainLiftTargets = () => {}; // reassigned once the block below builds
-
-  renderMainLifts();
-
-  function renderMainLifts() {
-  const wt = WEEK_TYPES[currentWeek];
-  const warmupScheme = getWarmupScheme(currentWeek);
-  const mainBlock = document.createElement('div');
-  mainBlock.className = 'block';
-  mainBlock.innerHTML = `
-    <div class="block-head">
-      <span class="block-title">${day.lift}</span>
-      <span class="block-tag tag-main">${wt.name}</span>
-    </div>
-    <div class="section-divider">Warmup${currentWeek === 4 ? ' (light — deload)' : ''}</div>
-    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
-    <tbody id="warmupBody"></tbody></table>
-    <div class="section-divider">Working Sets</div>
-    <table class="set-table"><thead><tr><th class="num">#</th><th>%</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
-    <tbody id="mainBody"></tbody></table>
-  `;
-  content.appendChild(mainBlock);
-  renderWarmupAndMainInto(mainBlock);
-  refreshMainLiftTargets = () => renderWarmupAndMainInto(mainBlock);
-
-  function renderWarmupAndMainInto(blockEl) {
-    const safeTm = tm || 0;
-    const warmupBody = blockEl.querySelector('#warmupBody');
-    warmupBody.innerHTML = "";
-    currentData.warmup.forEach((set, i) => {
-      const target = roundToFive(safeTm * warmupScheme.pct[i]);
-      const tr = document.createElement('tr');
-      tr.className = 'set-row' + (set.done ? ' done' : '');
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td class="pct">${Math.round(warmupScheme.pct[i]*100)}%</td>
-        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="warmup" data-idx="${i}" data-field="weight"></td>
-        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="${warmupScheme.reps[i]}" value="${set.reps}" data-group="warmup" data-idx="${i}" data-field="reps"></td>
-        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="warmup" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
-      `;
-      warmupBody.appendChild(tr);
-    });
-
-    const mainBody = blockEl.querySelector('#mainBody');
-    mainBody.innerHTML = "";
-    currentData.main.forEach((set, i) => {
-      const target = roundToFive(safeTm * wt.mainPct[i]);
-      const isLast = i === 2;
-      const isAmrap = isLast && wt.amrapLast;
-      const repsLabel = `${wt.mainReps[i]}${isAmrap ? '+' : ''}`;
-      const tr = document.createElement('tr');
-      tr.className = 'set-row' + (set.done ? ' done' : '') + (isAmrap ? ' amrap' : '');
-      tr.innerHTML = `
-        <td class="num">${i+1}${isAmrap ? ' <span class="amrap-badge">AMRAP</span>' : ''}</td>
-        <td class="pct">${Math.round(wt.mainPct[i]*100)}%</td>
-        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? target : '—'}" value="${set.weight}" data-group="main" data-idx="${i}" data-field="weight"></td>
-        <td><input class="cell-input" type="text" inputmode="numeric" placeholder="${repsLabel}" value="${set.reps}" data-group="main" data-idx="${i}" data-field="reps"></td>
-        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-group="main" data-idx="${i}" data-amrap="${isAmrap}">${set.done ? '✓' : ''}</button></td>
-      `;
-      mainBody.appendChild(tr);
-    });
-
-    blockEl.querySelectorAll('input[data-group]').forEach(inp => {
-      inp.addEventListener('input', (e) => {
-        const group = e.target.dataset.group;
-        const idx = parseInt(e.target.dataset.idx);
-        const field = e.target.dataset.field;
-        currentData[group][idx][field] = e.target.value;
-        queueSave();
-      });
-    });
-    blockEl.querySelectorAll('input[data-group][data-field="weight"]').forEach(inp => {
-      attachPlateTap(inp, () => {
-        const group = inp.dataset.group;
-        const idx = parseInt(inp.dataset.idx);
-        return inp.value || inp.placeholder;
-      });
-    });
-    blockEl.querySelectorAll('.check-box[data-group]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const group = e.currentTarget.dataset.group;
-        const idx = parseInt(e.currentTarget.dataset.idx);
-        const isAmrap = e.currentTarget.dataset.amrap === 'true';
-        const set = currentData[group][idx];
-        const nowDone = !set.done;
-        set.done = nowDone;
-        if (nowDone) {
-          if (!set.weight) {
-            const target = group === 'warmup' ? roundToFive(safeTm * warmupScheme.pct[idx]) : roundToFive(safeTm * wt.mainPct[idx]);
-            set.weight = target;
-          }
-          if (!set.reps) set.reps = group === 'warmup' ? warmupScheme.reps[idx] : wt.mainReps[idx];
-        }
-        renderWarmupAndMainInto(blockEl);
-        queueSave();
-        if (nowDone) {
-          if (group === 'warmup') {
-            const isLastWarmup = idx === currentData.warmup.length - 1;
-            startRestTimer(isLastWarmup ? 'last-warmup' : 'warmup');
-          } else if (group === 'main') {
-            if (isAmrap) {
-              startRestTimer('amrap'); // resting AFTER the AMRAP set
-            } else if (idx === 1 && wt.amrapLast) {
-              startRestTimer('pre-amrap'); // resting before the AMRAP set (set 2 done, set 3 is AMRAP)
-            } else {
-              startRestTimer('main');
-            }
-          }
-        }
-      });
-    });
-  }
-
-  /* --- BBB BLOCK --- */
-  const bbbBlock = document.createElement('div');
-  bbbBlock.className = 'block';
-  bbbBlock.innerHTML = `
-    <div class="block-head">
-      <span class="block-title">${day.lift} — 5×10</span>
-      <span class="block-tag tag-bbb">BBB · ${Math.round(wt.bbbPct*100)}%</span>
-    </div>
-    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
-    <tbody id="bbbBody"></tbody></table>
-  `;
-  content.appendChild(bbbBlock);
-  const bbbBody = bbbBlock.querySelector('#bbbBody');
-  function renderBbb() {
-    const bbbTarget = roundToFive((tm || 0) * wt.bbbPct);
-    bbbBody.innerHTML = "";
-    currentData.bbb.forEach((set, i) => {
-      const tr = document.createElement('tr');
-      tr.className = 'set-row' + (set.done ? ' done' : '');
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="${tm ? bbbTarget : '—'}" value="${set.weight}" data-idx="${i}" data-field="weight"></td>
-        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="10" value="${set.reps}" data-idx="${i}" data-field="reps"></td>
-        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-idx="${i}">${set.done ? '✓' : ''}</button></td>
-      `;
-      bbbBody.appendChild(tr);
-    });
-    bbbBody.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('input', (e) => {
-        const idx = parseInt(e.target.dataset.idx);
-        currentData.bbb[idx][e.target.dataset.field] = e.target.value;
-        queueSave();
-      });
-    });
-    bbbBody.querySelectorAll('input[data-field="weight"]').forEach(inp => {
-      attachPlateTap(inp, () => inp.value || inp.placeholder);
-    });
-    bbbBody.querySelectorAll('.check-box').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = parseInt(e.currentTarget.dataset.idx);
-        const set = currentData.bbb[idx];
-        set.done = !set.done;
-        if (set.done) {
-          if (!set.weight) set.weight = bbbTarget;
-          if (!set.reps) set.reps = "10";
-        }
-        renderBbb();
-        queueSave();
-        if (set.done) startRestTimer('main');
-      });
-    });
-  }
-  renderBbb();
-  refreshMainLiftTargets = () => { renderWarmupAndMainInto(mainBlock); renderBbb(); };
-  } // end renderMainLifts
-
-  /* --- ACCESSORY BLOCK --- */
-  const accBlock = document.createElement('div');
-  accBlock.className = 'block';
-  accBlock.innerHTML = `
-    <div class="block-head"><span class="block-title">Accessories</span></div>
-    <div id="accCardsWrap"></div>
-    <button class="add-acc" id="addAccBtn">+ ADD MOVEMENT</button>
-    <div class="suggest-row" id="suggestRow"><div class="suggest-label">Suggested for ${day.lift} day</div></div>
-  `;
-  content.appendChild(accBlock);
-  const accCardsWrap = accBlock.querySelector('#accCardsWrap');
-
-  async function renderAccCards() {
-    accCardsWrap.innerHTML = "";
-    for (let i = 0; i < currentData.accessories.length; i++) {
-      const acc = currentData.accessories[i];
-      const card = document.createElement('div');
-      card.className = 'acc-card';
-      const tagHtml = acc.role === 'primary' ? '<span class="block-tag tag-primary" style="font-size:10px;padding:4px 8px;">PRIMARY</span>' : '';
-
-      let suggestedWeight = acc.sets[0] && acc.sets[0].suggested;
-      if (!suggestedWeight && acc.name) {
-        suggestedWeight = await findLastAccessoryWeight(currentDay, acc.name);
-        if (suggestedWeight) acc.sets[0].suggested = suggestedWeight;
-      }
-
-      card.innerHTML = `
-        <div class="acc-card-top">
-          <input class="acc-name-input" type="text" placeholder="Movement name" value="${escapeHtml(acc.name)}" data-acc="${i}">
-          ${tagHtml}
-          <button class="acc-remove" data-acc="${i}" title="Remove">×</button>
-        </div>
-        <div class="acc-suggest-line">${suggestedWeight ? `Last time: ${suggestedWeight} lbs` : 'No previous weight logged yet'}</div>
-        <div class="acc-set-header"><span>#</span><span>Target</span><span>Actual</span><span>Reps</span><span>✓</span></div>
-        <div id="accSets${i}"></div>
-        <button class="acc-add-set" data-acc="${i}">+ ADD SET</button>
-      `;
-      accCardsWrap.appendChild(card);
-
-      const setsWrap = card.querySelector(`#accSets${i}`);
-      function renderAccSets() {
-        setsWrap.innerHTML = "";
-        acc.sets.forEach((s, si) => {
-          const row = document.createElement('div');
-          row.className = 'acc-set-row' + (s.done ? ' done' : '');
-          row.innerHTML = `
-            <span class="num">${si+1}</span>
-            <input type="text" placeholder="${suggestedWeight || '—'}" value="${suggestedWeight || ''}" disabled style="opacity:0.5;">
-            <input type="number" inputmode="decimal" placeholder="lbs" value="${s.actual}" data-acc="${i}" data-set="${si}" data-field="actual">
-            <input type="text" inputmode="numeric" placeholder="reps" value="${s.reps}" data-acc="${i}" data-set="${si}" data-field="reps">
-            <button class="check-box ${s.done ? 'checked' : ''}" data-acc="${i}" data-set="${si}" style="width:22px;height:22px;font-size:13px;">${s.done ? '✓' : ''}</button>
-          `;
-          setsWrap.appendChild(row);
-        });
-        setsWrap.querySelectorAll('input[data-field]').forEach(inp => {
-          inp.addEventListener('input', (e) => {
-            const si = parseInt(e.target.dataset.set);
-            acc.sets[si][e.target.dataset.field] = e.target.value;
-            queueSave();
-          });
-        });
-        setsWrap.querySelectorAll('input[data-field="actual"]').forEach(inp => {
-          attachPlateTap(inp, () => inp.value || suggestedWeight || inp.placeholder);
-        });
-        setsWrap.querySelectorAll('.check-box').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const si = parseInt(e.currentTarget.dataset.set);
-            const s = acc.sets[si];
-            s.done = !s.done;
-            if (s.done) {
-              if (!s.actual && suggestedWeight) s.actual = suggestedWeight;
-            }
-            renderAccSets();
-            queueSave();
-            if (s.done) startRestTimer('accessory');
-          });
-        });
-      }
-      renderAccSets();
-
-      card.querySelector('.acc-add-set').addEventListener('click', () => {
-        acc.sets.push({ suggested: suggestedWeight || "", actual: "", reps: "", done: false });
-        renderAccSets();
-        queueSave();
-      });
-      card.querySelector('.acc-name-input').addEventListener('input', (e) => {
-        acc.name = e.target.value;
-        queueSave();
-      });
-      card.querySelector('.acc-remove').addEventListener('click', () => {
-        currentData.accessories.splice(i, 1);
-        renderAccCards();
-        queueSave();
-      });
-    }
-  }
-  await renderAccCards();
-
-  accBlock.querySelector('#addAccBtn').onclick = async () => {
-    currentData.accessories.push({ name: "", role: "secondary", sets: [{ suggested: "", actual: "", reps: "", done: false }] });
-    await renderAccCards();
-    queueSave();
-  };
-
-  function buildDefaultSets(name) {
-    const def = getAccessoryDefault(name);
-    return Array.from({ length: def.sets }, () => ({ suggested: "", actual: "", reps: def.reps, done: false }));
-  }
-
-  const suggestRow = accBlock.querySelector('#suggestRow');
-  const existingNames = currentData.accessories.map(a => a.name.toLowerCase());
-  day.primaries.forEach(name => {
-    if (!existingNames.includes(name.toLowerCase())) {
-      const chip = document.createElement('button');
-      chip.className = 'chip primary-chip';
-      chip.textContent = '+ ' + name;
-      chip.onclick = async () => {
-        currentData.accessories.push({ name, role: 'primary', sets: buildDefaultSets(name) });
-        await renderAccCards();
-        queueSave();
-        chip.remove();
-      };
-      suggestRow.appendChild(chip);
-    }
-  });
-  day.suggestions.forEach(name => {
-    if (!existingNames.includes(name.toLowerCase())) {
-      const chip = document.createElement('button');
-      chip.className = 'chip';
-      chip.textContent = '+ ' + name;
-      chip.onclick = async () => {
-        currentData.accessories.push({ name, role: 'secondary', sets: buildDefaultSets(name) });
-        await renderAccCards();
-        queueSave();
-        chip.remove();
-      };
-      suggestRow.appendChild(chip);
-    }
-  });
 
   document.getElementById('saveState').textContent = '';
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || "";
-  return div.innerHTML;
+// basic version: just shows the last session's raw numbers.
+// Stage 3 replaces this with the full ready-to-increase badge logic.
+async function updateProgressionUI(block, ex, idx) {
+  const refEl = block.querySelector(`#ref-${idx}`);
+  const timestamps = await listDaySessions(currentDay);
+  const otherTimestamps = timestamps.filter(t => t !== currentData.timestamp);
+  let refExercise = null;
+  for (const ts of otherTimestamps) {
+    const session = await loadSessionByTimestamp(currentDay, ts);
+    const match = session && session.exercises.find(e => e.name === ex.name);
+    if (match && match.sets.some(s => s.weight || s.reps)) { refExercise = match; break; }
+  }
+  if (!refExercise) {
+    refEl.textContent = 'No previous data — pick a starting weight';
+    return;
+  }
+  const line = refExercise.sets.map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', ');
+  refEl.textContent = `Last: ${line}`;
+}
+
+async function renderExerciseBlock(content, ex, idx) {
+  const block = document.createElement('div');
+  block.className = 'block';
+  block.innerHTML = `
+    <div class="block-head">
+      <div class="block-title-group">
+        <span class="block-title">${ex.name}</span>
+        <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} reps</span>
+      </div>
+      <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
+    </div>
+    <div class="exercise-reference" id="ref-${idx}"></div>
+    <div id="badge-${idx}"></div>
+    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
+    <tbody id="sets-${idx}"></tbody></table>
+  `;
+  content.appendChild(block);
+
+  await updateProgressionUI(block, ex, idx);
+
+  const setsBody = block.querySelector(`#sets-${idx}`);
+  function renderSets() {
+    setsBody.innerHTML = "";
+    currentData.exercises[idx].sets.forEach((set, si) => {
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${si+1}</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="—" value="${set.weight}" data-idx="${si}" data-field="weight"></td>
+        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="—" value="${set.reps}" data-idx="${si}" data-field="reps"></td>
+        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-idx="${si}">${set.done ? '✓' : ''}</button></td>
+      `;
+      setsBody.appendChild(tr);
+    });
+    setsBody.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        const si = parseInt(e.target.dataset.idx);
+        currentData.exercises[idx].sets[si][e.target.dataset.field] = e.target.value;
+        queueSave();
+      });
+    });
+    setsBody.querySelectorAll('input[data-field="weight"]').forEach(inp => {
+      attachPlateTap(inp, () => inp.value || inp.placeholder);
+    });
+    setsBody.querySelectorAll('.check-box').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const si = parseInt(e.currentTarget.dataset.idx);
+        const set = currentData.exercises[idx].sets[si];
+        set.done = !set.done;
+        renderSets();
+        queueSave();
+        if (set.done) startRestTimer(ex.cat);
+      });
+    });
+  }
+  renderSets();
 }
 
 /* ============ TIMER ============ */
@@ -1065,22 +655,12 @@ function formatClock(s) {
   return `${s < 0 ? '+' : ''}${m}:${sec.toString().padStart(2, '0')}`;
 }
 
-function durationFor(context) {
-  if (context === 'amrap') return REST_AMRAP;
-  if (context === 'pre-amrap') return REST_PRE_AMRAP;
-  if (context === 'last-warmup') return REST_LAST_WARMUP;
-  if (context === 'warmup') return REST_WARMUP;
-  if (context === 'accessory') return REST_ACCESSORY;
-  return REST_MAIN;
+function durationFor(cat) {
+  return REST_BY_CAT[cat] || REST_BY_CAT.moderate;
 }
 
-function labelFor(context) {
-  if (context === 'amrap') return 'Rest — after AMRAP set';
-  if (context === 'pre-amrap') return 'Rest — before AMRAP set';
-  if (context === 'last-warmup') return 'Rest — gearing up for working weight';
-  if (context === 'warmup') return 'Rest — warmup';
-  if (context === 'accessory') return 'Rest — accessory';
-  return 'Rest — working set';
+function labelFor(cat) {
+  return `Rest — ${cat}`;
 }
 
 function tick() {
@@ -1304,24 +884,22 @@ document.addEventListener('click', (e) => {
 async function renderHistory(container) {
   container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">loading…</div>';
   try {
-    const result = await window.storage.list('bbb:');
+    const result = await window.storage.list('ppl:');
     if (!result || !result.keys || result.keys.length === 0) {
       container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No entries yet.</div>';
       return;
     }
     const entries = [];
     for (const key of result.keys) {
-      const parts = key.split(':'); // bbb:dayKey:phaseN:weekN  OR  bbb:dayKey:phaseN (phase meta, skip)
-      if (parts.length < 4) continue;
+      const parts = key.split(':'); // ppl:dayKey:timestamp
+      if (parts.length < 3) continue;
       try {
         const r = await window.storage.get(key);
         if (r && r.value) {
           const data = JSON.parse(r.value);
           const dayKey = parts[1];
-          const hasData = (data.bbb || []).some(s => s.weight || s.reps || s.done) ||
-                           (data.main || []).some(s => s.weight || s.reps || s.done) ||
-                           (data.accessories || []).some(a => a.sets && a.sets.some(s => s.actual || s.reps));
-          if (hasData) entries.push({ dayKey, phase: parts[2].replace('phase',''), week: parts[3].replace('week',''), data });
+          const hasData = (data.exercises || []).some(e => e.sets && e.sets.some(s => s.weight || s.reps || s.done));
+          if (hasData) entries.push({ dayKey, timestamp: data.timestamp, data });
         }
       } catch (e) {}
     }
@@ -1329,28 +907,20 @@ async function renderHistory(container) {
       container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No logged data yet.</div>';
       return;
     }
-    entries.sort((a, b) => (a.phase - b.phase) || (a.week - b.week) || a.dayKey.localeCompare(b.dayKey));
+    entries.sort((a, b) => b.timestamp - a.timestamp);
     container.innerHTML = "";
     entries.forEach(entry => {
       const div = document.createElement('div');
       div.className = 'history-entry';
       const dayLabel = DAYS[entry.dayKey] ? DAYS[entry.dayKey].label : entry.dayKey;
-      const mainSummary = (entry.data.main || [])
-        .filter(s => s.weight || s.reps)
-        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
-      const bbbSummary = (entry.data.bbb || [])
-        .filter(s => s.weight || s.reps)
-        .map(s => `${s.weight || '-'}×${s.reps || '-'}`).join('  ');
-      const accSummary = (entry.data.accessories || [])
-        .filter(a => a.name)
-        .map(a => `${a.name}: ` + a.sets.filter(s=>s.actual||s.reps).map(s => `${s.actual||'-'}×${s.reps||'-'}`).join(',')).join(' · ');
+      const dateLabel = new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const exSummary = (entry.data.exercises || [])
+        .filter(e => e.sets && e.sets.some(s => s.weight || s.reps))
+        .map(e => `${e.name}: ` + e.sets.filter(s => s.weight || s.reps).map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', '))
+        .join('<br>');
       div.innerHTML = `
-        <div class="he-top"><span class="he-day">${dayLabel} — Phase ${entry.phase}, Week ${entry.week}</span></div>
-        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">MAIN</div>
-        <div style="color:var(--chalk);margin-bottom:6px;">${mainSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
-        <div style="color:var(--dim);font-size:10px;margin-bottom:2px;">BBB</div>
-        <div style="color:var(--chalk);margin-bottom:6px;">${bbbSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
-        <div style="color:var(--dim);font-size:11px;">${accSummary || 'no accessories logged'}</div>
+        <div class="he-top"><span class="he-day">${dayLabel} — ${dateLabel}</span></div>
+        <div style="color:var(--chalk);">${exSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
       `;
       container.appendChild(div);
     });
