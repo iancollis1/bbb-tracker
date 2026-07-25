@@ -565,24 +565,56 @@ async function renderAll() {
   document.getElementById('saveState').textContent = '';
 }
 
-// basic version: just shows the last session's raw numbers.
-// Stage 3 replaces this with the full ready-to-increase badge logic.
+// +5 lbs for compound/moderate movements; for isolation/burnout, a smaller
+// bump derived from the smallest plate the user has marked available
+// (doubled, since a plate change lands on both sides of a barbell), clamped
+// to a sane 2.5-5 lb range so dumbbell/cable exercises get realistic jumps.
+function suggestedIncrement(cat) {
+  if (cat === 'compound' || cat === 'moderate') return 5;
+  const smallest = plateSettings.plates.length ? Math.min(...plateSettings.plates) : 2.5;
+  return Math.max(2.5, Math.min(5, smallest * 2));
+}
+
+// finds the most recent OTHER session (excluding the currently-loaded draft)
+// that has logged data for this exercise, walking session timestamps newest-first
+async function findReferenceExercise(dayKey, excludeTimestamp, exerciseName) {
+  const timestamps = await listDaySessions(dayKey);
+  for (const ts of timestamps) {
+    if (ts === excludeTimestamp) continue;
+    const session = await loadSessionByTimestamp(dayKey, ts);
+    const match = session && session.exercises.find(e => e.name === exerciseName);
+    if (match && match.sets.some(s => s.weight || s.reps)) return match;
+  }
+  return null;
+}
+
 async function updateProgressionUI(block, ex, idx) {
   const refEl = block.querySelector(`#ref-${idx}`);
-  const timestamps = await listDaySessions(currentDay);
-  const otherTimestamps = timestamps.filter(t => t !== currentData.timestamp);
-  let refExercise = null;
-  for (const ts of otherTimestamps) {
-    const session = await loadSessionByTimestamp(currentDay, ts);
-    const match = session && session.exercises.find(e => e.name === ex.name);
-    if (match && match.sets.some(s => s.weight || s.reps)) { refExercise = match; break; }
-  }
+  const badgeEl = block.querySelector(`#badge-${idx}`);
+  badgeEl.innerHTML = '';
+
+  const refExercise = await findReferenceExercise(currentDay, currentData.timestamp, ex.name);
   if (!refExercise) {
     refEl.textContent = 'No previous data — pick a starting weight';
     return;
   }
   const line = refExercise.sets.map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', ');
   refEl.textContent = `Last: ${line}`;
+
+  const allHitTop = refExercise.sets.length > 0 && refExercise.sets.every(s => {
+    const reps = parseFloat(s.reps);
+    return !isNaN(reps) && reps >= ex.repRange[1];
+  });
+  if (allHitTop) {
+    const weights = refExercise.sets.map(s => parseFloat(s.weight)).filter(w => !isNaN(w));
+    const lastWeight = weights.length ? Math.max(...weights) : 0;
+    const inc = suggestedIncrement(ex.cat);
+    const suggestedText = lastWeight ? `try ${lastWeight + inc} lbs` : `add ${inc} lbs`;
+    const badge = document.createElement('span');
+    badge.className = 'ready-badge';
+    badge.textContent = `↑ READY TO ADD WEIGHT — ${suggestedText}`;
+    badgeEl.appendChild(badge);
+  }
 }
 
 async function renderExerciseBlock(content, ex, idx) {
