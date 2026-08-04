@@ -77,6 +77,29 @@
   }
   .start-session-btn:hover { background: rgba(42,86,148,0.08); }
 
+  .session-length-row {
+    background: var(--iron-soft); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .session-length-label {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim);
+    text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .session-length-row input[type="range"] { flex: 1; accent-color: var(--plate-blue); }
+  .session-length-value {
+    font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--chalk);
+    min-width: 58px; text-align: right;
+  }
+
+  .trim-note {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); line-height: 1.5;
+    border: 1px dashed var(--line); border-radius: 6px; padding: 10px 14px; margin-bottom: 14px;
+  }
+  .trim-show-all {
+    background: none; border: none; color: var(--plate-blue); font-family: 'DM Mono', monospace;
+    font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px;
+  }
+
   /* BLOCKS */
   .block { border: 1px solid var(--line); background: var(--iron-soft); margin-bottom: 14px; border-radius: 6px; overflow: hidden; }
   .block-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); gap: 8px; flex-wrap: wrap; }
@@ -244,6 +267,12 @@
         <div class="day-header-sub" id="dayHeaderSub"></div>
       </div>
       <button class="start-session-btn" id="startSessionBtn">START NEW SESSION</button>
+    </div>
+
+    <div class="session-length-row">
+      <span class="session-length-label">Session Length</span>
+      <input type="range" id="sessionLengthSlider" min="30" max="120" step="15" value="60">
+      <span class="session-length-value" id="sessionLengthValue">60 min</span>
     </div>
 
     <div id="content"></div>
@@ -446,6 +475,77 @@ let restInterval = null;
 let restSecondsLeft = 0;
 let timerContext = "compound"; // compound | moderate | isolation | burnout
 
+let sessionLengthMinutes = 60;
+let showAllExercises = false; // per-day override to ignore the time-budget trim, reset on day switch or slider change
+
+/* ============ SESSION LENGTH / TIME-BUDGET TRIMMING ============ */
+
+const WORK_SECONDS_PER_SET = 40; // rough time to perform one set, used only to estimate exercise duration
+const TRIM_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = dropped first; compound is never dropped
+
+function estimateExerciseSeconds(ex) {
+  return ex.sets * (WORK_SECONDS_PER_SET + REST_BY_CAT[ex.cat]);
+}
+
+async function loadSessionLength() {
+  try {
+    const r = await window.storage.get('settings:sessionLength');
+    const v = r && r.value ? parseInt(r.value, 10) : NaN;
+    if (!isNaN(v)) sessionLengthMinutes = v;
+  } catch (e) {}
+}
+
+async function saveSessionLength() {
+  try { await window.storage.set('settings:sessionLength', String(sessionLengthMinutes)); } catch (e) {}
+}
+
+// picks which exercise indexes to show for a day so the total estimated time
+// fits the session-length budget: drops burnout, then isolation, then moderate
+// exercises (in that priority order) one at a time until under budget or out
+// of droppable exercises. Compound lifts are never dropped.
+function computeTrimmedExercises(dayKey) {
+  const day = DAYS[dayKey];
+  const all = day.exercises.map((ex, idx) => ({ ex, idx }));
+  const budgetSeconds = sessionLengthMinutes * 60;
+
+  let remaining = all.slice();
+  const droppable = all
+    .filter(e => e.ex.cat !== 'compound')
+    .sort((a, b) => TRIM_PRIORITY[a.ex.cat] - TRIM_PRIORITY[b.ex.cat]);
+
+  const totalSeconds = (list) => list.reduce((sum, e) => sum + estimateExerciseSeconds(e.ex), 0);
+  const hidden = [];
+  for (const cand of droppable) {
+    if (totalSeconds(remaining) <= budgetSeconds) break;
+    remaining = remaining.filter(e => e.idx !== cand.idx);
+    hidden.push(cand.idx);
+  }
+  return { visible: remaining.map(e => e.idx), hidden };
+}
+
+function renderTrimNote(content, day, hiddenIndexes) {
+  if (!hiddenIndexes.length) return;
+  const names = hiddenIndexes.map(i => day.exercises[i].name);
+  const note = document.createElement('div');
+  note.className = 'trim-note';
+  note.innerHTML = `Trimmed ${names.length} exercise${names.length > 1 ? 's' : ''} to fit ${sessionLengthMinutes} min: ${names.join(', ')}.<button class="trim-show-all" id="trimShowAllBtn">Show all</button>`;
+  content.appendChild(note);
+  note.querySelector('#trimShowAllBtn').addEventListener('click', async () => {
+    showAllExercises = true;
+    await renderAll();
+  });
+}
+
+document.getElementById('sessionLengthSlider').addEventListener('input', (e) => {
+  document.getElementById('sessionLengthValue').textContent = `${e.target.value} min`;
+});
+document.getElementById('sessionLengthSlider').addEventListener('change', async (e) => {
+  sessionLengthMinutes = parseInt(e.target.value, 10);
+  showAllExercises = false;
+  await saveSessionLength();
+  await renderAll();
+});
+
 /* ============ SESSION STORAGE (ppl: prefix — separate from old bbb: keys) ============ */
 
 function sessionKey(dayKey, timestamp) { return `ppl:${dayKey}:${timestamp}`; }
@@ -532,7 +632,7 @@ function buildDayBar() {
     const btn = document.createElement('button');
     btn.className = 'daybtn' + (key === currentDay ? ' active' : '');
     btn.textContent = DAYS[key].label;
-    btn.onclick = async () => { await flushPendingSave(); currentDay = key; await renderAll(); };
+    btn.onclick = async () => { await flushPendingSave(); currentDay = key; showAllExercises = false; await renderAll(); };
     bar.appendChild(btn);
   });
 }
@@ -558,9 +658,14 @@ async function renderAll() {
   const content = document.getElementById('content');
   content.innerHTML = "";
 
-  for (let idx = 0; idx < day.exercises.length; idx++) {
+  const { visible, hidden } = showAllExercises
+    ? { visible: day.exercises.map((_, i) => i), hidden: [] }
+    : computeTrimmedExercises(currentDay);
+
+  for (const idx of visible) {
     await renderExerciseBlock(content, day.exercises[idx], idx);
   }
+  renderTrimNote(content, day, hidden);
 
   document.getElementById('saveState').textContent = '';
 }
@@ -974,6 +1079,9 @@ window.addEventListener('pagehide', () => {
 
 (async () => {
   await loadPlateSettings();
+  await loadSessionLength();
+  document.getElementById('sessionLengthSlider').value = sessionLengthMinutes;
+  document.getElementById('sessionLengthValue').textContent = `${sessionLengthMinutes} min`;
   renderAll();
 })();
 </script>
