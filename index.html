@@ -323,7 +323,8 @@ const DAYS = {
       { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout" }
-    ]
+    ],
+    bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" }
   },
   pullA: {
     label: "Pull A",
@@ -333,7 +334,8 @@ const DAYS = {
       { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation" }
-    ]
+    ],
+    bonus: { name: "Face Pull", sets: 3, repRange: [12,15], cat: "burnout" }
   },
   legsA: {
     label: "Legs A",
@@ -343,7 +345,8 @@ const DAYS = {
       { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation" },
       { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Standing Calf Raise", sets: 4, repRange: [10,12], cat: "burnout" }
-    ]
+    ],
+    bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" }
   },
   pushB: {
     label: "Push B",
@@ -354,7 +357,8 @@ const DAYS = {
       { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation" }
-    ]
+    ],
+    bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" }
   },
   pullB: {
     label: "Pull B",
@@ -365,7 +369,8 @@ const DAYS = {
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation" },
       { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout" },
       { name: "Barbell Curl", sets: 2, repRange: [8,10], cat: "isolation" }
-    ]
+    ],
+    bonus: { name: "Shrugs", sets: 3, repRange: [10,12], cat: "isolation" }
   },
   legsB: {
     label: "Legs B",
@@ -376,7 +381,8 @@ const DAYS = {
       { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation" },
       { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Standing Calf Raise", sets: 3, repRange: [10,12], cat: "burnout" }
-    ]
+    ],
+    bonus: { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate" }
   }
 };
 const DAY_KEYS = ["pushA","pullA","legsA","pushB","pullB","legsB"];
@@ -481,11 +487,12 @@ let showAllExercises = false; // per-day override to ignore the time-budget trim
 /* ============ SESSION LENGTH / TIME-BUDGET TRIMMING ============ */
 
 const WORK_SECONDS_PER_SET = 40; // rough time to perform one set, used only to estimate exercise duration
-const TRIM_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = dropped first; compound is never dropped
+const TRIM_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = dropped first when shrinking; compound is never dropped
+const ADD_SET_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = gets extra sets first when there's slack
+const MAX_EXTRA_SETS = { burnout: 2, isolation: 2, moderate: 1, compound: 1 }; // cap on bonus sets per exercise, so longer sessions don't pile fatiguing volume onto compounds
 
-function estimateExerciseSeconds(ex) {
-  return ex.sets * (WORK_SECONDS_PER_SET + REST_BY_CAT[ex.cat]);
-}
+function perSetSeconds(cat) { return WORK_SECONDS_PER_SET + REST_BY_CAT[cat]; }
+function estimateExerciseSeconds(ex) { return ex.sets * perSetSeconds(ex.cat); }
 
 async function loadSessionLength() {
   try {
@@ -499,41 +506,107 @@ async function saveSessionLength() {
   try { await window.storage.set('settings:sessionLength', String(sessionLengthMinutes)); } catch (e) {}
 }
 
-// picks which exercise indexes to show for a day so the total estimated time
-// fits the session-length budget: drops burnout, then isolation, then moderate
-// exercises (in that priority order) one at a time until under budget or out
-// of droppable exercises. Compound lifts are never dropped.
-function computeTrimmedExercises(dayKey) {
+// Decides what to show for a day at the current session-length budget.
+// Returns { entries: [{ex, sets}], hiddenNames, extraSetsAdded, bonusAdded }
+//   - under budget at base set counts: shrink by dropping whole exercises
+//     (burnout first, then isolation, then moderate; compound is never dropped)
+//   - at or under budget already, with room to spare: grow by adding extra
+//     sets to existing exercises first (burnout/isolation get extra sets more
+//     readily since they're cheaper to recover from), then add the day's
+//     bonus exercise if it still fits
+function computeSessionPlan(dayKey) {
   const day = DAYS[dayKey];
-  const all = day.exercises.map((ex, idx) => ({ ex, idx }));
   const budgetSeconds = sessionLengthMinutes * 60;
+  const baseTotal = day.exercises.reduce((sum, ex) => sum + estimateExerciseSeconds(ex), 0);
 
-  let remaining = all.slice();
-  const droppable = all
-    .filter(e => e.ex.cat !== 'compound')
-    .sort((a, b) => TRIM_PRIORITY[a.ex.cat] - TRIM_PRIORITY[b.ex.cat]);
-
-  const totalSeconds = (list) => list.reduce((sum, e) => sum + estimateExerciseSeconds(e.ex), 0);
-  const hidden = [];
-  for (const cand of droppable) {
-    if (totalSeconds(remaining) <= budgetSeconds) break;
-    remaining = remaining.filter(e => e.idx !== cand.idx);
-    hidden.push(cand.idx);
+  if (baseTotal > budgetSeconds) {
+    const all = day.exercises.map((ex, idx) => ({ ex, idx }));
+    let remaining = all.slice();
+    const droppable = all
+      .filter(e => e.ex.cat !== 'compound')
+      .sort((a, b) => TRIM_PRIORITY[a.ex.cat] - TRIM_PRIORITY[b.ex.cat]);
+    const totalSeconds = (list) => list.reduce((sum, e) => sum + estimateExerciseSeconds(e.ex), 0);
+    const hidden = [];
+    for (const cand of droppable) {
+      if (totalSeconds(remaining) <= budgetSeconds) break;
+      remaining = remaining.filter(e => e.idx !== cand.idx);
+      hidden.push(cand.idx);
+    }
+    return {
+      entries: remaining.map(e => ({ ex: e.ex, sets: e.ex.sets })),
+      hiddenNames: hidden.map(idx => day.exercises[idx].name),
+      extraSetsAdded: 0,
+      bonusAdded: null
+    };
   }
-  return { visible: remaining.map(e => e.idx), hidden };
+
+  // room to spare: grow sets on the base list first
+  const plan = day.exercises.map(ex => ({ ex, extra: 0 }));
+  let total = baseTotal;
+  for (;;) {
+    const candidates = plan
+      .filter(e => e.extra < (MAX_EXTRA_SETS[e.ex.cat] ?? 0))
+      .sort((a, b) => ADD_SET_PRIORITY[a.ex.cat] - ADD_SET_PRIORITY[b.ex.cat]);
+    const next = candidates[0];
+    if (!next) break;
+    const addSeconds = perSetSeconds(next.ex.cat);
+    if (total + addSeconds > budgetSeconds) break;
+    next.extra += 1;
+    total += addSeconds;
+  }
+  const extraSetsAdded = plan.reduce((sum, e) => sum + e.extra, 0);
+
+  // then add the day's bonus exercise if there's still room for it
+  let bonusAdded = null;
+  const bonus = day.bonus;
+  if (bonus) {
+    const bonusSeconds = estimateExerciseSeconds(bonus);
+    if (total + bonusSeconds <= budgetSeconds) bonusAdded = bonus.name;
+  }
+
+  const entries = plan.map(e => ({ ex: e.ex, sets: e.ex.sets + e.extra }));
+  if (bonusAdded) entries.push({ ex: bonus, sets: bonus.sets });
+
+  return { entries, hiddenNames: [], extraSetsAdded, bonusAdded };
 }
 
-function renderTrimNote(content, day, hiddenIndexes) {
-  if (!hiddenIndexes.length) return;
-  const names = hiddenIndexes.map(i => day.exercises[i].name);
-  const note = document.createElement('div');
-  note.className = 'trim-note';
-  note.innerHTML = `Trimmed ${names.length} exercise${names.length > 1 ? 's' : ''} to fit ${sessionLengthMinutes} min: ${names.join(', ')}.<button class="trim-show-all" id="trimShowAllBtn">Show all</button>`;
-  content.appendChild(note);
-  note.querySelector('#trimShowAllBtn').addEventListener('click', async () => {
-    showAllExercises = true;
-    await renderAll();
-  });
+function renderPlanNote(content, plan) {
+  if (plan.hiddenNames.length) {
+    const note = document.createElement('div');
+    note.className = 'trim-note';
+    note.innerHTML = `Trimmed ${plan.hiddenNames.length} exercise${plan.hiddenNames.length > 1 ? 's' : ''} to fit ${sessionLengthMinutes} min: ${plan.hiddenNames.join(', ')}.<button class="trim-show-all" id="trimShowAllBtn">Show all</button>`;
+    content.appendChild(note);
+    note.querySelector('#trimShowAllBtn').addEventListener('click', async () => {
+      showAllExercises = true;
+      await renderAll();
+    });
+    return;
+  }
+  if (plan.extraSetsAdded || plan.bonusAdded) {
+    const parts = [];
+    if (plan.extraSetsAdded) parts.push(`+${plan.extraSetsAdded} extra set${plan.extraSetsAdded > 1 ? 's' : ''} added`);
+    if (plan.bonusAdded) parts.push(`bonus exercise added: ${plan.bonusAdded}`);
+    const note = document.createElement('div');
+    note.className = 'trim-note';
+    note.textContent = `${sessionLengthMinutes} min budget — ${parts.join('; ')}.`;
+    content.appendChild(note);
+  }
+}
+
+// currentData.exercises only ever grows — this finds an exercise's stored
+// entry by name (creating a blank one for bonus exercises that weren't part
+// of the session when it started) and pads its sets up to plannedSets,
+// never removing sets so already-logged data is never lost.
+function getOrCreateExerciseEntry(exerciseName, plannedSets) {
+  let entry = currentData.exercises.find(e => e.name === exerciseName);
+  if (!entry) {
+    entry = { name: exerciseName, sets: [] };
+    currentData.exercises.push(entry);
+  }
+  while (entry.sets.length < plannedSets) {
+    entry.sets.push({ weight: "", reps: "", done: false });
+  }
+  return entry;
 }
 
 document.getElementById('sessionLengthSlider').addEventListener('input', (e) => {
@@ -658,14 +731,15 @@ async function renderAll() {
   const content = document.getElementById('content');
   content.innerHTML = "";
 
-  const { visible, hidden } = showAllExercises
-    ? { visible: day.exercises.map((_, i) => i), hidden: [] }
-    : computeTrimmedExercises(currentDay);
+  const plan = showAllExercises
+    ? { entries: day.exercises.map(ex => ({ ex, sets: ex.sets })), hiddenNames: [], extraSetsAdded: 0, bonusAdded: null }
+    : computeSessionPlan(currentDay);
 
-  for (const idx of visible) {
-    await renderExerciseBlock(content, day.exercises[idx], idx);
+  let slot = 0;
+  for (const entry of plan.entries) {
+    await renderExerciseBlock(content, entry.ex, entry.sets, slot++);
   }
-  renderTrimNote(content, day, hidden);
+  renderPlanNote(content, plan);
 
   document.getElementById('saveState').textContent = '';
 }
@@ -693,9 +767,9 @@ async function findReferenceExercise(dayKey, excludeTimestamp, exerciseName) {
   return null;
 }
 
-async function updateProgressionUI(block, ex, idx) {
-  const refEl = block.querySelector(`#ref-${idx}`);
-  const badgeEl = block.querySelector(`#badge-${idx}`);
+async function updateProgressionUI(block, ex, slot) {
+  const refEl = block.querySelector(`#ref-${slot}`);
+  const badgeEl = block.querySelector(`#badge-${slot}`);
   badgeEl.innerHTML = '';
 
   const refExercise = await findReferenceExercise(currentDay, currentData.timestamp, ex.name);
@@ -722,7 +796,9 @@ async function updateProgressionUI(block, ex, idx) {
   }
 }
 
-async function renderExerciseBlock(content, ex, idx) {
+async function renderExerciseBlock(content, ex, plannedSets, slot) {
+  const entry = getOrCreateExerciseEntry(ex.name, plannedSets);
+
   const block = document.createElement('div');
   block.className = 'block';
   block.innerHTML = `
@@ -733,19 +809,19 @@ async function renderExerciseBlock(content, ex, idx) {
       </div>
       <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
     </div>
-    <div class="exercise-reference" id="ref-${idx}"></div>
-    <div id="badge-${idx}"></div>
+    <div class="exercise-reference" id="ref-${slot}"></div>
+    <div id="badge-${slot}"></div>
     <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
-    <tbody id="sets-${idx}"></tbody></table>
+    <tbody id="sets-${slot}"></tbody></table>
   `;
   content.appendChild(block);
 
-  await updateProgressionUI(block, ex, idx);
+  await updateProgressionUI(block, ex, slot);
 
-  const setsBody = block.querySelector(`#sets-${idx}`);
+  const setsBody = block.querySelector(`#sets-${slot}`);
   function renderSets() {
     setsBody.innerHTML = "";
-    currentData.exercises[idx].sets.forEach((set, si) => {
+    entry.sets.forEach((set, si) => {
       const tr = document.createElement('tr');
       tr.className = 'set-row' + (set.done ? ' done' : '');
       tr.innerHTML = `
@@ -759,7 +835,7 @@ async function renderExerciseBlock(content, ex, idx) {
     setsBody.querySelectorAll('input').forEach(inp => {
       inp.addEventListener('input', (e) => {
         const si = parseInt(e.target.dataset.idx);
-        currentData.exercises[idx].sets[si][e.target.dataset.field] = e.target.value;
+        entry.sets[si][e.target.dataset.field] = e.target.value;
         queueSave();
       });
     });
@@ -769,7 +845,7 @@ async function renderExerciseBlock(content, ex, idx) {
     setsBody.querySelectorAll('.check-box').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const si = parseInt(e.currentTarget.dataset.idx);
-        const set = currentData.exercises[idx].sets[si];
+        const set = entry.sets[si];
         set.done = !set.done;
         renderSets();
         queueSave();
