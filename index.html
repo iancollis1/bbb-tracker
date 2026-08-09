@@ -106,6 +106,15 @@
   .block-title-group { display: flex; flex-direction: column; gap: 2px; }
   .block-title { font-family: 'Bebas Neue', sans-serif; font-size: 23px; letter-spacing: 0.02em; }
   .block-rep-range { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
+  .info-toggle { cursor: pointer; }
+  .info-toggle:hover { color: var(--plate-blue); }
+  .info-hint { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--plate-blue); margin-left: 4px; vertical-align: middle; }
+  .exercise-info-panel {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); line-height: 1.5;
+    padding: 0 14px 10px 14px; border-bottom: 1px solid var(--line);
+  }
+  .exercise-info-panel .info-muscles { color: var(--chalk); font-weight: 600; margin-bottom: 3px; }
+  .exercise-info-panel .info-cue { font-style: italic; }
   .block-tag {
     font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 5px 10px; color: #ffffff; border-radius: 4px; font-weight: 700; white-space: nowrap;
@@ -375,7 +384,7 @@ const DAYS = {
   legsB: {
     label: "Legs B",
     exercises: [
-      { name: "Romanian Deadlift", sets: 4, repRange: [6,8], cat: "compound" },
+      { name: "Cable Pull-Through", sets: 4, repRange: [8,10], cat: "compound" },
       { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation" },
@@ -392,6 +401,45 @@ const REST_BY_CAT = {
   moderate: 105,   // 90s-2min
   isolation: 75,   // 60-90s
   burnout: 50      // 45-60s
+};
+
+// target muscles + a one-line form cue per exercise, shown via tap-to-expand on the exercise name
+const EXERCISE_INFO = {
+  "Incline Barbell Press": { muscles: "Upper chest, front delts, triceps", cue: "Bar path travels up and back toward your face, not straight up." },
+  "Flat DB Press": { muscles: "Chest, front delts, triceps", cue: "Let dumbbells travel slightly inward at the top; don't clang them together." },
+  "Cable Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Slight bend in elbows throughout, squeeze at center like hugging a barrel." },
+  "Cable Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height." },
+  "Overhead Rope Ext.": { muscles: "Triceps (long head)", cue: "Elbows stay pinned by your ears; only forearms move." },
+  "Pushdowns": { muscles: "Triceps", cue: "Elbows locked at your sides; don't let them drift forward." },
+  "Front Raise": { muscles: "Front delts", cue: "Controlled up and down, no swinging from your hips." },
+  "Pull-Ups (weighted)": { muscles: "Lats, biceps, rear delts", cue: "Pull elbows down and back, not just up." },
+  "Barbell / Chest-Sup. Row": { muscles: "Mid-back, lats, biceps", cue: "Squeeze shoulder blades together at the top." },
+  "Lat Pulldown (wide)": { muscles: "Lats", cue: "Lead with your elbows, chest up, no leaning back excessively." },
+  "Seated Cable Row": { muscles: "Mid-back, lats", cue: "Keep torso still; row with your elbows, not your lower back." },
+  "Incline DB Curl": { muscles: "Biceps (long head, stretch emphasis)", cue: "Let arms hang fully behind your torso at the bottom." },
+  "Face Pull": { muscles: "Rear delts, upper back", cue: "Pull toward your face, elbows high, thumbs point back." },
+  "Front Squat": { muscles: "Quads, core", cue: "Elbows up, keep the bar resting on front delts, chest tall." },
+  "Leg Press": { muscles: "Quads, glutes", cue: "Don't let knees cave in; stop before lower back rounds off the pad." },
+  "Leg Extension": { muscles: "Quads", cue: "Slow controlled negative; don't let the weight stack slam." },
+  "Seated Leg Curl": { muscles: "Hamstrings", cue: "Point toes toward shins to fully engage hamstrings." },
+  "Standing Calf Raise": { muscles: "Calves (gastrocnemius)", cue: "Full stretch at bottom, pause at top." },
+  "Hanging Leg Raise": { muscles: "Lower abs, hip flexors", cue: "Curl pelvis up, don't just swing legs." },
+  "Overhead Press": { muscles: "Front/side delts, triceps", cue: "Squeeze glutes, don't lean back to press." },
+  "Incline DB Press": { muscles: "Upper chest, front delts", cue: "Same path as flat press, just steeper bench angle." },
+  "Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward, lead with elbows, thumbs point down." },
+  "Close-Grip Bench / Dips": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." },
+  "Cable Crossover": { muscles: "Chest (inner fibers)", cue: "Cross hands slightly at the bottom for full contraction." },
+  "Weighted Pull-Up / Pulldown": { muscles: "Lats, biceps", cue: "Pull elbows down and back, not just up." },
+  "Seal Row / T-Bar Row": { muscles: "Mid-back", cue: "Chest supported, pull straight up into your ribs." },
+  "Straight-Arm Pulldown": { muscles: "Lats", cue: "Arms stay straight, hinge only at the shoulder." },
+  "Cable Curl": { muscles: "Biceps", cue: "Constant tension — don't let the weight rest at the bottom." },
+  "Barbell Curl": { muscles: "Biceps", cue: "No swinging; elbows stay pinned at your sides." },
+  "Shrugs": { muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
+  "Cable Pull-Through": { muscles: "Glutes, hamstrings", cue: "Hinge at hips, spine stays neutral/extended — push hips back, not down." },
+  "Lying Leg Curl": { muscles: "Hamstrings", cue: "Squeeze at the top, don't let hips lift off the pad." },
+  "Walking Lunge / Bulg. Split Squat": { muscles: "Quads, glutes", cue: "Front knee tracks over toes, torso stays upright." },
+  "Seated Calf Raise": { muscles: "Calves (soleus)", cue: "Slow and full range — this muscle responds to control, not speed." },
+  "Hip Thrust": { muscles: "Glutes", cue: "Chin tucked, drive through heels, squeeze glutes hard at top." }
 };
 
 /* ============ PLATE CALCULATOR ============ */
@@ -804,17 +852,34 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
   block.innerHTML = `
     <div class="block-head">
       <div class="block-title-group">
-        <span class="block-title">${ex.name}</span>
+        <span class="block-title info-toggle" id="title-${slot}" tabindex="0" role="button" aria-expanded="false">${ex.name}<span class="info-hint">ⓘ</span></span>
         <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} reps</span>
       </div>
       <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
     </div>
+    <div class="exercise-info-panel" id="info-${slot}" style="display:none;"></div>
     <div class="exercise-reference" id="ref-${slot}"></div>
     <div id="badge-${slot}"></div>
     <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
     <tbody id="sets-${slot}"></tbody></table>
   `;
   content.appendChild(block);
+
+  const info = EXERCISE_INFO[ex.name];
+  const infoPanel = block.querySelector(`#info-${slot}`);
+  infoPanel.innerHTML = info
+    ? `<div class="info-muscles">${info.muscles}</div><div class="info-cue">"${info.cue}"</div>`
+    : `<div class="info-muscles">No info available yet.</div>`;
+  const titleEl = block.querySelector(`#title-${slot}`);
+  const toggleInfo = () => {
+    const nowOpen = infoPanel.style.display === 'none';
+    infoPanel.style.display = nowOpen ? 'block' : 'none';
+    titleEl.setAttribute('aria-expanded', String(nowOpen));
+  };
+  titleEl.addEventListener('click', toggleInfo);
+  titleEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleInfo(); }
+  });
 
   await updateProgressionUI(block, ex, slot);
 
