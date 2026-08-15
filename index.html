@@ -217,6 +217,15 @@
   }
   .plate-toggle.active { background: var(--plate-amber); border-color: var(--plate-amber); color: #fff; }
   .settings-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
+  .backup-row { display: flex; gap: 8px; }
+  .backup-btn {
+    flex: 1; text-align: center; padding: 11px; border: 2px solid var(--line); border-radius: 5px;
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--iron-raised); color: var(--chalk);
+  }
+  .backup-btn:hover { border-color: var(--plate-blue); }
+  .import-status { font-family: 'DM Mono', monospace; font-size: 11px; margin-top: 8px; line-height: 1.5; }
+  .import-status.success { color: var(--plate-green); }
+  .import-status.error { color: var(--plate-red); }
 
   .set-row td { padding-bottom: 8px; padding-top: 4px; }
 
@@ -302,6 +311,15 @@
       <div class="plate-grid" id="plateGrid"></div>
 
       <div class="settings-hint">Tap a plate to toggle it on/off. These are what's "in the room" — the calculator will only suggest combinations using plates you've marked available. Tap any weight number on a set to see the breakdown.</div>
+
+      <div class="settings-section-label">Data Backup</div>
+      <div class="backup-row">
+        <button class="backup-btn" id="exportDataBtn">EXPORT DATA</button>
+        <button class="backup-btn" id="importDataBtn">IMPORT DATA</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+      <div class="import-status" id="importStatus"></div>
+      <div class="settings-hint">Export saves every logged session to a JSON file you can keep as a backup. Import restores sessions from a previously exported file — sessions with the same day and timestamp are overwritten, others are added alongside what's already there.</div>
     </div>
   </main>
 </div>
@@ -1160,6 +1178,136 @@ document.getElementById('settingsToggle').addEventListener('click', () => {
   } else {
     panel.style.display = 'none';
     toggle.textContent = 'PLATE SETTINGS ▾';
+  }
+});
+
+/* ============ DATA EXPORT / IMPORT ============ */
+
+function showImportStatus(message, kind) {
+  const el = document.getElementById('importStatus');
+  el.textContent = message;
+  el.className = 'import-status' + (kind ? ' ' + kind : '');
+}
+
+async function exportData() {
+  const result = await window.storage.list('ppl:');
+  const keyNames = (result && result.keys ? result.keys : []).sort();
+  if (keyNames.length === 0) {
+    showImportStatus('No logged sessions yet — nothing to export.', 'error');
+    return;
+  }
+  const keys = {};
+  for (const key of keyNames) {
+    const r = await window.storage.get(key);
+    if (r && typeof r.value === 'string') keys[key] = r.value;
+  }
+  const payload = {
+    app: 'ppl-log',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    keys
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ppl-log-export-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showImportStatus(`Exported ${keyNames.length} session${keyNames.length > 1 ? 's' : ''}.`, 'success');
+}
+
+// returns an error message string if the parsed file doesn't look like a
+// genuine export, or null if it passes every check and is safe to import
+function validateExportPayload(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return 'That file is not a valid export — expected a JSON object.';
+  }
+  if (payload.app !== 'ppl-log') {
+    return 'That file doesn\'t look like a PPL Log export (missing or wrong "app" field).';
+  }
+  if (!payload.keys || typeof payload.keys !== 'object' || Array.isArray(payload.keys)) {
+    return 'That file is missing its session data.';
+  }
+  const entries = Object.entries(payload.keys);
+  if (entries.length === 0) {
+    return 'That file has no sessions in it.';
+  }
+  for (const [key, value] of entries) {
+    if (!/^ppl:[A-Za-z0-9]+:\d+$/.test(key)) {
+      return `Unexpected key "${key}" — this doesn't match the PPL Log session format.`;
+    }
+    if (typeof value !== 'string') {
+      return `Session data for "${key}" is the wrong type.`;
+    }
+    let session;
+    try {
+      session = JSON.parse(value);
+    } catch (e) {
+      return `Session data for "${key}" isn't valid JSON.`;
+    }
+    if (!session || typeof session !== 'object' || typeof session.timestamp !== 'number' || !Array.isArray(session.exercises)) {
+      return `Session data for "${key}" doesn't look like a workout session.`;
+    }
+  }
+  return null;
+}
+
+document.getElementById('exportDataBtn').addEventListener('click', exportData);
+
+document.getElementById('importDataBtn').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = ''; // allow re-selecting the same file later
+  if (!file) return;
+
+  let text;
+  try {
+    text = await file.text();
+  } catch (err) {
+    showImportStatus('Could not read that file.', 'error');
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(text);
+  } catch (err) {
+    showImportStatus('That file is not valid JSON — import cancelled, nothing was changed.', 'error');
+    return;
+  }
+
+  const validationError = validateExportPayload(payload);
+  if (validationError) {
+    showImportStatus(validationError + ' Import cancelled, nothing was changed.', 'error');
+    return;
+  }
+
+  const keyCount = Object.keys(payload.keys).length;
+  const exportedDate = payload.exportedAt ? new Date(payload.exportedAt).toLocaleString() : 'unknown date';
+  const proceed = confirm(
+    `Import ${keyCount} session${keyCount > 1 ? 's' : ''} from this file (exported ${exportedDate})?\n\n` +
+    `Sessions with the same day and timestamp as ones you already have will be overwritten. Everything else is added alongside your existing sessions.\n\n` +
+    `Click OK to import, or Cancel to make no changes.`
+  );
+  if (!proceed) {
+    showImportStatus('Import cancelled — no changes were made.', '');
+    return;
+  }
+
+  for (const [key, value] of Object.entries(payload.keys)) {
+    await window.storage.set(key, value);
+  }
+  showImportStatus(`Imported ${keyCount} session${keyCount > 1 ? 's' : ''}.`, 'success');
+  showAllExercises = false;
+  await renderAll();
+  if (document.getElementById('historyList').style.display !== 'none') {
+    await renderHistory(document.getElementById('historyList'));
   }
 });
 
