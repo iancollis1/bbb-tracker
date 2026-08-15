@@ -335,7 +335,12 @@ const DAYS = {
       { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout" }
     ],
-    bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" }
+    bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" },
+    extended: {
+      isolationBumps: ["Cable Flyes", "Overhead Rope Ext."],
+      moderateBump: "Flat DB Press",
+      bonus2: { name: "Pec Deck", sets: 3, repRange: [10,12], cat: "isolation" }
+    }
   },
   pullA: {
     label: "Pull A",
@@ -346,7 +351,12 @@ const DAYS = {
       { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2 }
     ],
-    bonus: { name: "Face Pull", sets: 3, repRange: [12,15], cat: "burnout" }
+    bonus: { name: "Face Pull", sets: 3, repRange: [12,15], cat: "burnout" },
+    extended: {
+      isolationBumps: ["Lat Pulldown (wide)", "Incline DB Curl"],
+      moderateBump: "Seated Cable Row",
+      bonus2: { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation" }
+    }
   },
   legsA: {
     label: "Legs A",
@@ -357,7 +367,12 @@ const DAYS = {
       { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout" }
     ],
-    bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" }
+    bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" },
+    extended: {
+      isolationBumps: ["Leg Extension", "Seated Leg Curl"],
+      moderateBump: "Leg Press",
+      bonus2: { name: "Cable Crunch", sets: 3, repRange: [12,15], cat: "isolation" }
+    }
   },
   pushB: {
     label: "Push B",
@@ -369,7 +384,12 @@ const DAYS = {
       { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation" }
     ],
-    bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" }
+    bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" },
+    extended: {
+      isolationBumps: ["Overhead Rope Ext.", "Close-Grip Bench / Dips"],
+      moderateBump: "Incline DB Press",
+      bonus2: { name: "Tricep Kickback", sets: 3, repRange: [12,15], cat: "isolation" }
+    }
   },
   pullB: {
     label: "Pull B",
@@ -381,7 +401,12 @@ const DAYS = {
       { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout" },
       { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side" }
     ],
-    bonus: { name: "Shrugs", sets: 3, repRange: [10,12], cat: "isolation" }
+    bonus: { name: "Shrugs", sets: 3, repRange: [10,12], cat: "isolation" },
+    extended: {
+      isolationBumps: ["Straight-Arm Pulldown", "Cable Curl"],
+      moderateBump: "Seal Row / T-Bar Row",
+      bonus2: { name: "Hammer Curl", sets: 3, repRange: [8,10], cat: "isolation" }
+    }
   },
   legsB: {
     label: "Legs B",
@@ -393,7 +418,12 @@ const DAYS = {
       { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 }
     ],
-    bonus: { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate" }
+    bonus: { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate" },
+    extended: {
+      isolationBumps: ["Lying Leg Curl", "Leg Extension"],
+      moderateBump: "Walking Lunge / Bulg. Split Squat",
+      bonus2: { name: "Weighted Plank", sets: 3, repRange: [30,45], cat: "core", repUnit: "sec hold" }
+    }
   }
 };
 const DAY_KEYS = ["pushA","pullA","legsA","pushB","pullB","legsB"];
@@ -442,7 +472,12 @@ const EXERCISE_INFO = {
   "Lying Leg Curl": { muscles: "Hamstrings", cue: "Squeeze at the top, don't let hips lift off the pad." },
   "Walking Lunge / Bulg. Split Squat": { muscles: "Quads, glutes", cue: "Front knee tracks over toes, torso stays upright." },
   "Seated Calf Raise": { muscles: "Calves (soleus)", cue: "Slow and full range — this muscle responds to control, not speed." },
-  "Hip Thrust": { muscles: "Glutes", cue: "Chin tucked, drive through heels, squeeze glutes hard at top." }
+  "Hip Thrust": { muscles: "Glutes", cue: "Chin tucked, drive through heels, squeeze glutes hard at top." },
+  "Pec Deck": { muscles: "Chest (inner/outer fibers)", cue: "Squeeze and hold at full contraction, elbows stay slightly bent throughout." },
+  "Cable Crunch": { muscles: "Abs", cue: "Round your spine, pull elbows toward hips, not just down." },
+  "Tricep Kickback": { muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves." },
+  "Hammer Curl": { muscles: "Brachialis, forearm", cue: "Neutral grip throughout, no wrist rotation — keep elbows pinned at your sides." },
+  "Weighted Plank": { muscles: "Core", cue: "Squeeze glutes and brace core — don't let hips sag or pike up." }
 };
 
 /* ============ PLATE CALCULATOR ============ */
@@ -597,37 +632,86 @@ function computeSessionPlan(dayKey) {
       entries: state.map(e => ({ ex: e.ex, sets: e.sets })),
       hiddenNames: hidden.map(idx => day.exercises[idx].name),
       extraSetsAdded: 0,
-      bonusAdded: null
+      bonusAdded: []
     };
   }
 
-  // room to spare: grow sets on the base list first
+  // room to spare: grow sets on the base list first, capped per category.
+  // Run in two phases so compound lifts can never grow past whatever the
+  // 60-minute budget alone would give them: on a day with two compound
+  // lifts, 60 minutes isn't always enough budget to fill both to their cap
+  // (priority order fills burnout/isolation/moderate first), so without this
+  // split, a bigger budget at 75m+ would let the same loop finish the job
+  // and a compound lift would grow past its 60-minute value. Phase 2 still
+  // lets non-compound categories use any real headroom past 60 minutes,
+  // though in practice they're already saturated by then.
   const plan = day.exercises.map(ex => ({ ex, extra: 0 }));
   let total = baseTotal;
-  for (;;) {
-    const candidates = plan
-      .filter(e => e.extra < (MAX_EXTRA_SETS[e.ex.cat] ?? 0))
-      .sort((a, b) => ADD_SET_PRIORITY[a.ex.cat] - ADD_SET_PRIORITY[b.ex.cat]);
-    const next = candidates[0];
-    if (!next) break;
-    const addSeconds = perSetSeconds(next.ex.cat);
-    if (total + addSeconds > budgetSeconds) break;
-    next.extra += 1;
-    total += addSeconds;
+  const budget60 = Math.min(budgetSeconds, 60 * 60);
+  function growTo(maxBudget, excludeCompound) {
+    for (;;) {
+      const candidates = plan
+        .filter(e => e.extra < (MAX_EXTRA_SETS[e.ex.cat] ?? 0))
+        .filter(e => !excludeCompound || e.ex.cat !== 'compound')
+        .sort((a, b) => ADD_SET_PRIORITY[a.ex.cat] - ADD_SET_PRIORITY[b.ex.cat]);
+      const next = candidates[0];
+      if (!next) break;
+      const addSeconds = perSetSeconds(next.ex.cat);
+      if (total + addSeconds > maxBudget) break;
+      next.extra += 1;
+      total += addSeconds;
+    }
   }
+  growTo(budget60, false);
+  growTo(budgetSeconds, true);
+
+  // then add the day's (first) bonus exercise if there's still room for it
+  let bonus1Added = null;
+  const bonus1 = day.bonus;
+  if (bonus1) {
+    const bonus1Seconds = estimateExerciseSeconds(bonus1);
+    if (total + bonus1Seconds <= budgetSeconds) { bonus1Added = bonus1.name; total += bonus1Seconds; }
+  }
+
+  // 90/105 min: fixed per-day content beyond the normal per-category cap -
+  // two named exercises get +1 set at 90m and another +1 at 105m (cumulative),
+  // one named exercise gets +1 at 105m, and a second bonus exercise appears
+  // at 90m. This is deliberately a fixed schedule, not a budget-fit search,
+  // since by these bands every day has generous slack past its base+bonus1 total.
+  const ext = day.extended;
+  let bonus2Added = null;
+  if (ext) {
+    if (sessionLengthMinutes >= 90) {
+      for (const name of ext.isolationBumps) {
+        const item = plan.find(e => e.ex.name === name);
+        if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
+      }
+      if (ext.bonus2) {
+        const bonus2Seconds = estimateExerciseSeconds(ext.bonus2);
+        if (total + bonus2Seconds <= budgetSeconds) { bonus2Added = ext.bonus2.name; total += bonus2Seconds; }
+      }
+    }
+    if (sessionLengthMinutes >= 105) {
+      for (const name of ext.isolationBumps) {
+        const item = plan.find(e => e.ex.name === name);
+        if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
+      }
+      const modItem = plan.find(e => e.ex.name === ext.moderateBump);
+      if (modItem) { modItem.extra += 1; total += perSetSeconds(modItem.ex.cat); }
+    }
+  }
+
   const extraSetsAdded = plan.reduce((sum, e) => sum + e.extra, 0);
 
-  // then add the day's bonus exercise if there's still room for it
-  let bonusAdded = null;
-  const bonus = day.bonus;
-  if (bonus) {
-    const bonusSeconds = estimateExerciseSeconds(bonus);
-    if (total + bonusSeconds <= budgetSeconds) bonusAdded = bonus.name;
-  }
+  // 120 min: both bonus exercises grow from 3 sets to 4
+  const bonus1Sets = sessionLengthMinutes >= 120 ? bonus1.sets + 1 : bonus1.sets;
+  const bonus2Sets = ext && ext.bonus2 && sessionLengthMinutes >= 120 ? ext.bonus2.sets + 1 : (ext && ext.bonus2 ? ext.bonus2.sets : 0);
 
   const entries = plan.map(e => ({ ex: e.ex, sets: e.ex.sets + e.extra }));
-  if (bonusAdded) entries.push({ ex: bonus, sets: bonus.sets });
+  if (bonus1Added) entries.push({ ex: bonus1, sets: bonus1Sets });
+  if (bonus2Added) entries.push({ ex: ext.bonus2, sets: bonus2Sets });
 
+  const bonusAdded = [bonus1Added, bonus2Added].filter(Boolean);
   return { entries, hiddenNames: [], extraSetsAdded, bonusAdded };
 }
 
@@ -643,10 +727,10 @@ function renderPlanNote(content, plan) {
     });
     return;
   }
-  if (plan.extraSetsAdded || plan.bonusAdded) {
+  if (plan.extraSetsAdded || plan.bonusAdded.length) {
     const parts = [];
     if (plan.extraSetsAdded) parts.push(`+${plan.extraSetsAdded} extra set${plan.extraSetsAdded > 1 ? 's' : ''} added`);
-    if (plan.bonusAdded) parts.push(`bonus exercise added: ${plan.bonusAdded}`);
+    if (plan.bonusAdded.length) parts.push(`bonus exercise${plan.bonusAdded.length > 1 ? 's' : ''} added: ${plan.bonusAdded.join(', ')}`);
     const note = document.createElement('div');
     note.className = 'trim-note';
     note.textContent = `${sessionLengthMinutes} min budget — ${parts.join('; ')}.`;
@@ -793,7 +877,7 @@ async function renderAll() {
   content.innerHTML = "";
 
   const plan = showAllExercises
-    ? { entries: day.exercises.map(ex => ({ ex, sets: ex.sets })), hiddenNames: [], extraSetsAdded: 0, bonusAdded: null }
+    ? { entries: day.exercises.map(ex => ({ ex, sets: ex.sets })), hiddenNames: [], extraSetsAdded: 0, bonusAdded: [] }
     : computeSessionPlan(currentDay);
 
   let slot = 0;
@@ -866,7 +950,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
     <div class="block-head">
       <div class="block-title-group">
         <span class="block-title info-toggle" id="title-${slot}" tabindex="0" role="button" aria-expanded="false">${ex.name}<span class="info-hint">ⓘ</span></span>
-        <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} reps${ex.repNote ? ' ' + ex.repNote : ''}</span>
+        <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} ${ex.repUnit || 'reps'}${ex.repNote ? ' ' + ex.repNote : ''}</span>
       </div>
       <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
     </div>
