@@ -115,6 +115,7 @@
   }
   .exercise-info-panel .info-muscles { color: var(--chalk); font-weight: 600; margin-bottom: 3px; }
   .exercise-info-panel .info-cue { font-style: italic; }
+  .exercise-info-panel .info-note { margin-top: 5px; color: var(--plate-amber); }
   .block-tag {
     font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 5px 10px; color: #ffffff; border-radius: 4px; font-weight: 700; white-space: nowrap;
@@ -123,6 +124,7 @@
   .tag-moderate { background: var(--plate-blue); }
   .tag-isolation { background: var(--plate-amber); }
   .tag-burnout { background: #5a564c; }
+  .tag-core { background: var(--plate-amber); } /* isolation-tier */
 
   .exercise-reference {
     font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim);
@@ -342,7 +344,7 @@ const DAYS = {
       { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound" },
       { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate" },
-      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation" }
+      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2 }
     ],
     bonus: { name: "Face Pull", sets: 3, repRange: [12,15], cat: "burnout" }
   },
@@ -353,7 +355,7 @@ const DAYS = {
       { name: "Leg Press", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation" },
       { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Standing Calf Raise", sets: 4, repRange: [10,12], cat: "burnout" }
+      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout" }
     ],
     bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" }
   },
@@ -377,7 +379,7 @@ const DAYS = {
       { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation" },
       { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout" },
-      { name: "Barbell Curl", sets: 2, repRange: [8,10], cat: "isolation" }
+      { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side" }
     ],
     bonus: { name: "Shrugs", sets: 3, repRange: [10,12], cat: "isolation" }
   },
@@ -389,7 +391,7 @@ const DAYS = {
       { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation" },
       { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout" },
-      { name: "Standing Calf Raise", sets: 3, repRange: [10,12], cat: "burnout" }
+      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 }
     ],
     bonus: { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate" }
   }
@@ -400,15 +402,16 @@ const REST_BY_CAT = {
   compound: 150,   // 2-3 min
   moderate: 105,   // 90s-2min
   isolation: 75,   // 60-90s
-  burnout: 50      // 45-60s
+  burnout: 50,     // 45-60s
+  core: 75         // isolation-tier — anti-rotation/stability holds rest like an isolation movement
 };
 
 // target muscles + a one-line form cue per exercise, shown via tap-to-expand on the exercise name
 const EXERCISE_INFO = {
   "Incline Barbell Press": { muscles: "Upper chest, front delts, triceps", cue: "Bar path travels up and back toward your face, not straight up." },
   "Flat DB Press": { muscles: "Chest, front delts, triceps", cue: "Let dumbbells travel slightly inward at the top; don't clang them together." },
-  "Cable Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Slight bend in elbows throughout, squeeze at center like hugging a barrel." },
-  "Cable Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height." },
+  "Cable Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Pulleys set high — pull down and across, like hugging a barrel at your hips." },
+  "Cable Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height.", note: "If the lowest cable stack weight is too heavy to hit 12-15 reps, switch to DB lateral raises instead — same cue, lighter increments." },
   "Overhead Rope Ext.": { muscles: "Triceps (long head)", cue: "Elbows stay pinned by your ears; only forearms move." },
   "Pushdowns": { muscles: "Triceps", cue: "Elbows locked at your sides; don't let them drift forward." },
   "Front Raise": { muscles: "Front delts", cue: "Controlled up and down, no swinging from your hips." },
@@ -422,7 +425,7 @@ const EXERCISE_INFO = {
   "Leg Press": { muscles: "Quads, glutes", cue: "Don't let knees cave in; stop before lower back rounds off the pad." },
   "Leg Extension": { muscles: "Quads", cue: "Slow controlled negative; don't let the weight stack slam." },
   "Seated Leg Curl": { muscles: "Hamstrings", cue: "Point toes toward shins to fully engage hamstrings." },
-  "Standing Calf Raise": { muscles: "Calves (gastrocnemius)", cue: "Full stretch at bottom, pause at top." },
+  "Leg Press Platform Calf Raise": { muscles: "Calves (gastrocnemius)", cue: "Legs extended on the leg press, heels off the platform edge — full stretch down, press through the balls of your feet." },
   "Hanging Leg Raise": { muscles: "Lower abs, hip flexors", cue: "Curl pelvis up, don't just swing legs." },
   "Overhead Press": { muscles: "Front/side delts, triceps", cue: "Squeeze glutes, don't lean back to press." },
   "Incline DB Press": { muscles: "Upper chest, front delts", cue: "Same path as flat press, just steeper bench angle." },
@@ -433,7 +436,7 @@ const EXERCISE_INFO = {
   "Seal Row / T-Bar Row": { muscles: "Mid-back", cue: "Chest supported, pull straight up into your ribs." },
   "Straight-Arm Pulldown": { muscles: "Lats", cue: "Arms stay straight, hinge only at the shoulder." },
   "Cable Curl": { muscles: "Biceps", cue: "Constant tension — don't let the weight rest at the bottom." },
-  "Barbell Curl": { muscles: "Biceps", cue: "No swinging; elbows stay pinned at your sides." },
+  "Pallof Press": { muscles: "Core (anti-rotation, obliques/transverse abdominis)", cue: "Press straight out from your chest, resist the cable pulling you sideways — hips and shoulders stay square." },
   "Shrugs": { muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
   "Cable Pull-Through": { muscles: "Glutes, hamstrings", cue: "Hinge at hips, spine stays neutral/extended — push hips back, not down." },
   "Lying Leg Curl": { muscles: "Hamstrings", cue: "Squeeze at the top, don't let hips lift off the pad." },
@@ -535,9 +538,9 @@ let showAllExercises = false; // per-day override to ignore the time-budget trim
 /* ============ SESSION LENGTH / TIME-BUDGET TRIMMING ============ */
 
 const WORK_SECONDS_PER_SET = 40; // rough time to perform one set, used only to estimate exercise duration
-const TRIM_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = dropped first when shrinking; compound is never dropped
-const ADD_SET_PRIORITY = { burnout: 0, isolation: 1, moderate: 2, compound: 3 }; // lower = gets extra sets first when there's slack
-const MAX_EXTRA_SETS = { burnout: 2, isolation: 2, moderate: 1, compound: 1 }; // cap on bonus sets per exercise, so longer sessions don't pile fatiguing volume onto compounds
+const TRIM_PRIORITY = { burnout: 0, isolation: 1, core: 1, moderate: 2, compound: 3 }; // lower = dropped first when shrinking; compound is never dropped; core is isolation-tier
+const ADD_SET_PRIORITY = { burnout: 0, isolation: 1, core: 1, moderate: 2, compound: 3 }; // lower = gets extra sets first when there's slack
+const MAX_EXTRA_SETS = { burnout: 2, isolation: 2, core: 2, moderate: 1, compound: 1 }; // cap on bonus sets per exercise, so longer sessions don't pile fatiguing volume onto compounds
 
 function perSetSeconds(cat) { return WORK_SECONDS_PER_SET + REST_BY_CAT[cat]; }
 function estimateExerciseSeconds(ex) { return ex.sets * perSetSeconds(ex.cat); }
@@ -568,20 +571,30 @@ function computeSessionPlan(dayKey) {
   const baseTotal = day.exercises.reduce((sum, ex) => sum + estimateExerciseSeconds(ex), 0);
 
   if (baseTotal > budgetSeconds) {
-    const all = day.exercises.map((ex, idx) => ({ ex, idx }));
-    let remaining = all.slice();
-    const droppable = all
+    // exercises are tracked with a mutable `sets` count starting at their base
+    // count, so a protected exercise (minSets) can be stepped down toward its
+    // floor instead of being dropped outright, while unprotected exercises
+    // are still dropped whole in one shot, same as before.
+    const state = day.exercises.map((ex, idx) => ({ ex, idx, sets: ex.sets }));
+    const droppable = state
       .filter(e => e.ex.cat !== 'compound')
       .sort((a, b) => TRIM_PRIORITY[a.ex.cat] - TRIM_PRIORITY[b.ex.cat]);
-    const totalSeconds = (list) => list.reduce((sum, e) => sum + estimateExerciseSeconds(e.ex), 0);
+    const totalSeconds = () => state.reduce((sum, e) => sum + e.sets * perSetSeconds(e.ex.cat), 0);
     const hidden = [];
     for (const cand of droppable) {
-      if (totalSeconds(remaining) <= budgetSeconds) break;
-      remaining = remaining.filter(e => e.idx !== cand.idx);
-      hidden.push(cand.idx);
+      if (totalSeconds() <= budgetSeconds) break;
+      const floor = cand.ex.minSets || 0;
+      if (floor > 0) {
+        while (totalSeconds() > budgetSeconds && cand.sets > floor) {
+          cand.sets -= 1;
+        }
+      } else {
+        state.splice(state.indexOf(cand), 1);
+        hidden.push(cand.idx);
+      }
     }
     return {
-      entries: remaining.map(e => ({ ex: e.ex, sets: e.ex.sets })),
+      entries: state.map(e => ({ ex: e.ex, sets: e.sets })),
       hiddenNames: hidden.map(idx => day.exercises[idx].name),
       extraSetsAdded: 0,
       bonusAdded: null
@@ -853,7 +866,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
     <div class="block-head">
       <div class="block-title-group">
         <span class="block-title info-toggle" id="title-${slot}" tabindex="0" role="button" aria-expanded="false">${ex.name}<span class="info-hint">ⓘ</span></span>
-        <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} reps</span>
+        <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} reps${ex.repNote ? ' ' + ex.repNote : ''}</span>
       </div>
       <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
     </div>
@@ -868,7 +881,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
   const info = EXERCISE_INFO[ex.name];
   const infoPanel = block.querySelector(`#info-${slot}`);
   infoPanel.innerHTML = info
-    ? `<div class="info-muscles">${info.muscles}</div><div class="info-cue">"${info.cue}"</div>`
+    ? `<div class="info-muscles">${info.muscles}</div><div class="info-cue">"${info.cue}"</div>${info.note ? `<div class="info-note">${info.note}</div>` : ''}`
     : `<div class="info-muscles">No info available yet.</div>`;
   const titleEl = block.querySelector(`#title-${slot}`);
   const toggleInfo = () => {
@@ -886,7 +899,15 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
   const setsBody = block.querySelector(`#sets-${slot}`);
   function renderSets() {
     setsBody.innerHTML = "";
-    entry.sets.forEach((set, si) => {
+    // show plannedSets rows, but never fewer than however far real logged
+    // data reaches — protects entered data if the plan later shrinks below
+    // wherever the user actually got to (e.g. a lower session-length band,
+    // or an exercise whose base set count is above what got planned)
+    let lastLogged = -1;
+    entry.sets.forEach((s, i) => { if (s.weight || s.reps || s.done) lastLogged = i; });
+    const visibleCount = Math.max(plannedSets, lastLogged + 1);
+    while (entry.sets.length < visibleCount) entry.sets.push({ weight: "", reps: "", done: false });
+    entry.sets.slice(0, visibleCount).forEach((set, si) => {
       const tr = document.createElement('tr');
       tr.className = 'set-row' + (set.done ? ' done' : '');
       tr.innerHTML = `
