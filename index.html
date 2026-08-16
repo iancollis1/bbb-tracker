@@ -350,8 +350,8 @@ const DAYS = {
       { name: "Flat DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Cable Flyes", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout" },
-      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout" }
+      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 3, 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
     ],
     bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" },
     extended: {
@@ -367,9 +367,10 @@ const DAYS = {
       { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound" },
       { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate" },
-      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2 }
+      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2, bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Face Pull", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } }
     ],
-    bonus: { name: "Face Pull", sets: 3, repRange: [12,15], cat: "burnout" },
+    bonus: null,
     extended: {
       isolationBumps: ["Lat Pulldown (wide)", "Incline DB Curl"],
       moderateBump: "Seated Cable Row",
@@ -383,7 +384,7 @@ const DAYS = {
       { name: "Leg Press", sets: 3, repRange: [10,12], cat: "moderate" },
       { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation" },
       { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout" }
+      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } }
     ],
     bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" },
     extended: {
@@ -400,7 +401,7 @@ const DAYS = {
       { name: "Cable Lateral Raise", sets: 4, repRange: [12,15], cat: "burnout" },
       { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation" }
+      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", bandOverrides: { 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
     ],
     bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" },
     extended: {
@@ -415,11 +416,12 @@ const DAYS = {
       { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound" },
       { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation" },
-      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout" },
-      { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side" }
+      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side" },
+      { name: "Shrugs", sets: 5, repRange: [10,12], cat: "isolation", customScaling: { 30: 3, 45: 4, 60: 5, 75: 5, 90: 5, 105: 6, 120: 6 } }
     ],
-    bonus: { name: "Shrugs", sets: 3, repRange: [10,12], cat: "isolation" },
+    bonus: null,
     extended: {
       isolationBumps: ["Straight-Arm Pulldown", "Cable Curl"],
       moderateBump: "Seal Row / T-Bar Row",
@@ -430,13 +432,14 @@ const DAYS = {
     label: "Legs B",
     exercises: [
       { name: "Cable Pull-Through", sets: 4, repRange: [8,10], cat: "compound" },
+      { name: "Hip Thrust", sets: 4, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 5, 105: 6, 120: 6 } },
       { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation" },
-      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout" },
+      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 }
     ],
-    bonus: { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate" },
+    bonus: null,
     extended: {
       isolationBumps: ["Lying Leg Curl", "Leg Extension"],
       moderateBump: "Walking Lunge / Bulg. Split Squat",
@@ -621,14 +624,35 @@ async function saveSessionLength() {
 function computeSessionPlan(dayKey) {
   const day = DAYS[dayKey];
   const budgetSeconds = sessionLengthMinutes * 60;
-  const baseTotal = day.exercises.reduce((sum, ex) => sum + estimateExerciseSeconds(ex), 0);
+
+  // Exercises with a customScaling table (promoted former-bonus lifts) are
+  // always shown at their scheduled set count for the current band and sit
+  // completely outside the trim/grow decision logic below - no budget-fit
+  // check, since these are meant to appear at every session length. They're
+  // set aside here and merged back into `entries` at their original
+  // day.exercises position afterward, so placement in the list is whatever
+  // DAYS specifies, independent of this function's control flow.
+  const scheduled = [];
+  const normal = [];
+  day.exercises.forEach((ex, idx) => {
+    if (ex.customScaling) {
+      const sets = ex.customScaling[sessionLengthMinutes] ?? ex.customScaling[60] ?? ex.sets;
+      scheduled.push({ idx, ex, sets });
+    } else {
+      normal.push({ idx, ex });
+    }
+  });
+
+  const baseTotal = normal.reduce((sum, e) => sum + estimateExerciseSeconds(e.ex), 0);
+
+  let normalEntries, hiddenNames = [], extraSetsAdded = 0, bonusAdded = [];
 
   if (baseTotal > budgetSeconds) {
     // exercises are tracked with a mutable `sets` count starting at their base
     // count, so a protected exercise (minSets) can be stepped down toward its
     // floor instead of being dropped outright, while unprotected exercises
     // are still dropped whole in one shot, same as before.
-    const state = day.exercises.map((ex, idx) => ({ ex, idx, sets: ex.sets }));
+    const state = normal.map(e => ({ ex: e.ex, idx: e.idx, sets: e.ex.sets }));
     const droppable = state
       .filter(e => e.ex.cat !== 'compound')
       .sort((a, b) => TRIM_PRIORITY[a.ex.cat] - TRIM_PRIORITY[b.ex.cat]);
@@ -646,91 +670,104 @@ function computeSessionPlan(dayKey) {
         hidden.push(cand.idx);
       }
     }
-    return {
-      entries: state.map(e => ({ ex: e.ex, sets: e.sets })),
-      hiddenNames: hidden.map(idx => day.exercises[idx].name),
-      extraSetsAdded: 0,
-      bonusAdded: []
-    };
-  }
-
-  // room to spare: grow sets on the base list first, capped per category.
-  // Run in two phases so compound lifts can never grow past whatever the
-  // 60-minute budget alone would give them: on a day with two compound
-  // lifts, 60 minutes isn't always enough budget to fill both to their cap
-  // (priority order fills burnout/isolation/moderate first), so without this
-  // split, a bigger budget at 75m+ would let the same loop finish the job
-  // and a compound lift would grow past its 60-minute value. Phase 2 still
-  // lets non-compound categories use any real headroom past 60 minutes,
-  // though in practice they're already saturated by then.
-  const plan = day.exercises.map(ex => ({ ex, extra: 0 }));
-  let total = baseTotal;
-  const budget60 = Math.min(budgetSeconds, 60 * 60);
-  function growTo(maxBudget, excludeCompound) {
-    for (;;) {
-      const candidates = plan
-        .filter(e => e.extra < (MAX_EXTRA_SETS[e.ex.cat] ?? 0))
-        .filter(e => !excludeCompound || e.ex.cat !== 'compound')
-        .sort((a, b) => ADD_SET_PRIORITY[a.ex.cat] - ADD_SET_PRIORITY[b.ex.cat]);
-      const next = candidates[0];
-      if (!next) break;
-      const addSeconds = perSetSeconds(next.ex.cat);
-      if (total + addSeconds > maxBudget) break;
-      next.extra += 1;
-      total += addSeconds;
-    }
-  }
-  growTo(budget60, false);
-  growTo(budgetSeconds, true);
-
-  // then add the day's (first) bonus exercise if there's still room for it
-  let bonus1Added = null;
-  const bonus1 = day.bonus;
-  if (bonus1) {
-    const bonus1Seconds = estimateExerciseSeconds(bonus1);
-    if (total + bonus1Seconds <= budgetSeconds) { bonus1Added = bonus1.name; total += bonus1Seconds; }
-  }
-
-  // 90/105 min: fixed per-day content beyond the normal per-category cap -
-  // two named exercises get +1 set at 90m and another +1 at 105m (cumulative),
-  // one named exercise gets +1 at 105m, and a second bonus exercise appears
-  // at 90m. This is deliberately a fixed schedule, not a budget-fit search,
-  // since by these bands every day has generous slack past its base+bonus1 total.
-  const ext = day.extended;
-  let bonus2Added = null;
-  if (ext) {
-    if (sessionLengthMinutes >= 90) {
-      for (const name of ext.isolationBumps) {
-        const item = plan.find(e => e.ex.name === name);
-        if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
-      }
-      if (ext.bonus2) {
-        const bonus2Seconds = estimateExerciseSeconds(ext.bonus2);
-        if (total + bonus2Seconds <= budgetSeconds) { bonus2Added = ext.bonus2.name; total += bonus2Seconds; }
+    normalEntries = state;
+    hiddenNames = hidden.map(idx => day.exercises[idx].name);
+  } else {
+    // room to spare: grow sets on the base list first, capped per category.
+    // Run in two phases so compound lifts can never grow past whatever the
+    // 60-minute budget alone would give them: on a day with two compound
+    // lifts, 60 minutes isn't always enough budget to fill both to their cap
+    // (priority order fills burnout/isolation/moderate first), so without this
+    // split, a bigger budget at 75m+ would let the same loop finish the job
+    // and a compound lift would grow past its 60-minute value. Phase 2 still
+    // lets non-compound categories use any real headroom past 60 minutes,
+    // though in practice they're already saturated by then.
+    const plan = normal.map(e => ({ ex: e.ex, idx: e.idx, extra: 0 }));
+    let total = baseTotal;
+    const budget60 = Math.min(budgetSeconds, 60 * 60);
+    function growTo(maxBudget, excludeCompound) {
+      for (;;) {
+        const candidates = plan
+          .filter(e => e.extra < (MAX_EXTRA_SETS[e.ex.cat] ?? 0))
+          .filter(e => !excludeCompound || e.ex.cat !== 'compound')
+          .sort((a, b) => ADD_SET_PRIORITY[a.ex.cat] - ADD_SET_PRIORITY[b.ex.cat]);
+        const next = candidates[0];
+        if (!next) break;
+        const addSeconds = perSetSeconds(next.ex.cat);
+        if (total + addSeconds > maxBudget) break;
+        next.extra += 1;
+        total += addSeconds;
       }
     }
-    if (sessionLengthMinutes >= 105) {
-      for (const name of ext.isolationBumps) {
-        const item = plan.find(e => e.ex.name === name);
-        if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
-      }
-      const modItem = plan.find(e => e.ex.name === ext.moderateBump);
-      if (modItem) { modItem.extra += 1; total += perSetSeconds(modItem.ex.cat); }
+    growTo(budget60, false);
+    growTo(budgetSeconds, true);
+
+    // then add the day's (first) bonus exercise if there's still room for it
+    let bonus1Added = null;
+    const bonus1 = day.bonus;
+    if (bonus1) {
+      const bonus1Seconds = estimateExerciseSeconds(bonus1);
+      if (total + bonus1Seconds <= budgetSeconds) { bonus1Added = bonus1.name; total += bonus1Seconds; }
     }
+
+    // 90/105 min: fixed per-day content beyond the normal per-category cap -
+    // two named exercises get +1 set at 90m and another +1 at 105m (cumulative),
+    // one named exercise gets +1 at 105m, and a second bonus exercise appears
+    // at 90m. This is deliberately a fixed schedule, not a budget-fit search,
+    // since by these bands every day has generous slack past its base+bonus1 total.
+    const ext = day.extended;
+    let bonus2Added = null;
+    if (ext) {
+      if (sessionLengthMinutes >= 90) {
+        for (const name of ext.isolationBumps) {
+          const item = plan.find(e => e.ex.name === name);
+          if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
+        }
+        if (ext.bonus2) {
+          const bonus2Seconds = estimateExerciseSeconds(ext.bonus2);
+          if (total + bonus2Seconds <= budgetSeconds) { bonus2Added = ext.bonus2.name; total += bonus2Seconds; }
+        }
+      }
+      if (sessionLengthMinutes >= 105) {
+        for (const name of ext.isolationBumps) {
+          const item = plan.find(e => e.ex.name === name);
+          if (item) { item.extra += 1; total += perSetSeconds(item.ex.cat); }
+        }
+        const modItem = plan.find(e => e.ex.name === ext.moderateBump);
+        if (modItem) { modItem.extra += 1; total += perSetSeconds(modItem.ex.cat); }
+      }
+    }
+
+    extraSetsAdded = plan.reduce((sum, e) => sum + e.extra, 0);
+
+    // 120 min: both bonus exercises grow from 3 sets to 4
+    const bonus1Sets = bonus1 ? (sessionLengthMinutes >= 120 ? bonus1.sets + 1 : bonus1.sets) : 0;
+    const bonus2Sets = ext && ext.bonus2 ? (sessionLengthMinutes >= 120 ? ext.bonus2.sets + 1 : ext.bonus2.sets) : 0;
+
+    normalEntries = plan.map(e => ({ ex: e.ex, idx: e.idx, sets: e.ex.sets + e.extra }));
+    if (bonus1Added) normalEntries.push({ ex: bonus1, idx: null, sets: bonus1Sets });
+    if (bonus2Added) normalEntries.push({ ex: ext.bonus2, idx: null, sets: bonus2Sets });
+    bonusAdded = [bonus1Added, bonus2Added].filter(Boolean);
   }
 
-  const extraSetsAdded = plan.reduce((sum, e) => sum + e.extra, 0);
+  // merge the always-scheduled exercises back in at their real day.exercises
+  // position; bonus entries (idx === null) have no real position, so they
+  // stay appended at the end, same as before
+  const positioned = normalEntries.filter(e => e.idx !== null).concat(scheduled);
+  positioned.sort((a, b) => a.idx - b.idx);
+  const trailing = normalEntries.filter(e => e.idx === null);
+  let entries = [...positioned, ...trailing].map(e => ({ ex: e.ex, sets: e.sets }));
 
-  // 120 min: both bonus exercises grow from 3 sets to 4
-  const bonus1Sets = sessionLengthMinutes >= 120 ? bonus1.sets + 1 : bonus1.sets;
-  const bonus2Sets = ext && ext.bonus2 && sessionLengthMinutes >= 120 ? ext.bonus2.sets + 1 : (ext && ext.bonus2 ? ext.bonus2.sets : 0);
+  // fixed per-band overrides on a small number of existing exercises (a
+  // volume-neutrality trim paired with the promotions above) - applied last,
+  // as a pure display substitution that never changes whether an exercise is
+  // included or its position, only its set count on the bands it lists
+  entries = entries.map(e => {
+    const override = e.ex.bandOverrides && e.ex.bandOverrides[sessionLengthMinutes];
+    return override !== undefined ? { ex: e.ex, sets: override } : e;
+  });
 
-  const entries = plan.map(e => ({ ex: e.ex, sets: e.ex.sets + e.extra }));
-  if (bonus1Added) entries.push({ ex: bonus1, sets: bonus1Sets });
-  if (bonus2Added) entries.push({ ex: ext.bonus2, sets: bonus2Sets });
-
-  const bonusAdded = [bonus1Added, bonus2Added].filter(Boolean);
-  return { entries, hiddenNames: [], extraSetsAdded, bonusAdded };
+  return { entries, hiddenNames, extraSetsAdded, bonusAdded };
 }
 
 function renderPlanNote(content, plan) {
