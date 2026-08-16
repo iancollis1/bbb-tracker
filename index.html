@@ -349,8 +349,8 @@ const DAYS = {
       { name: "Incline Barbell Press", sets: 4, repRange: [6,8], cat: "compound" },
       { name: "Flat DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Cable Flyes", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout" },
-      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
+      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 30: 2, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 3, 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
     ],
     bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" },
@@ -396,9 +396,9 @@ const DAYS = {
   pushB: {
     label: "Push B",
     exercises: [
-      { name: "Overhead Press", sets: 4, repRange: [6,8], cat: "compound" },
+      { name: "Overhead Press", sets: 4, repRange: [6,8], cat: "compound", bandOverrides: { 30: 3 } },
       { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Cable Lateral Raise", sets: 4, repRange: [12,15], cat: "burnout" },
+      { name: "Cable Lateral Raise", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
       { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout" },
       { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", bandOverrides: { 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
@@ -625,19 +625,23 @@ function computeSessionPlan(dayKey) {
   const day = DAYS[dayKey];
   const budgetSeconds = sessionLengthMinutes * 60;
 
-  // Exercises with a customScaling table (promoted former-bonus lifts) are
-  // always shown at their scheduled set count for the current band and sit
-  // completely outside the trim/grow decision logic below - no budget-fit
-  // check, since these are meant to appear at every session length. They're
-  // set aside here and merged back into `entries` at their original
-  // day.exercises position afterward, so placement in the list is whatever
-  // DAYS specifies, independent of this function's control flow.
+  // Exercises with a customScaling entry for the CURRENT band are shown at
+  // that scheduled set count and sit completely outside the trim/grow
+  // decision logic below for this band only - no budget-fit check, their
+  // time isn't counted toward this day's baseTotal, and they never compete
+  // with (or cascade into trimming) any other exercise. A day-round
+  // promoted exercise lists every band (30-120) so it's always scheduled;
+  // an exercise that just needs a guaranteed floor at one tight band (e.g.
+  // a 30m minimum) can list only that band and falls through to the normal
+  // algorithm - fully unaffected - at every other band. Scheduled exercises
+  // are merged back into `entries` at their original day.exercises position
+  // afterward, so placement is whatever DAYS specifies either way.
   const scheduled = [];
   const normal = [];
   day.exercises.forEach((ex, idx) => {
-    if (ex.customScaling) {
-      const sets = ex.customScaling[sessionLengthMinutes] ?? ex.customScaling[60] ?? ex.sets;
-      scheduled.push({ idx, ex, sets });
+    const customSets = ex.customScaling ? ex.customScaling[sessionLengthMinutes] : undefined;
+    if (customSets !== undefined) {
+      scheduled.push({ idx, ex, sets: customSets });
     } else {
       normal.push({ idx, ex });
     }
