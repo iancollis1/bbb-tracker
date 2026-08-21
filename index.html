@@ -584,8 +584,10 @@ window.storage = {
 let currentDay = "pushA";
 let saveTimer = null;
 let currentData = null;
-let restInterval = null;
-let restSecondsLeft = 0;
+let restTickInterval = null;
+let restStartTimestamp = null; // ms epoch when the current rest timer started; null = no active timer
+let restDurationMs = 0;        // total rest duration, adjustable via +15s/+30s/-30s
+let restAlertFired = false;    // so the audio/vibration alert fires at most once per timer run
 let timerContext = "compound"; // compound | moderate | isolation | burnout
 
 let sessionLengthMinutes = 60;
@@ -1105,52 +1107,113 @@ function labelFor(cat) {
   return `Rest — ${cat}`;
 }
 
-function tick() {
-  restSecondsLeft -= 1;
-  timerClock.textContent = formatClock(restSecondsLeft);
-  if (restSecondsLeft <= 0 && !timerBar.classList.contains('warn')) {
+// Lazily-created Web Audio context for the in-tab completion beep. Created
+// on first use (from a button click, so it's inside a user gesture) rather
+// than at page load, and reused after that.
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
+  }
+  return audioCtx;
+}
+
+// Two short beeps via an oscillator — no audio file needed, keeps this a
+// single self-contained HTML file.
+function playRestDoneBeep() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    if (ctx.state === 'suspended') ctx.resume();
+    [0, 0.22].forEach(offset => {
+      const start = ctx.currentTime + offset;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.2);
+    });
+  } catch (e) {}
+}
+
+// Fires the in-tab-only alert (vibration + beep). Never called for a
+// zero-crossing that happened while the tab was hidden/backgrounded — only
+// when renderTimer() runs with the document actually visible, whether
+// that's the natural per-second tick or the moment the tab regains focus.
+function fireRestDoneAlert() {
+  if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
+  playRestDoneBeep();
+}
+
+// Single source of truth for both the displayed time and the alert. Always
+// recomputes remaining time from the stored start timestamp + duration
+// rather than trusting any decremented counter, so it's correct no matter
+// how long the interval was throttled or paused while the tab was hidden.
+function renderTimer() {
+  if (restStartTimestamp === null) return;
+  const remainingMs = restDurationMs - (Date.now() - restStartTimestamp);
+  if (remainingMs <= 0) {
+    timerClock.textContent = "Time's up";
     timerBar.classList.add('warn');
-    if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch(e) {} }
+    if (!restAlertFired) {
+      restAlertFired = true;
+      if (document.visibilityState === 'visible') fireRestDoneAlert();
+    }
+  } else {
+    timerClock.textContent = formatClock(Math.ceil(remainingMs / 1000));
+    timerBar.classList.remove('warn');
   }
 }
 
 function startRestTimer(context) {
   timerContext = context;
-  clearInterval(restInterval);
-  restSecondsLeft = durationFor(context);
+  clearInterval(restTickInterval);
+  restStartTimestamp = Date.now();
+  restDurationMs = durationFor(context) * 1000;
+  restAlertFired = false;
   timerBar.classList.remove('warn');
   timerBar.classList.add('active');
   timerLabel.textContent = labelFor(context);
-  timerClock.textContent = formatClock(restSecondsLeft);
-  restInterval = setInterval(tick, 1000);
+  renderTimer();
+  restTickInterval = setInterval(renderTimer, 1000);
 }
 
 function ensureRunning() {
-  if (!restInterval) restInterval = setInterval(tick, 1000);
+  if (!restTickInterval) restTickInterval = setInterval(renderTimer, 1000);
 }
 
-document.getElementById('timerMinus30').addEventListener('click', () => {
-  restSecondsLeft -= 30;
-  timerClock.textContent = formatClock(restSecondsLeft);
-  if (restSecondsLeft <= 0) timerBar.classList.add('warn');
+// adjusts the stored duration (not the display directly) so remaining time
+// stays correct on the next timestamp-based recompute; re-arms the alert if
+// the adjustment pulls an already-expired timer back into positive time
+function adjustRestDuration(deltaMs) {
+  if (restStartTimestamp === null) return;
+  restDurationMs += deltaMs;
+  if (restDurationMs - (Date.now() - restStartTimestamp) > 0) restAlertFired = false;
   ensureRunning();
-});
-document.getElementById('timerAdd15').addEventListener('click', () => {
-  restSecondsLeft += 15;
-  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
-  timerClock.textContent = formatClock(restSecondsLeft);
-  ensureRunning();
-});
-document.getElementById('timerAdd30').addEventListener('click', () => {
-  restSecondsLeft += 30;
-  if (restSecondsLeft > 0) timerBar.classList.remove('warn');
-  timerClock.textContent = formatClock(restSecondsLeft);
-  ensureRunning();
-});
+  renderTimer();
+}
+
+document.getElementById('timerMinus30').addEventListener('click', () => adjustRestDuration(-30000));
+document.getElementById('timerAdd15').addEventListener('click', () => adjustRestDuration(15000));
+document.getElementById('timerAdd30').addEventListener('click', () => adjustRestDuration(30000));
 document.getElementById('timerSkip').addEventListener('click', () => {
-  clearInterval(restInterval);
-  restInterval = null;
+  clearInterval(restTickInterval);
+  restTickInterval = null;
+  restStartTimestamp = null;
   timerBar.classList.remove('active', 'warn');
+});
+
+// re-render immediately on regaining focus, rather than waiting for the
+// next (possibly throttled) interval tick — this is what makes "Time's up"
+// show accurately right away instead of a stale frozen number
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') renderTimer();
 });
 
 /* ============ HISTORY ============ */
