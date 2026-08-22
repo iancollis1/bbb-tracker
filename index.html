@@ -346,20 +346,16 @@ const DAYS = {
   pushA: {
     label: "Push A",
     exercises: [
-      { name: "Incline Barbell Press", sets: 4, repRange: [6,8], cat: "compound" },
-      { name: "Ab Wheel Rollout", sets: 2, repRange: [8,12], cat: "core", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 3, 105: 3, 120: 3 } },
-      { name: "Flat DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Cable Flyes", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
-      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 30: 0, 45: 1, 60: 2, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 2, 60: 2, 75: 3, 90: 3, 105: 3, 120: 3 } }
+      { name: "Incline Barbell Press", sets: 4, repRange: [6,8], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Ab Wheel Rollout", sets: 2, repRange: [8,12], cat: "core", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "Flat DB Press", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Cable Flyes", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 2, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } }
     ],
-    bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" },
-    extended: {
-      isolationBumps: ["Cable Flyes", "Overhead Rope Ext."],
-      moderateBump: "Flat DB Press",
-      bonus2: { name: "Pec Deck", sets: 3, repRange: [10,12], cat: "isolation" }
-    }
+    bonus: null,
+    extended: null
   },
   pullA: {
     label: "Pull A",
@@ -378,43 +374,35 @@ const DAYS = {
   legsA: {
     label: "Legs A",
     exercises: [
-      { name: "Front Squat", sets: 4, repRange: [6,8], cat: "compound" },
-      { name: "Leg Press", sets: 3, repRange: [10,12], cat: "moderate" },
-      { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation", bandOverrides: { 45: 4, 60: 4, 75: 5, 90: 6, 105: 7, 120: 7 } },
-      { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 2, 60: 4, 75: 5, 90: 6, 105: 7, 120: 7 } },
-      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "core", customScaling: { 30: 0, 45: 2, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } }
+      { name: "Front Squat", sets: 4, repRange: [6,8], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Leg Press", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 3, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", customScaling: { 30: 3, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", customScaling: { 30: 0, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Hanging Leg Raise", sets: 2, repRange: [10,15], cat: "core", customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } }
     ],
     bonus: null,
-    extended: {
-      isolationBumps: ["Leg Extension", "Seated Leg Curl"],
-      moderateBump: "Leg Press",
-      bonus2: { name: "Cable Crunch", sets: 3, repRange: [12,15], cat: "isolation" }
-    }
+    extended: null
   },
   pushB: {
     label: "Push B",
     exercises: [
-      { name: "Overhead Press", sets: 4, repRange: [6,8], cat: "compound", bandOverrides: { 30: 3 } },
-      { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Cable Lateral Raise", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
-      { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 3 } },
-      { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate", bandOverrides: { 30: 2, 45: 1, 60: 2, 75: 4, 90: 5, 105: 6, 120: 6 } },
-      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 45: 0 }, bandOverrides: { 60: 1, 75: 3, 90: 3, 105: 3, 120: 3 } },
-      { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 3, 75: 3, 90: 3, 105: 4, 120: 4 } }
+      { name: "Overhead Press", sets: 3, repRange: [6,8], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 3, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Cable Lateral Raise", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Close-Grip Bench / Dips", sets: 2, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 2, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } }
     ],
-    bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" },
-    extended: {
-      isolationBumps: ["Overhead Rope Ext.", "Close-Grip Bench / Dips"],
-      moderateBump: "Incline DB Press",
-      bonus2: { name: "Tricep Kickback", sets: 3, repRange: [12,15], cat: "isolation" }
-    }
+    bonus: null,
+    extended: null
   },
   pullB: {
     label: "Pull B",
     exercises: [
       { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
-      { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
       { name: "Straight-Arm Pulldown", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", customScaling: { 30: 3, 45: 3, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
       { name: "Shrugs", sets: 2, repRange: [10,12], cat: "burnout", customScaling: { 30: 3, 45: 2, 60: 3, 75: 5, 90: 5, 105: 6, 120: 6 } },
