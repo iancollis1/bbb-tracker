@@ -352,7 +352,8 @@ const DAYS = {
       { name: "Cable Flyes", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 5, 75: 5, 90: 6, 105: 6, 120: 6 } },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 1, 75: 3, 90: 4, 105: 4, 120: 4 } },
-      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } }
+      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Cable Y-Raise", sets: 3, repRange: [12,15], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 3, 120: 4 } }
     ],
     bonus: null,
     extended: null
@@ -366,7 +367,8 @@ const DAYS = {
       { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
       { name: "Incline DB Curl", sets: 2, repRange: [8,10], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Face Pull", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
-      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 4, 120: 4 } }
+      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 4, 120: 4 } },
+      { name: "Upright Row", sets: 3, repRange: [10,12], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 3, 120: 4 } }
     ],
     bonus: null,
     extended: null
@@ -447,6 +449,7 @@ const EXERCISE_INFO = {
   "Cable Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height.", note: "If the lowest cable stack weight is too heavy to hit 12-15 reps, switch to DB lateral raises instead — same cue, lighter increments." },
   "Overhead Rope Ext.": { muscles: "Triceps (long head)", cue: "Elbows stay pinned by your ears; only forearms move." },
   "Pushdowns": { muscles: "Triceps", cue: "Elbows locked at your sides; don't let them drift forward." },
+  "Cable Y-Raise": { muscles: "Side delts, rear delts", cue: "Set the cable low, lean your torso away from the machine at an angle, raise the handle up and slightly forward — this Y-shaped path hits side delts from a different angle than a standard lateral raise." },
   "Front Raise": { muscles: "Front delts", cue: "Controlled up and down, no swinging from your hips." },
   "Pull-Ups (weighted)": { muscles: "Lats, biceps, rear delts", cue: "Pull elbows down and back, not just up." },
   "Barbell / Chest-Sup. Row": { muscles: "Mid-back, lats, biceps", cue: "Squeeze shoulder blades together at the top." },
@@ -472,6 +475,7 @@ const EXERCISE_INFO = {
   "Pallof Press": { muscles: "Core (anti-rotation, obliques/transverse abdominis)", cue: "Press straight out from your chest, resist the cable pulling you sideways — hips and shoulders stay square." },
   "Half-Kneeling Pallof Press": { muscles: "Core (anti-rotation), obliques/transverse abdominis, hip stability", cue: "Half-kneeling stance, press straight out from your chest, resist the cable pulling you sideways — hips and shoulders stay square, back knee stays down." },
   "Shrugs": { muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
+  "Upright Row": { muscles: "Traps, side delts", cue: "Pull the bar straight up along your body, elbows lead and stay above your wrists, stop around chest height — don't pull higher, which stresses the shoulder joint." },
   "Cable Pull-Through": { muscles: "Glutes, hamstrings", cue: "Hinge at hips, spine stays neutral/extended — push hips back, not down." },
   "Lying Leg Curl": { muscles: "Hamstrings", cue: "Squeeze at the top, don't let hips lift off the pad." },
   "Walking Lunge / Bulg. Split Squat": { muscles: "Quads, glutes", cue: "Front knee tracks over toes, torso stays upright." },
