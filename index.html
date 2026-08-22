@@ -364,20 +364,16 @@ const DAYS = {
   pullA: {
     label: "Pull A",
     exercises: [
-      { name: "Pull-Ups (weighted)", sets: 4, repRange: [6,8], cat: "compound" },
-      { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound" },
-      { name: "Half-Kneeling Pallof Press", sets: 3, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate", bandOverrides: { 45: 2, 60: 3, 75: 4, 90: 5, 105: 6, 120: 6 } },
-      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate", bandOverrides: { 45: 2, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
-      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2, bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Face Pull", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } }
+      { name: "Pull-Ups (weighted)", sets: 4, repRange: [6,8], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Half-Kneeling Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 3, 105: 4, 120: 4 } },
+      { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Incline DB Curl", sets: 2, repRange: [8,10], cat: "isolation", customScaling: { 30: 2, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Face Pull", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 2, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
+      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 4, 120: 4 } }
     ],
     bonus: null,
-    extended: {
-      isolationBumps: ["Lat Pulldown (wide)", "Incline DB Curl"],
-      moderateBump: "Seated Cable Row",
-      bonus2: { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation" }
-    }
+    extended: null
   },
   legsA: {
     label: "Legs A",
@@ -417,40 +413,32 @@ const DAYS = {
   pullB: {
     label: "Pull B",
     exercises: [
-      { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound" },
-      { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 2, 60: 3, 75: 5, 90: 6, 105: 7, 120: 7 } },
-      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 2, 60: 2, 75: 4, 90: 5, 105: 5, 120: 5 } },
-      { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 2 }, bandOverrides: { 45: 3 } },
-      { name: "Shrugs", sets: 5, repRange: [10,12], cat: "isolation", customScaling: { 30: 3, 45: 4, 60: 5, 75: 5, 90: 5, 105: 6, 120: 6 } },
-      { name: "Side Plank", sets: 2, repRange: [30,45], cat: "core", repUnit: "sec hold", customScaling: { 30: 0, 45: 2, 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
+      { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Straight-Arm Pulldown", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", customScaling: { 30: 3, 45: 3, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
+      { name: "Shrugs", sets: 2, repRange: [10,12], cat: "burnout", customScaling: { 30: 3, 45: 2, 60: 3, 75: 5, 90: 5, 105: 6, 120: 6 } },
+      { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 3, 105: 4, 120: 4 } },
+      { name: "Side Plank", sets: 2, repRange: [30,45], cat: "core", repUnit: "sec hold", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 3, 105: 4, 120: 4 } },
+      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 4, 120: 4 } }
     ],
     bonus: null,
-    extended: {
-      isolationBumps: ["Straight-Arm Pulldown", "Cable Curl"],
-      moderateBump: "Seal Row / T-Bar Row",
-      bonus2: { name: "Hammer Curl", sets: 3, repRange: [8,10], cat: "isolation" }
-    }
+    extended: null
   },
   legsB: {
     label: "Legs B",
     exercises: [
-      { name: "Cable Pull-Through", sets: 4, repRange: [8,10], cat: "compound" },
-      { name: "Hip Thrust", sets: 4, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 5, 105: 6, 120: 6 } },
-      { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 3 } },
-      { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation", customScaling: { 30: 0, 45: 0 }, bandOverrides: { 60: 2, 75: 4, 90: 5, 105: 6, 120: 6 } },
-      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 2, 60: 2, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 },
-      { name: "Farmer's Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 3, 75: 3, 90: 3, 105: 4, 120: 4 } }
+      { name: "Cable Pull-Through", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 3, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } },
+      { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 2, 75: 4, 90: 5, 105: 6, 120: 6 } },
+      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", customScaling: { 30: 3, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Farmer's Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 0, 75: 0, 90: 3, 105: 4, 120: 4 } }
     ],
     bonus: null,
-    extended: {
-      isolationBumps: ["Lying Leg Curl", "Leg Extension"],
-      moderateBump: "Walking Lunge / Bulg. Split Squat",
-      bonus2: { name: "Weighted Plank", sets: 3, repRange: [30,45], cat: "core", repUnit: "sec hold" }
-    }
+    extended: null
   }
 };
 const DAY_KEYS = ["pushA","pullA","legsA","pushB","pullB","legsB"];
