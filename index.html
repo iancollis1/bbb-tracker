@@ -350,8 +350,9 @@ const DAYS = {
       { name: "Flat DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Cable Flyes", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Cable Lateral Raise", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
-      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 30: 2, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 3, 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
+      { name: "Overhead Rope Ext.", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 30: 2, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Pushdowns", sets: 2, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 2, 60: 2, 75: 3, 90: 3, 105: 3, 120: 3 } },
+      { name: "Ab Wheel Rollout", sets: 2, repRange: [8,12], cat: "core", customScaling: { 30: 0, 45: 2, 60: 2, 75: 3, 90: 3, 105: 3, 120: 3 } }
     ],
     bonus: { name: "Front Raise", sets: 3, repRange: [12,15], cat: "burnout" },
     extended: {
@@ -365,10 +366,11 @@ const DAYS = {
     exercises: [
       { name: "Pull-Ups (weighted)", sets: 4, repRange: [6,8], cat: "compound" },
       { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound" },
-      { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate" },
-      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate" },
+      { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate", bandOverrides: { 45: 2, 60: 3, 75: 4, 90: 5, 105: 6, 120: 6 } },
+      { name: "Seated Cable Row", sets: 3, repRange: [10,12], cat: "moderate", bandOverrides: { 45: 2, 60: 3, 75: 4, 90: 4, 105: 5, 120: 5 } },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", minSets: 2, bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Face Pull", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } }
+      { name: "Face Pull", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } },
+      { name: "Weighted Plank", sets: 3, repRange: [30,45], cat: "core", repUnit: "sec hold", customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } }
     ],
     bonus: null,
     extended: {
@@ -382,11 +384,12 @@ const DAYS = {
     exercises: [
       { name: "Front Squat", sets: 4, repRange: [6,8], cat: "compound" },
       { name: "Leg Press", sets: 3, repRange: [10,12], cat: "moderate" },
-      { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation" },
-      { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
-      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } }
+      { name: "Leg Extension", sets: 3, repRange: [12,15], cat: "isolation", bandOverrides: { 45: 4, 60: 4, 75: 5, 90: 6, 105: 7, 120: 7 } },
+      { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 2, 60: 4, 75: 5, 90: 6, 105: 7, 120: 7 } },
+      { name: "Leg Press Platform Calf Raise", sets: 4, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "core", customScaling: { 30: 0, 45: 2, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } }
     ],
-    bonus: { name: "Hanging Leg Raise", sets: 3, repRange: [10,15], cat: "burnout" },
+    bonus: null,
     extended: {
       isolationBumps: ["Leg Extension", "Seated Leg Curl"],
       moderateBump: "Leg Press",
@@ -400,8 +403,9 @@ const DAYS = {
       { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate" },
       { name: "Cable Lateral Raise", sets: 4, repRange: [12,15], cat: "burnout", customScaling: { 30: 2 } },
       { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout" },
-      { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", bandOverrides: { 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
+      { name: "Close-Grip Bench / Dips", sets: 3, repRange: [8,10], cat: "moderate", bandOverrides: { 45: 2, 60: 3, 75: 4, 90: 5, 105: 6, 120: 6 } },
+      { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 1, 60: 2, 75: 3, 90: 3, 105: 3, 120: 3 } },
+      { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 0, 45: 2, 60: 3, 75: 3, 90: 3, 105: 4, 120: 4 } }
     ],
     bonus: { name: "Cable Crossover", sets: 3, repRange: [10,12], cat: "isolation" },
     extended: {
@@ -415,11 +419,12 @@ const DAYS = {
     exercises: [
       { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound" },
       { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation" },
+      { name: "Straight-Arm Pulldown", sets: 3, repRange: [10,12], cat: "isolation", bandOverrides: { 45: 3, 60: 4, 75: 5, 90: 6, 105: 7, 120: 7 } },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", bandOverrides: { 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Cable Curl", sets: 3, repRange: [10,12], cat: "burnout", bandOverrides: { 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side" },
-      { name: "Shrugs", sets: 5, repRange: [10,12], cat: "isolation", customScaling: { 30: 3, 45: 4, 60: 5, 75: 5, 90: 5, 105: 6, 120: 6 } }
+      { name: "Shrugs", sets: 5, repRange: [10,12], cat: "isolation", customScaling: { 30: 3, 45: 4, 60: 5, 75: 5, 90: 5, 105: 6, 120: 6 } },
+      { name: "Side Plank", sets: 2, repRange: [30,45], cat: "core", repUnit: "sec hold", customScaling: { 30: 0, 45: 2, 60: 3, 75: 3, 90: 3, 105: 3, 120: 3 } }
     ],
     bonus: null,
     extended: {
@@ -435,9 +440,10 @@ const DAYS = {
       { name: "Hip Thrust", sets: 4, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 5, 105: 6, 120: 6 } },
       { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation" },
       { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate" },
-      { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation" },
-      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 4, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
-      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 }
+      { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation", bandOverrides: { 45: 1, 60: 3, 75: 4, 90: 5, 105: 6, 120: 6 } },
+      { name: "Seated Calf Raise", sets: 3, repRange: [12,15], cat: "burnout", bandOverrides: { 45: 3, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", minSets: 3 },
+      { name: "Farmer's Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 0, 45: 2, 60: 3, 75: 3, 90: 3, 105: 4, 120: 4 } }
     ],
     bonus: null,
     extended: {
@@ -498,7 +504,11 @@ const EXERCISE_INFO = {
   "Cable Crunch": { muscles: "Abs", cue: "Round your spine, pull elbows toward hips, not just down." },
   "Tricep Kickback": { muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves." },
   "Hammer Curl": { muscles: "Brachialis, forearm", cue: "Neutral grip throughout, no wrist rotation — keep elbows pinned at your sides." },
-  "Weighted Plank": { muscles: "Core", cue: "Squeeze glutes and brace core — don't let hips sag or pike up." }
+  "Weighted Plank": { muscles: "Core (anti-extension), full-body brace", cue: "Hold a plate or weight across your upper back, squeeze glutes, brace core — don't let hips sag or pike up." },
+  "Ab Wheel Rollout": { muscles: "Core (anti-extension), lats, shoulders", cue: "Start with partial range of motion — only roll out as far as you can control without your lower back sagging. Extend range gradually over weeks as core strength builds. This is an anti-extension exercise: the goal is resisting your spine arching, not achieving full extension early." },
+  "Suitcase Carry": { muscles: "Core (anti-lateral-flexion), obliques, grip", cue: "Carry a heavy dumbbell in one hand, walk tall — don't let your torso lean toward the weight or away from it. Switch sides each set." },
+  "Side Plank": { muscles: "Core (anti-lateral-flexion), obliques", cue: "Stack hips and shoulders in a straight line, don't let your hips sag toward the floor. Hold, then switch sides." },
+  "Farmer's Carry": { muscles: "Core (anti-extension/collapse), traps, grip", cue: "Carry heavy dumbbells or a trap bar at your sides, walk tall, shoulders back — resist your torso hunching forward under the load." }
 };
 
 /* ============ PLATE CALCULATOR ============ */
@@ -635,15 +645,19 @@ function computeSessionPlan(dayKey) {
   // promoted exercise lists every band (30-120) so it's always scheduled;
   // an exercise that just needs a guaranteed floor at one tight band (e.g.
   // a 30m minimum) can list only that band and falls through to the normal
-  // algorithm - fully unaffected - at every other band. Scheduled exercises
-  // are merged back into `entries` at their original day.exercises position
-  // afterward, so placement is whatever DAYS specifies either way.
+  // algorithm - fully unaffected - at every other band. A listed value of 0
+  // means the exercise is guaranteed ABSENT at that band entirely (not
+  // rendered with an empty set table) - used for core work that only shows
+  // up once the session is long enough. Scheduled exercises are merged back
+  // into `entries` at their original day.exercises position afterward, so
+  // placement is whatever DAYS specifies either way.
   const scheduled = [];
   const normal = [];
   day.exercises.forEach((ex, idx) => {
     const customSets = ex.customScaling ? ex.customScaling[sessionLengthMinutes] : undefined;
     if (customSets !== undefined) {
-      scheduled.push({ idx, ex, sets: customSets });
+      if (customSets > 0) scheduled.push({ idx, ex, sets: customSets });
+      // customSets === 0 -> not scheduled and not normal: fully absent this band
     } else {
       normal.push({ idx, ex });
     }
