@@ -104,8 +104,20 @@
   .block { border: 1px solid var(--line); background: var(--iron-soft); margin-bottom: 14px; border-radius: 6px; overflow: hidden; }
   .block-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); gap: 8px; flex-wrap: wrap; }
   .block-title-group { display: flex; flex-direction: column; gap: 2px; }
+  .block-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .block-title { font-family: 'Bebas Neue', sans-serif; font-size: 23px; letter-spacing: 0.02em; }
+  .block-title .via-suffix {
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 0;
+    text-transform: none; color: var(--plate-blue); vertical-align: middle; margin-left: 2px;
+  }
   .block-rep-range { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); }
+  .alt-toggle-btn {
+    flex: none; background: var(--iron-raised); border: 1.5px solid var(--plate-blue); color: var(--plate-blue);
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .alt-toggle-btn:hover { background: rgba(42,86,148,0.08); }
+  .alt-toggle-btn.active { background: var(--plate-blue); border-color: var(--plate-blue); color: #fff; }
   .info-toggle { cursor: pointer; }
   .info-toggle:hover { color: var(--plate-blue); }
   .info-hint { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--plate-blue); margin-left: 4px; vertical-align: middle; }
@@ -407,6 +419,13 @@
   <div class="filler-popover-close" id="fillerPopoverClose">Cancel</div>
 </div>
 
+<div class="filler-popover-backdrop" id="altBackdrop" style="display:none;"></div>
+<div class="filler-popover" id="altPopover" style="display:none;">
+  <div class="filler-popover-title">Alternative Exercise</div>
+  <div id="altPopoverBody"></div>
+  <div class="filler-popover-close" id="altPopoverClose">Cancel</div>
+</div>
+
 <script>
 /* ============ CONFIG ============ */
 
@@ -559,8 +578,103 @@ const EXERCISE_INFO = {
   "Ab Wheel Rollout": { muscles: "Core (anti-extension), lats, shoulders", cue: "Start with partial range of motion — only roll out as far as you can control without your lower back sagging. Extend range gradually over weeks as core strength builds. This is an anti-extension exercise: the goal is resisting your spine arching, not achieving full extension early." },
   "Suitcase Carry": { muscles: "Core (anti-lateral-flexion), obliques, grip", cue: "Carry a heavy dumbbell in one hand, walk tall — don't let your torso lean toward the weight or away from it. Switch sides each set." },
   "Side Plank": { muscles: "Core (anti-lateral-flexion), obliques", cue: "Stack hips and shoulders in a straight line, don't let your hips sag toward the floor. Hold, then switch sides." },
-  "Farmer's Carry": { muscles: "Core (anti-extension/collapse), traps, grip", cue: "Carry heavy dumbbells or a trap bar at your sides, walk tall, shoulders back — resist your torso hunching forward under the load." }
+  "Farmer's Carry": { muscles: "Core (anti-extension/collapse), traps, grip", cue: "Carry heavy dumbbells or a trap bar at your sides, walk tall, shoulders back — resist your torso hunching forward under the load." },
+
+  /* --- alternative-exercise entries (see EXERCISE_ALTERNATIVES below) ---
+     Reused verbatim from an existing entry/cue where the same movement is
+     already described elsewhere in the app (DB Lateral Raise, DB Shrugs,
+     DB Tricep Kickback, Lat Pulldown, Pull-Ups, DB Rear Delt Flye); new
+     entries only for alternatives with no existing match. */
+  "Flat Barbell Press": { muscles: "Chest, front delts, triceps", cue: "Same bar path as incline press but flat — lower to mid-chest, elbows at roughly a 45° angle from your torso." },
+  "DB Flyes (flat bench)": { muscles: "Chest (inner/outer fibers)", cue: "Slight bend in your elbows throughout; lower until you feel a stretch across your chest, then hug the dumbbells back together above your chest." },
+  "DB Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height." },
+  "DB Overhead Tricep Extension": { muscles: "Triceps (long head)", cue: "Elbows stay pinned by your ears; only forearms move — same cue as the rope version, just holding a single dumbbell overhead with both hands." },
+  "DB Tricep Kickback": { muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves." },
+  "DB Lateral Raise (wider arc)": { muscles: "Side delts, rear delts", cue: "Same wide, forward-leaning arc as Cable Y-Raise, but with a dumbbell — lean your torso away from the raising arm for the same angle." },
+  "Lat Pulldown": { muscles: "Lats", cue: "Lead with your elbows, chest up, no leaning back excessively." },
+  "Pull-Ups": { muscles: "Lats, biceps, rear delts", cue: "Pull elbows down and back, not just up." },
+  "DB Row (bent over)": { muscles: "Mid-back, lats, biceps", cue: "Hinge at the hips, flat back, pull the dumbbell up toward your hip — squeeze your shoulder blade at the top." },
+  "DB Pullover": { muscles: "Lats, chest, triceps", cue: "Lying on a bench, lower a single dumbbell in an arc behind your head with a slight elbow bend, then pull it back over your chest." },
+  "Standing DB Curl": { muscles: "Biceps", cue: "Elbows pinned at your sides, curl without swinging your torso for momentum — you lose the incline curl's bottom-position stretch, so expect this to feel like less weight for the same reps." },
+  "DB Curl (standing or hammer)": { muscles: "Biceps", cue: "Constant tension — don't let the weight rest at the bottom. Use a neutral (hammer) grip if you want more forearm/brachialis involvement." },
+  "DB Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward, lead with elbows, thumbs point down." },
+  "DB Shrugs": { muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
+  "DB Lateral Raise + DB Shrugs combo": { muscles: "Side delts, traps", cue: "Alternate a set of DB lateral raises with a set of DB shrugs to cover the same two muscle groups an upright row hits in one movement." },
+  "Goblet Squat (DB)": { muscles: "Quads, core", cue: "Hold one dumbbell vertically at your chest, elbows pointed down between your knees at the bottom — sit down and back like a squat rack isn't there." },
+  "DB Walking Lunge": { muscles: "Quads, glutes", cue: "Front knee tracks over toes, torso stays upright — hold dumbbells at your sides instead of using a leg press's fixed path." },
+  "DB Bulgarian Split Squat": { muscles: "Quads, glutes", cue: "Rear foot elevated behind you on a bench, front knee tracks over toes — most of the work should be quad-dominant through the front leg." },
+  "Standing DB Calf Raise (on a step)": { muscles: "Calves (gastrocnemius)", cue: "Balls of your feet on a step's edge, dumbbells at your sides — full stretch down, then rise as high as you can and pause at the top." },
+  "DB Shoulder Press": { muscles: "Front/side delts, triceps", cue: "Press dumbbells straight overhead without flaring elbows too wide; avoid leaning back to press." },
+  "Close-Grip DB Press (or DB Floor Press)": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, dumbbells nearly touching throughout the press — do it on the floor if you don't have a bench, which adds a natural lockout pause." },
+  "Standing Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward at the hips, lead with elbows, thumbs point down — same cue as the chest-supported version, just without a bench to brace your torso." }
 };
+
+/* ============ ALTERNATIVE EXERCISES ============
+   Manual-only, per-session equipment swaps - nothing shows automatically.
+   Tapping "Alt" next to a programmed exercise's name (only rendered when
+   an entry exists here) shows this one defined substitute + a one-line
+   reason. Picking it swaps that slot's live block over to the alternative
+   for THIS session only, recorded in currentData.altSwaps (keyed by the
+   original exercise's name) - the alternative is logged/tracked exactly
+   like a normal exercise (its own set table, "last time" reference,
+   progression badge) under ITS OWN name, so it builds an independent
+   cross-day history via the same findReferenceExercise() used everywhere
+   else - never merged with the primary exercise's data. The swap is
+   per-session only: currentData.altSwaps lives on the session object, so
+   a brand-new session (emptySessionData) always starts with no swaps and
+   the day shows its normal programmed exercises again until "Alt" is
+   tapped again. Volume/rep-range/rest-category intentionally stay
+   identical to the slot's programmed exercise (same sets, repRange, cat)
+   since these are equipment substitutes for the same movement pattern/
+   muscle group, not a different training prescription - none of the
+   mapped exercises are duration-based, so no repUnit/hold-timer handling
+   is needed here either.
+   Reciprocal pairs (e.g. Barbell/Chest-Sup. Row <-> Seal Row/T-Bar Row)
+   are deliberate - either can stand in for the other. */
+const EXERCISE_ALTERNATIVES = {
+  "Incline Barbell Press": { name: "Incline DB Press", reason: "Same angle, no rack needed" },
+  "Flat DB Press": { name: "Flat Barbell Press", reason: "Same movement, opposite equipment direction" },
+  "Cable Flyes": { name: "DB Flyes (flat bench)", reason: "Same target, no cable needed" },
+  "Cable Lateral Raise": { name: "DB Lateral Raise", reason: "Same movement, lighter increments available too" },
+  "Overhead Rope Ext.": { name: "DB Overhead Tricep Extension", reason: "Same long-head emphasis, no cable needed" },
+  "Pushdowns": { name: "DB Tricep Kickback", reason: "Same muscle, no cable needed" },
+  "Cable Y-Raise": { name: "DB Lateral Raise (wider arc)", reason: "Closest substitute available with just dumbbells" },
+  "Pull-Ups (weighted)": { name: "Lat Pulldown", reason: "Same pattern, machine instead of bodyweight/rack" },
+  "Lat Pulldown (wide)": { name: "Pull-Ups", reason: "Same pattern, bodyweight instead of machine" },
+  "Barbell / Chest-Sup. Row": { name: "Seal Row / T-Bar Row", reason: "Same category, different equipment" },
+  "Seated Cable Row": { name: "DB Row (bent over)", reason: "No cable machine needed" },
+  "Weighted Pull-Up / Pulldown": { name: "Lat Pulldown", reason: "Same pattern, whichever machine/rack is free" },
+  "Seal Row / T-Bar Row": { name: "Barbell / Chest-Sup. Row", reason: "Same category, different equipment" },
+  "Straight-Arm Pulldown": { name: "DB Pullover", reason: "No cable needed" },
+  "Incline DB Curl": { name: "Standing DB Curl", reason: "No bench needed, though loses stretch emphasis" },
+  "Cable Curl": { name: "DB Curl (standing or hammer)", reason: "No cable needed" },
+  "Face Pull": { name: "DB Rear Delt Flye", reason: "No cable machine needed" },
+  "Shrugs": { name: "DB Shrugs", reason: "No barbell/machine needed" },
+  "Upright Row": { name: "DB Lateral Raise + DB Shrugs combo", reason: "No bar/cable needed" },
+  "Front Squat": { name: "Goblet Squat (DB)", reason: "No rack needed" },
+  "Leg Press": { name: "DB Walking Lunge", reason: "No machine needed at all" },
+  "Leg Extension": { name: "DB Bulgarian Split Squat", reason: "No machine needed, quad-biased alternative" },
+  "Seated Leg Curl": { name: "Lying Leg Curl", reason: "Different machine, same muscle" },
+  "Lying Leg Curl": { name: "Seated Leg Curl", reason: "Different machine, same muscle" },
+  "Leg Press Platform Calf Raise": { name: "Standing DB Calf Raise (on a step)", reason: "No leg press needed" },
+  "Overhead Press": { name: "DB Shoulder Press", reason: "No barbell needed" },
+  "Incline DB Press": { name: "Incline Barbell Press", reason: "No dumbbells needed if barbell/rack is free instead" },
+  "Close-Grip Bench / Dips": { name: "Close-Grip DB Press (or DB Floor Press)", reason: "No bar/dip station needed" },
+  "Chest-Supported Rear Delt Flye": { name: "Standing Rear Delt Flye", reason: "No incline bench needed" },
+  "45° Back Extension": { name: "Hip Thrust", reason: "No hyperextension bench needed — add extra sets to make up the volume" },
+  "Hip Thrust": { name: "45° Back Extension", reason: "No barbell/bench setup needed" },
+  "Walking Lunge / Bulg. Split Squat": { name: "Leg Press", reason: "No open floor space needed" }
+};
+
+// given a session's altSwaps map ({originalName: altName}) and an
+// exercise's own name, returns "Original (via: Alt)" if that name is
+// currently standing in for something this session, else the name as-is -
+// used for both the live block title and the history view's exercise header
+function altLabelFor(altSwaps, name) {
+  if (!altSwaps) return name;
+  const original = Object.keys(altSwaps).find(k => altSwaps[k] === name);
+  return original ? `${original} (via: ${name})` : name;
+}
 
 /* ============ FILLER EXERCISES ============
    Optional between-set filler work offered while a rest timer is running.
@@ -955,7 +1069,8 @@ function emptySessionData(dayKey) {
       name: ex.name,
       sets: Array.from({ length: ex.sets }, () => ({ weight: "", reps: "", done: false }))
     })),
-    fillers: []
+    fillers: [],
+    altSwaps: {}
   };
 }
 
@@ -975,6 +1090,7 @@ async function loadSessionByTimestamp(dayKey, timestamp) {
     if (r && r.value) {
       const data = JSON.parse(r.value);
       if (!data.fillers) data.fillers = []; // older sessions logged before the filler feature existed
+      if (!data.altSwaps) data.altSwaps = {}; // older sessions logged before the alternative-exercise feature existed
       return data;
     }
   } catch (e) {}
@@ -1481,14 +1597,29 @@ function buildSetTable(entry, plannedSets, opts) {
 }
 
 async function renderExerciseBlock(content, ex, plannedSets, slot) {
-  const entry = getOrCreateExerciseEntry(ex.name, plannedSets);
+  // manual, per-session equipment swap (see EXERCISE_ALTERNATIVES) - when
+  // this slot has been swapped, the block renders/logs/tracks as the
+  // alternative exercise (its own name, its own history) instead of the
+  // programmed one, for this session only
+  const altDef = EXERCISE_ALTERNATIVES[ex.name];
+  const swappedAltName = currentData.altSwaps && currentData.altSwaps[ex.name];
+  const isSwapped = !!(altDef && swappedAltName);
+  const effectiveEx = isSwapped ? Object.assign({}, ex, { name: swappedAltName }) : ex;
+
+  const entry = getOrCreateExerciseEntry(effectiveEx.name, plannedSets);
 
   const block = document.createElement('div');
   block.className = 'block';
+  const titleText = isSwapped
+    ? `${ex.name} <span class="via-suffix">(via: ${swappedAltName})</span>`
+    : ex.name;
   block.innerHTML = `
     <div class="block-head">
       <div class="block-title-group">
-        <span class="block-title info-toggle" id="title-${slot}" tabindex="0" role="button" aria-expanded="false">${ex.name}<span class="info-hint">ⓘ</span></span>
+        <div class="block-title-row">
+          <span class="block-title info-toggle" id="title-${slot}" tabindex="0" role="button" aria-expanded="false">${titleText}<span class="info-hint">ⓘ</span></span>
+          ${altDef ? `<button type="button" class="alt-toggle-btn${isSwapped ? ' active' : ''}" id="alt-${slot}">${isSwapped ? 'Alt ✓' : 'Alt'}</button>` : ''}
+        </div>
         <span class="block-rep-range">${ex.repRange[0]}-${ex.repRange[1]} ${ex.repUnit || 'reps'}${ex.repNote ? ' ' + ex.repNote : ''}</span>
       </div>
       <span class="block-tag tag-${ex.cat}">${ex.cat}</span>
@@ -1500,7 +1631,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
   `;
   content.appendChild(block);
 
-  const info = EXERCISE_INFO[ex.name];
+  const info = EXERCISE_INFO[effectiveEx.name];
   const infoPanel = block.querySelector(`#info-${slot}`);
   infoPanel.innerHTML = info
     ? `<div class="info-muscles">${info.muscles}</div><div class="info-cue">"${info.cue}"</div>${info.note ? `<div class="info-note">${info.note}</div>` : ''}`
@@ -1516,17 +1647,69 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleInfo(); }
   });
 
-  await updateProgressionUI(block, ex, slot);
+  if (altDef) {
+    block.querySelector(`#alt-${slot}`).addEventListener('click', () => openAltPicker(ex.name, altDef, isSwapped));
+  }
+
+  await updateProgressionUI(block, effectiveEx, slot);
 
   const settableWrap = block.querySelector(`#settable-${slot}`);
   settableWrap.appendChild(buildSetTable(entry, plannedSets, {
     onChange: queueSave,
     allowRestTimer: true,
-    exerciseCat: ex.cat,
-    exerciseName: ex.name,
-    durationTargetSeconds: isDurationBasedExercise(ex) ? ex.repRange[1] : null
+    exerciseCat: effectiveEx.cat,
+    exerciseName: effectiveEx.name,
+    durationTargetSeconds: isDurationBasedExercise(effectiveEx) ? effectiveEx.repRange[1] : null
   }));
 }
+
+/* ============ ALTERNATIVE EXERCISE: picker popover ============ */
+
+const altBackdrop = document.getElementById('altBackdrop');
+const altPopover = document.getElementById('altPopover');
+const altPopoverBody = document.getElementById('altPopoverBody');
+
+function openAltPicker(originalName, altDef, isSwapped) {
+  altPopoverBody.innerHTML = '';
+  if (!isSwapped) {
+    const btn = document.createElement('button');
+    btn.className = 'filler-option-btn';
+    btn.innerHTML = `<span class="filler-option-name">${altDef.name}</span><span class="filler-option-cue">${altDef.reason}</span>`;
+    btn.addEventListener('click', async () => {
+      if (!currentData.altSwaps) currentData.altSwaps = {};
+      currentData.altSwaps[originalName] = altDef.name;
+      await saveSessionData(currentDay, currentData); // immediate (not debounced) so renderAll()'s reload below sees it
+      closeAltPicker();
+      await renderAll();
+    });
+    altPopoverBody.appendChild(btn);
+  } else {
+    const note = document.createElement('div');
+    note.className = 'filler-empty-note';
+    note.textContent = `Currently logging this slot as ${altDef.name} for this session.`;
+    altPopoverBody.appendChild(note);
+    const btn = document.createElement('button');
+    btn.className = 'filler-option-btn';
+    btn.innerHTML = `<span class="filler-option-name">↺ Revert to ${originalName}</span>`;
+    btn.addEventListener('click', async () => {
+      delete currentData.altSwaps[originalName];
+      await saveSessionData(currentDay, currentData);
+      closeAltPicker();
+      await renderAll();
+    });
+    altPopoverBody.appendChild(btn);
+  }
+  altBackdrop.style.display = 'block';
+  altPopover.style.display = 'block';
+}
+
+function closeAltPicker() {
+  altBackdrop.style.display = 'none';
+  altPopover.style.display = 'none';
+}
+
+document.getElementById('altPopoverClose').addEventListener('click', closeAltPicker);
+altBackdrop.addEventListener('click', closeAltPicker);
 
 /* ============ TIMER ============ */
 
@@ -1986,6 +2169,7 @@ async function renderHistory(container) {
         if (r && r.value) {
           const data = JSON.parse(r.value);
           if (!data.fillers) data.fillers = [];
+          if (!data.altSwaps) data.altSwaps = {};
           const dayKey = parts[1];
           const hasData = (data.exercises || []).some(e => e.sets && e.sets.some(s => s.weight || s.reps || s.done))
             || data.fillers.length > 0;
@@ -2029,7 +2213,7 @@ async function renderHistory(container) {
         loggedExercises.forEach(e => {
           const exWrap = document.createElement('div');
           exWrap.className = 'history-exercise';
-          exWrap.innerHTML = `<div class="history-exercise-name">${e.name}</div>`;
+          exWrap.innerHTML = `<div class="history-exercise-name">${altLabelFor(entry.data.altSwaps, e.name)}</div>`;
           const def = DAYS[entry.dayKey] && DAYS[entry.dayKey].exercises.find(x => x.name === e.name);
           exWrap.appendChild(buildSetTable(e, 0, {
             onChange: persist,
