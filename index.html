@@ -381,7 +381,7 @@ const DAYS = {
       { name: "Leg Extension", sets: 2, repRange: [12,15], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 4, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Seated Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
       { name: "Leg Press Platform Calf Raise", sets: 3, repRange: [10,12], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
-      { name: "Hanging Leg Raise", sets: 2, repRange: [10,15], cat: "core", customScaling: { 30: 2, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } }
+      { name: "Weighted Plank", sets: 2, repRange: [30,45], cat: "core", repUnit: "sec hold", customScaling: { 30: 2, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } }
     ],
     bonus: null,
     extended: null
@@ -392,7 +392,7 @@ const DAYS = {
       { name: "Overhead Press", sets: 3, repRange: [6,8], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
       { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Cable Lateral Raise", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 5, 75: 5, 90: 6, 105: 6, 120: 6 } },
-      { name: "Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Chest-Supported Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Close-Grip Bench / Dips", sets: 2, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 1, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } }
@@ -418,7 +418,7 @@ const DAYS = {
   legsB: {
     label: "Legs B",
     exercises: [
-      { name: "Cable Pull-Through", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "45° Back Extension", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
       { name: "Hip Thrust", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 2, 45: 3, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Lying Leg Curl", sets: 3, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Walking Lunge / Bulg. Split Squat", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 4, 75: 4, 90: 4, 105: 5, 120: 5 } },
@@ -445,7 +445,7 @@ const REST_BY_CAT = {
 const EXERCISE_INFO = {
   "Incline Barbell Press": { muscles: "Upper chest, front delts, triceps", cue: "Bar path travels up and back toward your face, not straight up." },
   "Flat DB Press": { muscles: "Chest, front delts, triceps", cue: "Let dumbbells travel slightly inward at the top; don't clang them together." },
-  "Cable Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Pulleys set high — pull down and across, like hugging a barrel at your hips." },
+  "Cable Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Pulleys set high — pull down and across, like hugging a barrel at your hips. If you're not feeling this in your lower/mid chest, double-check pulleys are set HIGH (not low) — high-to-low is the correct setup for this exercise's intended target." },
   "Cable Lateral Raise": { muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height.", note: "If the lowest cable stack weight is too heavy to hit 12-15 reps, switch to DB lateral raises instead — same cue, lighter increments." },
   "Overhead Rope Ext.": { muscles: "Triceps (long head)", cue: "Elbows stay pinned by your ears; only forearms move." },
   "Pushdowns": { muscles: "Triceps", cue: "Elbows locked at your sides; don't let them drift forward." },
@@ -456,7 +456,7 @@ const EXERCISE_INFO = {
   "Lat Pulldown (wide)": { muscles: "Lats", cue: "Lead with your elbows, chest up, no leaning back excessively." },
   "Seated Cable Row": { muscles: "Mid-back, lats", cue: "Keep torso still; row with your elbows, not your lower back." },
   "Incline DB Curl": { muscles: "Biceps (long head, stretch emphasis)", cue: "Let arms hang fully behind your torso at the bottom." },
-  "Face Pull": { muscles: "Rear delts, upper back", cue: "Pull toward your face, elbows high, thumbs point back." },
+  "Face Pull": { muscles: "Rear delts, upper back", cue: "Pull toward your face, elbows high, thumbs point back. You should feel this mainly in your rear delts and upper back/between your shoulder blades — not your biceps. If your arms are doing most of the work, the weight is likely too heavy or your elbows are dropping too low; elbows must stay at or above shoulder height throughout, finishing higher than your hands." },
   "Front Squat": { muscles: "Quads, core", cue: "Elbows up, keep the bar resting on front delts, chest tall." },
   "Leg Press": { muscles: "Quads, glutes", cue: "Don't let knees cave in; stop before lower back rounds off the pad." },
   "Leg Extension": { muscles: "Quads", cue: "Slow controlled negative; don't let the weight stack slam." },
@@ -466,6 +466,7 @@ const EXERCISE_INFO = {
   "Overhead Press": { muscles: "Front/side delts, triceps", cue: "Squeeze glutes, don't lean back to press." },
   "Incline DB Press": { muscles: "Upper chest, front delts", cue: "Same path as flat press, just steeper bench angle." },
   "Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward, lead with elbows, thumbs point down." },
+  "Chest-Supported Rear Delt Flye": { muscles: "Rear delts", cue: "Lie face-down on a 30-45° incline bench, let arms hang straight down, raise dumbbells out to the sides in an arc, squeeze shoulder blades together at the top. The bench removes any need to brace your lower back." },
   "Close-Grip Bench / Dips": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." },
   "Cable Crossover": { muscles: "Chest (inner fibers)", cue: "Cross hands slightly at the bottom for full contraction." },
   "Weighted Pull-Up / Pulldown": { muscles: "Lats, biceps", cue: "Pull elbows down and back, not just up." },
@@ -477,6 +478,7 @@ const EXERCISE_INFO = {
   "Shrugs": { muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
   "Upright Row": { muscles: "Traps, side delts", cue: "Pull the bar straight up along your body, elbows lead and stay above your wrists, stop around chest height — don't pull higher, which stresses the shoulder joint." },
   "Cable Pull-Through": { muscles: "Glutes, hamstrings", cue: "Hinge at hips, spine stays neutral/extended — push hips back, not down." },
+  "45° Back Extension": { muscles: "Glutes, hamstrings", cue: "On the 45° hyperextension bench, hinge forward until torso is roughly parallel to the floor (or wherever hamstrings comfortably allow), then drive through your heels and squeeze glutes to raise back up — think 'push my hips into the pad,' not 'lift my chest.' Keep a slight, fixed knee bend throughout; don't hyperextend past a straight line at the top." },
   "Lying Leg Curl": { muscles: "Hamstrings", cue: "Squeeze at the top, don't let hips lift off the pad." },
   "Walking Lunge / Bulg. Split Squat": { muscles: "Quads, glutes", cue: "Front knee tracks over toes, torso stays upright." },
   "Seated Calf Raise": { muscles: "Calves (soleus)", cue: "Slow and full range — this muscle responds to control, not speed." },
