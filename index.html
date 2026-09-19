@@ -265,6 +265,41 @@
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: var(--iron); }
   ::-webkit-scrollbar-thumb { background: var(--line); }
+
+  /* FILLER */
+  .timer-btn-filler { background: rgba(255,255,255,0.28); font-weight: 700; }
+  .filler-popover-backdrop { position: fixed; inset: 0; z-index: 599; background: rgba(0,0,0,0.4); }
+  .filler-popover {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 600;
+    background: var(--iron-soft); border: 1.5px solid var(--plate-blue); border-radius: 8px;
+    padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.35); width: min(340px, calc(100vw - 32px));
+    max-height: 80vh; overflow-y: auto;
+  }
+  .filler-popover-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.02em; margin-bottom: 10px; }
+  .filler-option-btn {
+    display: block; width: 100%; text-align: left; background: var(--iron-raised); border: 1.5px solid var(--line);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+  }
+  .filler-option-btn:hover { border-color: var(--plate-blue); }
+  .filler-option-name { display: block; font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--chalk); }
+  .filler-option-cue { display: block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 3px; line-height: 1.4; }
+  .filler-empty-note { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); padding: 8px 0; }
+  .filler-popover-close {
+    text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim);
+    cursor: pointer; margin-top: 4px; text-decoration: underline;
+  }
+
+  .filler-section { border: 1px dashed var(--line); background: var(--iron-soft); border-radius: 6px; padding: 12px 14px; margin-bottom: 14px; }
+  .filler-section-title {
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--dim);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .filler-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .filler-row:last-child { border-bottom: none; }
+  .filler-row-name { flex: 1; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--chalk); }
+  .filler-input { width: 56px; flex: none; font-size: 15px; text-align: center; }
+  .filler-delete-btn { background: none; border: none; color: var(--plate-red); font-size: 16px; font-weight: 700; cursor: pointer; padding: 4px 6px; line-height: 1; }
+  .filler-section-history { margin-top: 10px; margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -336,7 +371,15 @@
     <button class="timer-btn" id="timerAdd15">+15s</button>
     <button class="timer-btn" id="timerAdd30">+30s</button>
     <button class="timer-btn" id="timerSkip">Skip</button>
+    <button class="timer-btn timer-btn-filler" id="timerFillerBtn">+ Filler</button>
   </div>
+</div>
+
+<div class="filler-popover-backdrop" id="fillerBackdrop" style="display:none;"></div>
+<div class="filler-popover" id="fillerPopover" style="display:none;">
+  <div class="filler-popover-title">Filler Exercise</div>
+  <div id="fillerOptionsList"></div>
+  <div class="filler-popover-close" id="fillerPopoverClose">Cancel</div>
 </div>
 
 <script>
@@ -494,6 +537,53 @@ const EXERCISE_INFO = {
   "Farmer's Carry": { muscles: "Core (anti-extension/collapse), traps, grip", cue: "Carry heavy dumbbells or a trap bar at your sides, walk tall, shoulders back — resist your torso hunching forward under the load." }
 };
 
+/* ============ FILLER EXERCISES ============
+   Optional between-set filler work offered while a rest timer is running.
+   Logged into its own currentData.fillers array (see SESSION STORAGE below)
+   - never into currentData.exercises - so it can never be read by
+   getOrCreateExerciseEntry, computeSessionPlan, or the progression-suggestion
+   logic. Cues reuse identical text from existing/retired EXERCISE_INFO
+   entries above where a matching movement already exists (Hammer Curl,
+   Tricep Kickback, and the Cable/Standard Shrugs and Lateral Raise cues),
+   for consistency with the app's established voice. */
+const FILLER_EXERCISES = [
+  { name: "Standing Bicep Curl", muscleTag: "biceps", muscles: "Biceps", cue: "Elbows pinned at your sides, curl without swinging your torso for momentum." },
+  { name: "Hammer Curl", muscleTag: "biceps", muscles: "Brachialis, forearm", cue: "Neutral grip throughout, no wrist rotation — keep elbows pinned at your sides." },
+  { name: "DB Lateral Raise", muscleTag: "side_delts", muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height." },
+  { name: "DB Shrugs", muscleTag: "traps", muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
+  { name: "DB Tricep Kickback", muscleTag: "triceps", muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves." }
+];
+
+// primary muscle tag per programmed exercise, used only to hide filler
+// options that would double up on whatever's currently resting - not a
+// full muscle taxonomy, just enough coverage to resolve every live
+// exercise name against the 4 tags FILLER_EXERCISES actually uses
+const EXERCISE_PRIMARY_MUSCLE_TAG = {
+  "Incline Barbell Press": "chest", "Flat DB Press": "chest", "Cable Flyes": "chest", "Incline DB Press": "chest",
+  "Cable Lateral Raise": "side_delts", "Cable Y-Raise": "side_delts",
+  "Overhead Rope Ext.": "triceps", "Pushdowns": "triceps", "Close-Grip Bench / Dips": "triceps",
+  "Pull-Ups (weighted)": "lats", "Lat Pulldown (wide)": "lats", "Weighted Pull-Up / Pulldown": "lats", "Straight-Arm Pulldown": "lats",
+  "Barbell / Chest-Sup. Row": "mid_back", "Seated Cable Row": "mid_back", "Seal Row / T-Bar Row": "mid_back",
+  "Incline DB Curl": "biceps", "Cable Curl": "biceps",
+  "Face Pull": "rear_delts", "Chest-Supported Rear Delt Flye": "rear_delts",
+  "Upright Row": "traps", "Shrugs": "traps",
+  "Half-Kneeling Pallof Press": "core_rotation", "Pallof Press": "core_rotation",
+  "Front Squat": "quads", "Leg Press": "quads", "Leg Extension": "quads", "Walking Lunge / Bulg. Split Squat": "quads",
+  "Seated Leg Curl": "hamstrings", "Lying Leg Curl": "hamstrings",
+  "Leg Press Platform Calf Raise": "calves", "Seated Calf Raise": "calves",
+  "Weighted Plank": "core_extension", "Ab Wheel Rollout": "core_extension", "Farmer's Carry": "core_extension",
+  "Overhead Press": "front_delts",
+  "45° Back Extension": "glutes", "Hip Thrust": "glutes",
+  "Suitcase Carry": "core_lateral", "Side Plank": "core_lateral"
+};
+
+function fillerOptionsFor(exerciseName) {
+  const excludeTag = EXERCISE_PRIMARY_MUSCLE_TAG[exerciseName];
+  return FILLER_EXERCISES.filter(f => f.muscleTag !== excludeTag);
+}
+
+function newFillerId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
 /* ============ PLATE CALCULATOR ============ */
 
 const BAR_WEIGHTS = { mens: 45, womens: 35 };
@@ -582,6 +672,7 @@ let restStartTimestamp = null; // ms epoch when the current rest timer started; 
 let restDurationMs = 0;        // total rest duration, adjustable via +15s/+30s/-30s
 let restAlertFired = false;    // so the audio/vibration alert fires at most once per timer run
 let timerContext = "compound"; // compound | moderate | isolation | burnout
+let restExerciseName = null;   // name of the exercise currently resting from, used for filler exclusion logic
 
 let sessionLengthMinutes = 60;
 let showAllExercises = false; // per-day override to ignore the time-budget trim, reset on day switch or slider change
@@ -838,7 +929,8 @@ function emptySessionData(dayKey) {
     exercises: day.exercises.map(ex => ({
       name: ex.name,
       sets: Array.from({ length: ex.sets }, () => ({ weight: "", reps: "", done: false }))
-    }))
+    })),
+    fillers: []
   };
 }
 
@@ -855,7 +947,11 @@ async function listDaySessions(dayKey) {
 async function loadSessionByTimestamp(dayKey, timestamp) {
   try {
     const r = await window.storage.get(sessionKey(dayKey, timestamp));
-    if (r && r.value) return JSON.parse(r.value);
+    if (r && r.value) {
+      const data = JSON.parse(r.value);
+      if (!data.fillers) data.fillers = []; // older sessions logged before the filler feature existed
+      return data;
+    }
   } catch (e) {}
   return null;
 }
@@ -948,9 +1044,97 @@ async function renderAll() {
     await renderExerciseBlock(content, entry.ex, entry.sets, slot++);
   }
   renderPlanNote(content, plan);
+  renderFillerSection();
 
   document.getElementById('saveState').textContent = '';
 }
+
+/* ============ FILLER: render + picker ============
+   Fillers live in currentData.fillers, entirely separate from
+   currentData.exercises - computeSessionPlan, getOrCreateExerciseEntry,
+   findReferenceExercise and the progression-suggestion logic only ever
+   read currentData.exercises / day.exercises, so nothing here can affect
+   set-scaling, time-budget math, or "ready to add weight" suggestions. */
+function renderFillerSection() {
+  const content = document.getElementById('content');
+  let section = document.getElementById('fillerSection');
+  const fillers = (currentData && currentData.fillers) || [];
+  if (fillers.length === 0) {
+    if (section) section.remove();
+    return;
+  }
+  if (!section) {
+    section = document.createElement('div');
+    section.className = 'filler-section';
+    section.id = 'fillerSection';
+  }
+  content.appendChild(section); // (re-)append so it always renders last
+  section.innerHTML = `<div class="filler-section-title">Extra / Filler Work</div><div id="fillerRows"></div>`;
+  const rows = section.querySelector('#fillerRows');
+  fillers.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'filler-row';
+    row.innerHTML = `
+      <span class="filler-row-name">${f.exercise}</span>
+      <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
+      <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
+      <button class="filler-delete-btn" title="Delete">✕</button>
+    `;
+    const [wtInput, repsInput] = row.querySelectorAll('input');
+    wtInput.addEventListener('input', () => { f.weight = wtInput.value; queueSave(); });
+    repsInput.addEventListener('input', () => { f.reps = repsInput.value; queueSave(); });
+    row.querySelector('.filler-delete-btn').addEventListener('click', () => {
+      currentData.fillers = currentData.fillers.filter(x => x.id !== f.id);
+      queueSave();
+      renderFillerSection();
+    });
+    rows.appendChild(row);
+  });
+}
+
+function addFillerEntry(exerciseName) {
+  if (!currentData.fillers) currentData.fillers = [];
+  currentData.fillers.push({ id: newFillerId(), exercise: exerciseName, weight: "", reps: "", loggedAt: Date.now() });
+  queueSave();
+  renderFillerSection();
+}
+
+const fillerBackdrop = document.getElementById('fillerBackdrop');
+const fillerPopover = document.getElementById('fillerPopover');
+const fillerOptionsList = document.getElementById('fillerOptionsList');
+
+function openFillerPicker() {
+  const options = fillerOptionsFor(restExerciseName);
+  fillerOptionsList.innerHTML = "";
+  if (options.length === 0) {
+    const p = document.createElement('div');
+    p.className = 'filler-empty-note';
+    p.textContent = "No filler options available — they'd all target the same muscle you're currently resting.";
+    fillerOptionsList.appendChild(p);
+  } else {
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'filler-option-btn';
+      btn.innerHTML = `<span class="filler-option-name">${opt.name}</span><span class="filler-option-cue">${opt.muscles} — "${opt.cue}"</span>`;
+      btn.addEventListener('click', () => {
+        addFillerEntry(opt.name);
+        closeFillerPicker();
+      });
+      fillerOptionsList.appendChild(btn);
+    });
+  }
+  fillerBackdrop.style.display = 'block';
+  fillerPopover.style.display = 'block';
+}
+
+function closeFillerPicker() {
+  fillerBackdrop.style.display = 'none';
+  fillerPopover.style.display = 'none';
+}
+
+document.getElementById('timerFillerBtn').addEventListener('click', openFillerPicker);
+document.getElementById('fillerPopoverClose').addEventListener('click', closeFillerPicker);
+fillerBackdrop.addEventListener('click', closeFillerPicker);
 
 // +5 lbs for compound/moderate movements; for isolation/burnout, a smaller
 // bump derived from the smallest plate the user has marked available
@@ -1082,7 +1266,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
         set.done = !set.done;
         renderSets();
         queueSave();
-        if (set.done) startRestTimer(ex.cat);
+        if (set.done) startRestTimer(ex.cat, ex.name);
       });
     });
   }
@@ -1173,8 +1357,9 @@ function renderTimer() {
   }
 }
 
-function startRestTimer(context) {
+function startRestTimer(context, exerciseName) {
   timerContext = context;
+  restExerciseName = exerciseName || null;
   clearInterval(restTickInterval);
   restStartTimestamp = Date.now();
   restDurationMs = durationFor(context) * 1000;
@@ -1518,6 +1703,16 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// debounced write-back for filler edits made directly in the history list -
+// these aren't the live active session, so they bypass currentData/queueSave
+// and write straight to that entry's own storage key
+let historyFillerSaveTimers = {};
+function debouncedPersistHistoryFiller(dayKey, data) {
+  const key = sessionKey(dayKey, data.timestamp);
+  clearTimeout(historyFillerSaveTimers[key]);
+  historyFillerSaveTimers[key] = setTimeout(() => window.storage.set(key, JSON.stringify(data)), 400);
+}
+
 async function renderHistory(container) {
   container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">loading…</div>';
   try {
@@ -1534,8 +1729,10 @@ async function renderHistory(container) {
         const r = await window.storage.get(key);
         if (r && r.value) {
           const data = JSON.parse(r.value);
+          if (!data.fillers) data.fillers = [];
           const dayKey = parts[1];
-          const hasData = (data.exercises || []).some(e => e.sets && e.sets.some(s => s.weight || s.reps || s.done));
+          const hasData = (data.exercises || []).some(e => e.sets && e.sets.some(s => s.weight || s.reps || s.done))
+            || data.fillers.length > 0;
           if (hasData) entries.push({ dayKey, timestamp: data.timestamp, data });
         }
       } catch (e) {}
@@ -1559,6 +1756,40 @@ async function renderHistory(container) {
         <div class="he-top"><span class="he-day">${dayLabel} — ${dateLabel}</span></div>
         <div style="color:var(--chalk);">${exSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
       `;
+      if (entry.data.fillers.length > 0) {
+        const fillerWrap = document.createElement('div');
+        fillerWrap.className = 'filler-section filler-section-history';
+        fillerWrap.innerHTML = `<div class="filler-section-title">Extra / Filler Work</div>`;
+        const rowsWrap = document.createElement('div');
+        fillerWrap.appendChild(rowsWrap);
+        const persist = () => debouncedPersistHistoryFiller(entry.dayKey, entry.data);
+        entry.data.fillers.forEach(f => {
+          const row = document.createElement('div');
+          row.className = 'filler-row';
+          row.innerHTML = `
+            <span class="filler-row-name">${f.exercise}</span>
+            <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
+            <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
+            <button class="filler-delete-btn" title="Delete">✕</button>
+          `;
+          const [wtInput, repsInput] = row.querySelectorAll('input');
+          wtInput.addEventListener('input', () => { f.weight = wtInput.value; persist(); });
+          repsInput.addEventListener('input', () => { f.reps = repsInput.value; persist(); });
+          row.querySelector('.filler-delete-btn').addEventListener('click', async () => {
+            entry.data.fillers = entry.data.fillers.filter(x => x.id !== f.id);
+            await window.storage.set(sessionKey(entry.dayKey, entry.data.timestamp), JSON.stringify(entry.data));
+            row.remove();
+            // if the entry now being edited is also the live active session
+            // on screen, refresh it so the two views don't drift apart
+            if (entry.dayKey === currentDay && currentData && currentData.timestamp === entry.data.timestamp) {
+              currentData.fillers = entry.data.fillers;
+              renderFillerSection();
+            }
+          });
+          rowsWrap.appendChild(row);
+        });
+        div.appendChild(fillerWrap);
+      }
       container.appendChild(div);
     });
   } catch (e) {
