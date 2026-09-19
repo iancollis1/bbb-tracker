@@ -480,7 +480,7 @@ const DAYS = {
       { name: "Incline DB Press", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Cable Lateral Raise", sets: 2, repRange: [12,15], cat: "burnout", customScaling: { 30: 2, 45: 3, 60: 5, 75: 5, 90: 6, 105: 6, 120: 6 } },
       { name: "Chest-Supported Rear Delt Flye", sets: 3, repRange: [12,15], cat: "burnout", customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
-      { name: "Close-Grip Bench / Dips", sets: 2, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Close-Grip Bench", sets: 2, repRange: [8,10], cat: "moderate", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
       { name: "Overhead Rope Ext.", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 1, 75: 4, 90: 4, 105: 4, 120: 4 } },
       { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } }
     ],
@@ -555,11 +555,14 @@ const EXERCISE_INFO = {
   "Incline DB Press": { muscles: "Upper chest, front delts", cue: "Same path as flat press, just steeper bench angle." },
   "Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward, lead with elbows, thumbs point down." },
   "Chest-Supported Rear Delt Flye": { muscles: "Rear delts", cue: "Lie face-down on a 30-45° incline bench, let arms hang straight down, raise dumbbells out to the sides in an arc, squeeze shoulder blades together at the top. The bench removes any need to brace your lower back." },
-  "Close-Grip Bench / Dips": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." },
+  "Close-Grip Bench / Dips": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." }, // retired name - kept for historical logged data only, no longer scheduled
+  "Close-Grip Bench": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." },
+  "Dips": { muscles: "Chest, triceps", cue: "Lean your torso forward and let elbows flare slightly out for chest emphasis (stay more upright with elbows tucked in for more triceps); lower until you feel a stretch in your chest/front shoulders, then press back up." },
   "Cable Crossover": { muscles: "Chest (inner fibers)", cue: "Cross hands slightly at the bottom for full contraction." },
   "Weighted Pull-Up / Pulldown": { muscles: "Lats, biceps", cue: "Pull elbows down and back, not just up." },
   "Seal Row / T-Bar Row": { muscles: "Mid-back", cue: "Chest supported, pull straight up into your ribs." }, // retired name - kept for historical logged data only, no longer scheduled
   "Seal Row": { muscles: "Mid-back", cue: "Lie face-down on a flat bench, narrower neutral grip on the handle, chest fully supported, pull straight up into your ribs — the fixed bar path keeps the pull angle constant rep to rep." },
+  "T-Bar Row": { muscles: "Mid-back, lats", cue: "Straddle the bar, hinge forward with a flat back, pull the handle into your lower chest, squeeze shoulder blades together at the top." },
   "Straight-Arm Pulldown": { muscles: "Lats", cue: "Arms stay straight, hinge only at the shoulder." },
   "Cable Curl": { muscles: "Biceps", cue: "Constant tension — don't let the weight rest at the bottom." },
   "Pallof Press": { muscles: "Core (anti-rotation, obliques/transverse abdominis)", cue: "Press straight out from your chest, resist the cable pulling you sideways — hips and shoulders stay square." },
@@ -631,8 +634,11 @@ const EXERCISE_INFO = {
    muscle group, not a different training prescription - none of the
    mapped exercises are duration-based, so no repUnit/hold-timer handling
    is needed here either.
-   Reciprocal pairs (e.g. Barbell/Chest-Sup. Row <-> Seal Row/T-Bar Row)
-   are deliberate - either can stand in for the other. */
+   Reciprocal pairs (e.g. Pull-Ups (weighted) <-> Lat Pulldown) are
+   deliberate - either can stand in for the other. Not every pair is
+   reciprocal, though - e.g. Seal Row's alt is T-Bar Row, but T-Bar Row
+   isn't itself a programmed slot here, it's only reachable as an
+   alternative. */
 const EXERCISE_ALTERNATIVES = {
   "Incline Barbell Press": { name: "Incline DB Press", reason: "Same angle, no rack needed" },
   "Flat DB Press": { name: "Flat Barbell Press", reason: "Same movement, opposite equipment direction" },
@@ -646,7 +652,7 @@ const EXERCISE_ALTERNATIVES = {
   "Chest-Supported Row": { name: "Seal Row", reason: "Same category, different equipment" },
   "Seated Cable Row": { name: "DB Row (bent over)", reason: "No cable machine needed" },
   "Weighted Pull-Up / Pulldown": { name: "Lat Pulldown", reason: "Same pattern, whichever machine/rack is free" },
-  "Seal Row": { name: "Chest-Supported Row", reason: "Same category, different equipment" },
+  "Seal Row": { name: "T-Bar Row", reason: "No chest-supported bench available — T-Bar Row trains the same mid-back thickness standing instead." },
   "Straight-Arm Pulldown": { name: "DB Pullover", reason: "No cable needed" },
   "Incline DB Curl": { name: "Standing DB Curl", reason: "No bench needed, though loses stretch emphasis" },
   "Cable Curl": { name: "DB Curl (standing or hammer)", reason: "No cable needed" },
@@ -661,7 +667,7 @@ const EXERCISE_ALTERNATIVES = {
   "Leg Press Platform Calf Raise": { name: "Standing DB Calf Raise (on a step)", reason: "No leg press needed" },
   "Overhead Press": { name: "DB Shoulder Press", reason: "No barbell needed" },
   "Incline DB Press": { name: "Incline Barbell Press", reason: "No dumbbells needed if barbell/rack is free instead" },
-  "Close-Grip Bench / Dips": { name: "Close-Grip DB Press (or DB Floor Press)", reason: "No bar/dip station needed" },
+  "Close-Grip Bench": { name: "Dips", reason: "No barbell/bench available — Dips train chest/triceps similarly using just a dip station or parallel bars." },
   "Chest-Supported Rear Delt Flye": { name: "Standing Rear Delt Flye", reason: "No incline bench needed" },
   "45° Back Extension": { name: "Hip Thrust", reason: "No hyperextension bench needed — add extra sets to make up the volume" },
   "Hip Thrust": { name: "45° Back Extension", reason: "No barbell/bench setup needed" },
@@ -702,7 +708,7 @@ const FILLER_EXERCISES = [
 const EXERCISE_PRIMARY_MUSCLE_TAG = {
   "Incline Barbell Press": "chest", "Flat DB Press": "chest", "Cable Flyes": "chest", "Incline DB Press": "chest",
   "Cable Lateral Raise": "side_delts", "Cable Y-Raise": "side_delts",
-  "Overhead Rope Ext.": "triceps", "Pushdowns": "triceps", "Close-Grip Bench / Dips": "triceps",
+  "Overhead Rope Ext.": "triceps", "Pushdowns": "triceps", "Close-Grip Bench": "triceps",
   "Pull-Ups (weighted)": "lats", "Lat Pulldown (wide)": "lats", "Weighted Pull-Up / Pulldown": "lats", "Straight-Arm Pulldown": "lats",
   "Chest-Supported Row": "mid_back", "Seated Cable Row": "mid_back", "Seal Row": "mid_back",
   "Incline DB Curl": "biceps", "Cable Curl": "biceps",
@@ -1329,7 +1335,8 @@ function suggestedIncrement(cat) {
 // weight continuity survives the rename instead of resetting to zero.
 const EXERCISE_RENAME_ALIASES = {
   "Chest-Supported Row": ["Barbell / Chest-Sup. Row"],
-  "Seal Row": ["Seal Row / T-Bar Row"]
+  "Seal Row": ["Seal Row / T-Bar Row"],
+  "Close-Grip Bench": ["Close-Grip Bench / Dips"]
 };
 
 // finds the most recent OTHER session (excluding the currently-loaded draft)
