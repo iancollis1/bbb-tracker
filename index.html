@@ -449,7 +449,7 @@ const DAYS = {
     label: "Pull A",
     exercises: [
       { name: "Pull-Ups (weighted)", sets: 4, repRange: [6,8], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
-      { name: "Barbell / Chest-Sup. Row", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Chest-Supported Row", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
       { name: "Half-Kneeling Pallof Press", sets: 2, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 2, 45: 2, 60: 2, 75: 3, 90: 3, 105: 4, 120: 4 } },
       { name: "Lat Pulldown (wide)", sets: 3, repRange: [10,12], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
       { name: "Incline DB Curl", sets: 2, repRange: [8,10], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
@@ -491,7 +491,7 @@ const DAYS = {
     label: "Pull B",
     exercises: [
       { name: "Weighted Pull-Up / Pulldown", sets: 4, repRange: [8,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
-      { name: "Seal Row / T-Bar Row", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Seal Row", sets: 3, repRange: [8,10], cat: "moderate", customScaling: { 30: 3, 45: 4, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
       { name: "Straight-Arm Pulldown", sets: 2, repRange: [10,12], cat: "isolation", customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
       { name: "Incline DB Curl", sets: 3, repRange: [8,10], cat: "isolation", customScaling: { 30: 0, 45: 3, 60: 2, 75: 4, 90: 4, 105: 5, 120: 5 } },
       { name: "Shrugs", sets: 2, repRange: [10,12], cat: "burnout", customScaling: { 30: 0, 45: 2, 60: 4, 75: 5, 90: 5, 105: 6, 120: 6 } },
@@ -539,7 +539,8 @@ const EXERCISE_INFO = {
   "Cable Y-Raise": { muscles: "Side delts, rear delts", cue: "Set the cable low, lean your torso away from the machine at an angle, raise the handle up and slightly forward — this Y-shaped path hits side delts from a different angle than a standard lateral raise." },
   "Front Raise": { muscles: "Front delts", cue: "Controlled up and down, no swinging from your hips." },
   "Pull-Ups (weighted)": { muscles: "Lats, biceps, rear delts", cue: "Pull elbows down and back, not just up." },
-  "Barbell / Chest-Sup. Row": { muscles: "Mid-back, lats, biceps", cue: "Squeeze shoulder blades together at the top." },
+  "Barbell / Chest-Sup. Row": { muscles: "Mid-back, lats, biceps", cue: "Squeeze shoulder blades together at the top." }, // retired name - kept for historical logged data only, no longer scheduled
+  "Chest-Supported Row": { muscles: "Mid-back, lats, biceps", cue: "Lie face-down on an incline bench, wide pronated grip, pull elbows back past your ribs, squeeze shoulder blades together at the top. The bench removes any need to brace your lower back." },
   "Lat Pulldown (wide)": { muscles: "Lats", cue: "Lead with your elbows, chest up, no leaning back excessively." },
   "Seated Cable Row": { muscles: "Mid-back, lats", cue: "Keep torso still; row with your elbows, not your lower back." },
   "Incline DB Curl": { muscles: "Biceps (long head, stretch emphasis)", cue: "Let arms hang fully behind your torso at the bottom." },
@@ -557,7 +558,8 @@ const EXERCISE_INFO = {
   "Close-Grip Bench / Dips": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, not flared." },
   "Cable Crossover": { muscles: "Chest (inner fibers)", cue: "Cross hands slightly at the bottom for full contraction." },
   "Weighted Pull-Up / Pulldown": { muscles: "Lats, biceps", cue: "Pull elbows down and back, not just up." },
-  "Seal Row / T-Bar Row": { muscles: "Mid-back", cue: "Chest supported, pull straight up into your ribs." },
+  "Seal Row / T-Bar Row": { muscles: "Mid-back", cue: "Chest supported, pull straight up into your ribs." }, // retired name - kept for historical logged data only, no longer scheduled
+  "Seal Row": { muscles: "Mid-back", cue: "Lie face-down on a flat bench, narrower neutral grip on the handle, chest fully supported, pull straight up into your ribs — the fixed bar path keeps the pull angle constant rep to rep." },
   "Straight-Arm Pulldown": { muscles: "Lats", cue: "Arms stay straight, hinge only at the shoulder." },
   "Cable Curl": { muscles: "Biceps", cue: "Constant tension — don't let the weight rest at the bottom." },
   "Pallof Press": { muscles: "Core (anti-rotation, obliques/transverse abdominis)", cue: "Press straight out from your chest, resist the cable pulling you sideways — hips and shoulders stay square." },
@@ -641,10 +643,10 @@ const EXERCISE_ALTERNATIVES = {
   "Cable Y-Raise": { name: "DB Lateral Raise (wider arc)", reason: "Closest substitute available with just dumbbells" },
   "Pull-Ups (weighted)": { name: "Lat Pulldown", reason: "Same pattern, machine instead of bodyweight/rack" },
   "Lat Pulldown (wide)": { name: "Pull-Ups", reason: "Same pattern, bodyweight instead of machine" },
-  "Barbell / Chest-Sup. Row": { name: "Seal Row / T-Bar Row", reason: "Same category, different equipment" },
+  "Chest-Supported Row": { name: "Seal Row", reason: "Same category, different equipment" },
   "Seated Cable Row": { name: "DB Row (bent over)", reason: "No cable machine needed" },
   "Weighted Pull-Up / Pulldown": { name: "Lat Pulldown", reason: "Same pattern, whichever machine/rack is free" },
-  "Seal Row / T-Bar Row": { name: "Barbell / Chest-Sup. Row", reason: "Same category, different equipment" },
+  "Seal Row": { name: "Chest-Supported Row", reason: "Same category, different equipment" },
   "Straight-Arm Pulldown": { name: "DB Pullover", reason: "No cable needed" },
   "Incline DB Curl": { name: "Standing DB Curl", reason: "No bench needed, though loses stretch emphasis" },
   "Cable Curl": { name: "DB Curl (standing or hammer)", reason: "No cable needed" },
@@ -702,7 +704,7 @@ const EXERCISE_PRIMARY_MUSCLE_TAG = {
   "Cable Lateral Raise": "side_delts", "Cable Y-Raise": "side_delts",
   "Overhead Rope Ext.": "triceps", "Pushdowns": "triceps", "Close-Grip Bench / Dips": "triceps",
   "Pull-Ups (weighted)": "lats", "Lat Pulldown (wide)": "lats", "Weighted Pull-Up / Pulldown": "lats", "Straight-Arm Pulldown": "lats",
-  "Barbell / Chest-Sup. Row": "mid_back", "Seated Cable Row": "mid_back", "Seal Row / T-Bar Row": "mid_back",
+  "Chest-Supported Row": "mid_back", "Seated Cable Row": "mid_back", "Seal Row": "mid_back",
   "Incline DB Curl": "biceps", "Cable Curl": "biceps",
   "Face Pull": "rear_delts", "Chest-Supported Rear Delt Flye": "rear_delts",
   "Upright Row": "traps", "Shrugs": "traps",
@@ -1314,6 +1316,22 @@ function suggestedIncrement(cat) {
   return Math.max(2.5, Math.min(5, smallest * 2));
 }
 
+// Straight name-continuity aliases for a pure rename - same lift, same
+// muscle, just a cleaner label (unlike EXERCISE_ALTERNATIVES, which links
+// two genuinely different movements that deliberately build SEPARATE
+// progression tracks). Historical data logged under an old name is never
+// rewritten or migrated - it stays exactly as logged, under its original
+// name, in storage and in the History view (same hidden-but-not-deleted
+// pattern used for every other exercise rename in this app: the old
+// EXERCISE_INFO entry is kept too, just unused going forward). Only the
+// live progression LOOKUP (findReferenceExercise) treats old-name and
+// new-name entries as the same exercise, so "last time"/ready-to-add-
+// weight continuity survives the rename instead of resetting to zero.
+const EXERCISE_RENAME_ALIASES = {
+  "Chest-Supported Row": ["Barbell / Chest-Sup. Row"],
+  "Seal Row": ["Seal Row / T-Bar Row"]
+};
+
 // finds the most recent OTHER session (excluding the currently-loaded draft)
 // that has logged data for this exercise, searching ACROSS ALL DAYS - not
 // just the day it's being viewed from. A handful of exercise names appear
@@ -1322,8 +1340,11 @@ function suggestedIncrement(cat) {
 // weight/progression history this way. This is a pure search-behavior
 // change - no stored data is touched or migrated, so any existing history
 // already logged under either day becomes visible the moment this runs;
-// nothing is lost or duplicated.
+// nothing is lost or duplicated. Also matches any of exerciseName's
+// EXERCISE_RENAME_ALIASES, so a renamed exercise's history carries forward
+// under the new name instead of resetting.
 async function findReferenceExercise(excludeDayKey, excludeTimestamp, exerciseName) {
+  const acceptedNames = [exerciseName, ...(EXERCISE_RENAME_ALIASES[exerciseName] || [])];
   const candidates = [];
   for (const dayKey of DAY_KEYS) {
     const timestamps = await listDaySessions(dayKey);
@@ -1335,7 +1356,7 @@ async function findReferenceExercise(excludeDayKey, excludeTimestamp, exerciseNa
   candidates.sort((a, b) => b.ts - a.ts);
   for (const c of candidates) {
     const session = await loadSessionByTimestamp(c.dayKey, c.ts);
-    const match = session && session.exercises.find(e => e.name === exerciseName);
+    const match = session && session.exercises.find(e => acceptedNames.includes(e.name));
     if (match && match.sets.some(s => s.weight || s.reps)) return match;
   }
   return null;
