@@ -143,8 +143,25 @@
   }
   .set-table th.num { text-align: center; width: 32px; }
   .set-table th.check { text-align: center; width: 40px; }
+  .set-table th.del { width: 30px; }
   .set-table td { padding: 6px 14px; }
   .set-table td.num { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--dim); text-align: center; white-space: nowrap; }
+  .del-cell { text-align: center; padding-left: 4px !important; padding-right: 8px !important; }
+  .set-delete-btn { background: none; border: none; color: var(--line); font-size: 15px; font-weight: 700; cursor: pointer; padding: 4px 6px; line-height: 1; }
+  .set-delete-btn:hover { color: var(--plate-red); }
+  .add-set-btn {
+    display: block; width: calc(100% - 28px); margin: 4px 14px 12px 14px; background: none;
+    border: 1.5px dashed var(--line); color: var(--dim); font-family: 'DM Mono', monospace; font-size: 12px;
+    font-weight: 600; letter-spacing: 0.04em; padding: 8px; border-radius: 5px; cursor: pointer;
+  }
+  .add-set-btn:hover { border-color: var(--plate-blue); color: var(--plate-blue); }
+  .reps-cell-wrap { display: flex; align-items: center; gap: 6px; }
+  .hold-timer-btn {
+    flex: none; background: var(--iron-raised); border: 1.5px solid var(--line); color: var(--dim);
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; padding: 5px 7px; border-radius: 4px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .hold-timer-btn.running { background: var(--plate-green); border-color: var(--plate-green); color: #fff; }
 
   .set-row { transition: background 0.2s ease; }
   .set-row.done { background: rgba(61, 125, 64, 0.13); }
@@ -242,6 +259,11 @@
   .history-entry { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; font-family: 'DM Mono', monospace; font-size: 12px; }
   .history-entry .he-top { display: flex; justify-content: space-between; color: var(--dim); margin-bottom: 6px; }
   .history-entry .he-day { color: var(--chalk); font-weight: 500; }
+  .history-exercise { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+  .history-exercise:first-of-type { border-top: none; margin-top: 4px; padding-top: 0; }
+  .history-exercise-name { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--chalk); margin-bottom: 2px; }
+  .history-entry .set-table th, .history-entry .set-table td { padding-left: 0; padding-right: 8px; }
+  .history-entry .add-set-btn { margin-left: 0; width: 100%; }
 
   /* TIMER */
   .timer-bar {
@@ -294,9 +316,12 @@
     font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--dim);
     text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
   }
-  .filler-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .filler-row { padding: 6px 0; border-bottom: 1px dashed var(--line); }
   .filler-row:last-child { border-bottom: none; }
+  .filler-row-main { display: flex; align-items: center; gap: 8px; }
   .filler-row-name { flex: 1; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--chalk); }
+  .filler-row-ref { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .filler-ready-badge { font-size: 10px; padding: 3px 7px; margin-top: 3px; display: inline-block; }
   .filler-input { width: 56px; flex: none; font-size: 15px; text-align: center; }
   .filler-delete-btn { background: none; border: none; color: var(--plate-red); font-size: 16px; font-weight: 700; cursor: pointer; padding: 4px 6px; line-height: 1; }
   .filler-section-history { margin-top: 10px; margin-bottom: 0; }
@@ -547,11 +572,11 @@ const EXERCISE_INFO = {
    Tricep Kickback, and the Cable/Standard Shrugs and Lateral Raise cues),
    for consistency with the app's established voice. */
 const FILLER_EXERCISES = [
-  { name: "Standing Bicep Curl", muscleTag: "biceps", muscles: "Biceps", cue: "Elbows pinned at your sides, curl without swinging your torso for momentum." },
-  { name: "Hammer Curl", muscleTag: "biceps", muscles: "Brachialis, forearm", cue: "Neutral grip throughout, no wrist rotation — keep elbows pinned at your sides." },
-  { name: "DB Lateral Raise", muscleTag: "side_delts", muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height." },
-  { name: "DB Shrugs", muscleTag: "traps", muscles: "Traps", cue: "Straight up and down, don't roll shoulders." },
-  { name: "DB Tricep Kickback", muscleTag: "triceps", muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves." }
+  { name: "Standing Bicep Curl", muscleTag: "biceps", muscles: "Biceps", cue: "Elbows pinned at your sides, curl without swinging your torso for momentum.", repRange: [8, 12], cat: "isolation" },
+  { name: "Hammer Curl", muscleTag: "biceps", muscles: "Brachialis, forearm", cue: "Neutral grip throughout, no wrist rotation — keep elbows pinned at your sides.", repRange: [8, 12], cat: "isolation" },
+  { name: "DB Lateral Raise", muscleTag: "side_delts", muscles: "Side delts", cue: "Lead with your elbow, not your hand; stop at shoulder height.", repRange: [12, 15], cat: "isolation" },
+  { name: "DB Shrugs", muscleTag: "traps", muscles: "Traps", cue: "Straight up and down, don't roll shoulders.", repRange: [10, 12], cat: "isolation" },
+  { name: "DB Tricep Kickback", muscleTag: "triceps", muscles: "Triceps", cue: "Upper arm stays parallel to the floor, only the forearm moves.", repRange: [12, 15], cat: "isolation" }
 ];
 
 // primary muscle tag per programmed exercise, used only to hide filler
@@ -1044,7 +1069,7 @@ async function renderAll() {
     await renderExerciseBlock(content, entry.ex, entry.sets, slot++);
   }
   renderPlanNote(content, plan);
-  renderFillerSection();
+  await renderFillerSection();
 
   document.getElementById('saveState').textContent = '';
 }
@@ -1055,7 +1080,7 @@ async function renderAll() {
    findReferenceExercise and the progression-suggestion logic only ever
    read currentData.exercises / day.exercises, so nothing here can affect
    set-scaling, time-budget math, or "ready to add weight" suggestions. */
-function renderFillerSection() {
+async function renderFillerSection() {
   const content = document.getElementById('content');
   let section = document.getElementById('fillerSection');
   const fillers = (currentData && currentData.fillers) || [];
@@ -1071,14 +1096,17 @@ function renderFillerSection() {
   content.appendChild(section); // (re-)append so it always renders last
   section.innerHTML = `<div class="filler-section-title">Extra / Filler Work</div><div id="fillerRows"></div>`;
   const rows = section.querySelector('#fillerRows');
-  fillers.forEach(f => {
+  for (const f of fillers) {
     const row = document.createElement('div');
     row.className = 'filler-row';
     row.innerHTML = `
-      <span class="filler-row-name">${f.exercise}</span>
-      <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
-      <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
-      <button class="filler-delete-btn" title="Delete">✕</button>
+      <div class="filler-row-main">
+        <span class="filler-row-name">${f.exercise}</span>
+        <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
+        <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
+        <button class="filler-delete-btn" title="Delete">✕</button>
+      </div>
+      <div class="filler-row-ref"></div>
     `;
     const [wtInput, repsInput] = row.querySelectorAll('input');
     wtInput.addEventListener('input', () => { f.weight = wtInput.value; queueSave(); });
@@ -1089,7 +1117,31 @@ function renderFillerSection() {
       renderFillerSection();
     });
     rows.appendChild(row);
-  });
+
+    // last-time reference + progression suggestion, same mechanism used for
+    // programmed exercises (findReferenceExercise/computeProgressionFromSets),
+    // searched across every day's sessions since fillers aren't tied to a day
+    const refEl = row.querySelector('.filler-row-ref');
+    const def = FILLER_EXERCISES.find(x => x.name === f.exercise);
+    const ref = await findReferenceFiller(currentData.timestamp, f.exercise);
+    if (!ref) {
+      refEl.textContent = 'No previous data — pick a starting weight';
+    } else {
+      const { refText, badgeText } = computeProgressionFromSets(
+        [{ weight: ref.weight, reps: ref.reps }],
+        def ? def.repRange[1] : 15,
+        def ? def.cat : 'isolation'
+      );
+      refEl.textContent = refText || '';
+      if (badgeText) {
+        refEl.appendChild(document.createElement('br'));
+        const badge = document.createElement('span');
+        badge.className = 'ready-badge filler-ready-badge';
+        badge.textContent = badgeText;
+        refEl.appendChild(badge);
+      }
+    }
+  }
 }
 
 function addFillerEntry(exerciseName) {
@@ -1147,16 +1199,77 @@ function suggestedIncrement(cat) {
 }
 
 // finds the most recent OTHER session (excluding the currently-loaded draft)
-// that has logged data for this exercise, walking session timestamps newest-first
-async function findReferenceExercise(dayKey, excludeTimestamp, exerciseName) {
-  const timestamps = await listDaySessions(dayKey);
-  for (const ts of timestamps) {
-    if (ts === excludeTimestamp) continue;
-    const session = await loadSessionByTimestamp(dayKey, ts);
+// that has logged data for this exercise, searching ACROSS ALL DAYS - not
+// just the day it's being viewed from. A handful of exercise names appear
+// on more than one day (Cable Lateral Raise, Overhead Rope Ext., Incline DB
+// Curl, Leg Extension, Leg Press Platform Calf Raise) and share one unified
+// weight/progression history this way. This is a pure search-behavior
+// change - no stored data is touched or migrated, so any existing history
+// already logged under either day becomes visible the moment this runs;
+// nothing is lost or duplicated.
+async function findReferenceExercise(excludeDayKey, excludeTimestamp, exerciseName) {
+  const candidates = [];
+  for (const dayKey of DAY_KEYS) {
+    const timestamps = await listDaySessions(dayKey);
+    for (const ts of timestamps) {
+      if (dayKey === excludeDayKey && ts === excludeTimestamp) continue;
+      candidates.push({ dayKey, ts });
+    }
+  }
+  candidates.sort((a, b) => b.ts - a.ts);
+  for (const c of candidates) {
+    const session = await loadSessionByTimestamp(c.dayKey, c.ts);
     const match = session && session.exercises.find(e => e.name === exerciseName);
     if (match && match.sets.some(s => s.weight || s.reps)) return match;
   }
   return null;
+}
+
+// same idea as findReferenceExercise, but for filler entries - which were
+// never tied to a specific day's program to begin with, so this always
+// searches every day's sessions. excludeTimestamp is the CURRENT session's
+// own timestamp, so a filler just logged this session isn't its own reference.
+async function findReferenceFiller(excludeTimestamp, fillerExerciseName) {
+  const candidates = [];
+  for (const dayKey of DAY_KEYS) {
+    const timestamps = await listDaySessions(dayKey);
+    for (const ts of timestamps) {
+      if (ts === excludeTimestamp) continue;
+      candidates.push({ dayKey, ts });
+    }
+  }
+  candidates.sort((a, b) => b.ts - a.ts);
+  for (const c of candidates) {
+    const session = await loadSessionByTimestamp(c.dayKey, c.ts);
+    const fillers = (session && session.fillers) || [];
+    const matches = fillers.filter(f => f.exercise === fillerExerciseName && (f.weight || f.reps));
+    if (matches.length) {
+      matches.sort((a, b) => (b.loggedAt || 0) - (a.loggedAt || 0));
+      return matches[0];
+    }
+  }
+  return null;
+}
+
+// shared progression-suggestion logic used by both programmed exercises
+// (an array of sets from a past session) and filler entries (a single
+// {weight,reps} pair, wrapped in a one-element array by the caller)
+function computeProgressionFromSets(sets, repRangeTop, cat) {
+  if (!sets || !sets.length) return { refText: null, badgeText: null };
+  const refText = `Last: ${sets.map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', ')}`;
+  const allHitTop = sets.every(s => {
+    const reps = parseFloat(s.reps);
+    return !isNaN(reps) && reps >= repRangeTop;
+  });
+  let badgeText = null;
+  if (allHitTop) {
+    const weights = sets.map(s => parseFloat(s.weight)).filter(w => !isNaN(w));
+    const lastWeight = weights.length ? Math.max(...weights) : 0;
+    const inc = suggestedIncrement(cat);
+    const suggestedText = lastWeight ? `try ${lastWeight + inc} lbs` : `add ${inc} lbs`;
+    badgeText = `↑ READY TO ADD WEIGHT — ${suggestedText}`;
+  }
+  return { refText, badgeText };
 }
 
 async function updateProgressionUI(block, ex, slot) {
@@ -1169,23 +1282,202 @@ async function updateProgressionUI(block, ex, slot) {
     refEl.textContent = 'No previous data — pick a starting weight';
     return;
   }
-  const line = refExercise.sets.map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', ');
-  refEl.textContent = `Last: ${line}`;
-
-  const allHitTop = refExercise.sets.length > 0 && refExercise.sets.every(s => {
-    const reps = parseFloat(s.reps);
-    return !isNaN(reps) && reps >= ex.repRange[1];
-  });
-  if (allHitTop) {
-    const weights = refExercise.sets.map(s => parseFloat(s.weight)).filter(w => !isNaN(w));
-    const lastWeight = weights.length ? Math.max(...weights) : 0;
-    const inc = suggestedIncrement(ex.cat);
-    const suggestedText = lastWeight ? `try ${lastWeight + inc} lbs` : `add ${inc} lbs`;
+  const { refText, badgeText } = computeProgressionFromSets(refExercise.sets, ex.repRange[1], ex.cat);
+  refEl.textContent = refText;
+  if (badgeText) {
     const badge = document.createElement('span');
     badge.className = 'ready-badge';
-    badge.textContent = `↑ READY TO ADD WEIGHT — ${suggestedText}`;
+    badge.textContent = badgeText;
     badgeEl.appendChild(badge);
   }
+}
+
+function isDurationBasedExercise(ex) {
+  return !!(ex && ex.repUnit && ex.repUnit.includes('sec'));
+}
+
+// short oscillator tones for the hold-timer's halfway/countdown cues -
+// separate from playRestDoneBeep (880Hz, two beeps) so they're
+// distinguishable by ear from "rest is over"
+function playTone(freq, dur) {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    if (ctx.state === 'suspended') ctx.resume();
+    const start = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.3, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + dur + 0.02);
+  } catch (e) {}
+}
+function playHalfwayCue() {
+  playTone(660, 0.15);
+  if (navigator.vibrate) { try { navigator.vibrate(120); } catch (e) {} }
+}
+function playCountdownTick() {
+  playTone(440, 0.08);
+  if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
+}
+
+// A start/stop hold timer for one duration-based set row (plank/carry/hold
+// exercises). Same timestamp-based approach as the rest timer - stores a
+// start epoch and recomputes elapsed from Date.now() on every tick, so a
+// briefly backgrounded tab doesn't throw off the halfway/countdown cues.
+// Fires playHalfwayCue() once at the target's halfway point and
+// playCountdownTick() once per second for the last 5 seconds approaching
+// the target. On stop, reports the elapsed whole seconds back to the caller
+// (which writes it into that set's "reps" field, since for these exercises
+// reps IS the seconds held).
+function attachHoldTimer(container, targetSeconds, onStop) {
+  let startTs = null, intervalId = null, halfFired = false, countdownFired = {};
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'hold-timer-btn';
+  container.appendChild(btn);
+
+  function renderBtn() {
+    if (startTs === null) { btn.textContent = '⏱ Start'; btn.classList.remove('running'); return; }
+    const elapsedSec = Math.floor((Date.now() - startTs) / 1000);
+    btn.textContent = `⏹ ${elapsedSec}s`;
+    btn.classList.add('running');
+  }
+
+  function tick() {
+    if (startTs === null) return;
+    const elapsedSec = (Date.now() - startTs) / 1000;
+    const remainingSec = targetSeconds - elapsedSec;
+    if (!halfFired && elapsedSec >= targetSeconds / 2) {
+      halfFired = true;
+      if (document.visibilityState === 'visible') playHalfwayCue();
+    }
+    if (remainingSec <= 5) {
+      const whole = Math.ceil(remainingSec);
+      if (whole >= 1 && whole <= 5 && !countdownFired[whole]) {
+        countdownFired[whole] = true;
+        if (document.visibilityState === 'visible') playCountdownTick();
+      }
+    }
+    renderBtn();
+  }
+
+  btn.addEventListener('click', () => {
+    if (startTs === null) {
+      startTs = Date.now();
+      halfFired = false;
+      countdownFired = {};
+      clearInterval(intervalId);
+      intervalId = setInterval(tick, 250); // finer than 1s so the 5-4-3-2-1 ticks land on the right second
+      tick();
+    } else {
+      const elapsedSec = Math.round((Date.now() - startTs) / 1000);
+      clearInterval(intervalId);
+      intervalId = null;
+      startTs = null;
+      renderBtn();
+      onStop(elapsedSec);
+    }
+  });
+
+  renderBtn();
+  return { stop: () => clearInterval(intervalId) };
+}
+
+// Builds a fully-interactive, editable set table + "+ Add Set" control for
+// one exercise entry. Shared by the live session view (renderExerciseBlock)
+// and by history's per-entry exercise editing, so add/edit/delete-set work
+// identically in both places. `plannedSets` may be 0/null when there's no
+// live scaling plan to fall back to (history), in which case the visible
+// row count floor is just whatever's already logged.
+//
+// entry.displayCount is an optional per-entry override, persisted on the
+// entry itself: when absent, the row count is the existing
+// max(plannedSets, lastLoggedIndex+1) behavior (unchanged for anyone who
+// never touches +Add Set/delete); once the user adds or deletes a row,
+// displayCount becomes the exact count going forward FOR THIS SESSION ONLY -
+// a brand new session's entry has no displayCount, so it falls back to the
+// normal programmed default again, per the "session length" requirement.
+function buildSetTable(entry, plannedSets, opts) {
+  const { onChange, allowRestTimer, exerciseCat, exerciseName, durationTargetSeconds } = opts;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th><th class="del"></th></tr></thead>
+    <tbody></tbody></table>
+    <button type="button" class="add-set-btn">+ Add Set</button>
+  `;
+  const setsBody = wrap.querySelector('tbody');
+  const addBtn = wrap.querySelector('.add-set-btn');
+  let activeHoldTimers = [];
+
+  function computeBaseCount() {
+    let lastLogged = -1;
+    entry.sets.forEach((s, i) => { if (s.weight || s.reps || s.done) lastLogged = i; });
+    return Math.max(plannedSets || 0, lastLogged + 1);
+  }
+
+  function render() {
+    activeHoldTimers.forEach(t => t.stop());
+    activeHoldTimers = [];
+    const baseCount = computeBaseCount();
+    const visibleCount = (typeof entry.displayCount === 'number') ? entry.displayCount : baseCount;
+    while (entry.sets.length < visibleCount) entry.sets.push({ weight: "", reps: "", done: false });
+    setsBody.innerHTML = "";
+    entry.sets.slice(0, visibleCount).forEach((set, si) => {
+      const tr = document.createElement('tr');
+      tr.className = 'set-row' + (set.done ? ' done' : '');
+      tr.innerHTML = `
+        <td class="num">${si+1}</td>
+        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="—" value="${set.weight}"></td>
+        <td><div class="reps-cell-wrap"><input class="cell-input" type="number" inputmode="numeric" placeholder="—" value="${set.reps}"></div></td>
+        <td class="check-cell"><button type="button" class="check-box ${set.done ? 'checked' : ''}">${set.done ? '✓' : ''}</button></td>
+        <td class="del-cell"><button type="button" class="set-delete-btn" title="Delete set">✕</button></td>
+      `;
+      const weightInput = tr.querySelector('td:nth-child(2) input');
+      const repsCellWrap = tr.querySelector('.reps-cell-wrap');
+      const repsInput = repsCellWrap.querySelector('input');
+      weightInput.addEventListener('input', (e) => { set.weight = e.target.value; onChange(); });
+      repsInput.addEventListener('input', (e) => { set.reps = e.target.value; onChange(); });
+      attachPlateTap(weightInput, () => weightInput.value || weightInput.placeholder);
+      if (durationTargetSeconds) {
+        const handle = attachHoldTimer(repsCellWrap, durationTargetSeconds, (elapsedSec) => {
+          set.reps = String(elapsedSec);
+          render();
+          onChange();
+        });
+        activeHoldTimers.push(handle);
+      }
+      tr.querySelector('.check-box').addEventListener('click', () => {
+        set.done = !set.done;
+        render();
+        onChange();
+        if (allowRestTimer && set.done) startRestTimer(exerciseCat, exerciseName);
+      });
+      tr.querySelector('.set-delete-btn').addEventListener('click', () => {
+        entry.sets.splice(si, 1);
+        entry.displayCount = Math.max(0, visibleCount - 1);
+        render();
+        onChange();
+      });
+      setsBody.appendChild(tr);
+    });
+  }
+
+  addBtn.addEventListener('click', () => {
+    const currentVisible = (typeof entry.displayCount === 'number') ? entry.displayCount : computeBaseCount();
+    entry.displayCount = currentVisible + 1;
+    render();
+    onChange();
+  });
+
+  render();
+  return wrap;
 }
 
 async function renderExerciseBlock(content, ex, plannedSets, slot) {
@@ -1204,8 +1496,7 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
     <div class="exercise-info-panel" id="info-${slot}" style="display:none;"></div>
     <div class="exercise-reference" id="ref-${slot}"></div>
     <div id="badge-${slot}"></div>
-    <table class="set-table"><thead><tr><th class="num">#</th><th>Weight</th><th>Reps</th><th class="check">✓</th></tr></thead>
-    <tbody id="sets-${slot}"></tbody></table>
+    <div id="settable-${slot}"></div>
   `;
   content.appendChild(block);
 
@@ -1227,50 +1518,14 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
 
   await updateProgressionUI(block, ex, slot);
 
-  const setsBody = block.querySelector(`#sets-${slot}`);
-  function renderSets() {
-    setsBody.innerHTML = "";
-    // show plannedSets rows, but never fewer than however far real logged
-    // data reaches — protects entered data if the plan later shrinks below
-    // wherever the user actually got to (e.g. a lower session-length band,
-    // or an exercise whose base set count is above what got planned)
-    let lastLogged = -1;
-    entry.sets.forEach((s, i) => { if (s.weight || s.reps || s.done) lastLogged = i; });
-    const visibleCount = Math.max(plannedSets, lastLogged + 1);
-    while (entry.sets.length < visibleCount) entry.sets.push({ weight: "", reps: "", done: false });
-    entry.sets.slice(0, visibleCount).forEach((set, si) => {
-      const tr = document.createElement('tr');
-      tr.className = 'set-row' + (set.done ? ' done' : '');
-      tr.innerHTML = `
-        <td class="num">${si+1}</td>
-        <td><input class="cell-input" type="number" inputmode="decimal" placeholder="—" value="${set.weight}" data-idx="${si}" data-field="weight"></td>
-        <td><input class="cell-input" type="number" inputmode="numeric" placeholder="—" value="${set.reps}" data-idx="${si}" data-field="reps"></td>
-        <td class="check-cell"><button class="check-box ${set.done ? 'checked' : ''}" data-idx="${si}">${set.done ? '✓' : ''}</button></td>
-      `;
-      setsBody.appendChild(tr);
-    });
-    setsBody.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('input', (e) => {
-        const si = parseInt(e.target.dataset.idx);
-        entry.sets[si][e.target.dataset.field] = e.target.value;
-        queueSave();
-      });
-    });
-    setsBody.querySelectorAll('input[data-field="weight"]').forEach(inp => {
-      attachPlateTap(inp, () => inp.value || inp.placeholder);
-    });
-    setsBody.querySelectorAll('.check-box').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const si = parseInt(e.currentTarget.dataset.idx);
-        const set = entry.sets[si];
-        set.done = !set.done;
-        renderSets();
-        queueSave();
-        if (set.done) startRestTimer(ex.cat, ex.name);
-      });
-    });
-  }
-  renderSets();
+  const settableWrap = block.querySelector(`#settable-${slot}`);
+  settableWrap.appendChild(buildSetTable(entry, plannedSets, {
+    onChange: queueSave,
+    allowRestTimer: true,
+    exerciseCat: ex.cat,
+    exerciseName: ex.name,
+    durationTargetSeconds: isDurationBasedExercise(ex) ? ex.repRange[1] : null
+  }));
 }
 
 /* ============ TIMER ============ */
@@ -1703,14 +1958,15 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// debounced write-back for filler edits made directly in the history list -
-// these aren't the live active session, so they bypass currentData/queueSave
-// and write straight to that entry's own storage key
-let historyFillerSaveTimers = {};
-function debouncedPersistHistoryFiller(dayKey, data) {
+// debounced write-back for edits made directly in the history list (both
+// exercise sets and filler rows) - these aren't the live active session,
+// so they bypass currentData/queueSave and write straight to that entry's
+// own storage key
+let historySaveTimers = {};
+function debouncedPersistHistoryEntry(dayKey, data) {
   const key = sessionKey(dayKey, data.timestamp);
-  clearTimeout(historyFillerSaveTimers[key]);
-  historyFillerSaveTimers[key] = setTimeout(() => window.storage.set(key, JSON.stringify(data)), 400);
+  clearTimeout(historySaveTimers[key]);
+  historySaveTimers[key] = setTimeout(() => window.storage.set(key, JSON.stringify(data)), 400);
 }
 
 async function renderHistory(container) {
@@ -1748,33 +2004,69 @@ async function renderHistory(container) {
       div.className = 'history-entry';
       const dayLabel = DAYS[entry.dayKey] ? DAYS[entry.dayKey].label : entry.dayKey;
       const dateLabel = new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-      const exSummary = (entry.data.exercises || [])
-        .filter(e => e.sets && e.sets.some(s => s.weight || s.reps))
-        .map(e => `${e.name}: ` + e.sets.filter(s => s.weight || s.reps).map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', '))
-        .join('<br>');
-      div.innerHTML = `
-        <div class="he-top"><span class="he-day">${dayLabel} — ${dateLabel}</span></div>
-        <div style="color:var(--chalk);">${exSummary || '<span style="color:var(--dim);">not logged</span>'}</div>
-      `;
+      div.innerHTML = `<div class="he-top"><span class="he-day">${dayLabel} — ${dateLabel}</span></div>`;
+
+      // Debounced write-only, deliberately no live-view resync here (unlike
+      // the filler delete button below) - this fires on every keystroke of
+      // weight/reps typing, and rebuilding the live view mid-keystroke would
+      // steal focus out from under the input. The edit is always correctly
+      // persisted either way; if this history entry also happens to be the
+      // live active session, its on-screen copy just won't visibly refresh
+      // until the next natural re-render (switching days, reloading, etc).
+      const persist = () => debouncedPersistHistoryEntry(entry.dayKey, entry.data);
+
+      // editable exercise tables - only for exercises with something already
+      // logged, same as the old static summary did, so a history entry
+      // doesn't suddenly show every programmed exercise whether touched or
+      // not. Uses the same buildSetTable as the live view, so add/edit/
+      // delete-set all work here too; the original exercise definition
+      // (for duration-based hold-timer support) is looked up by name from
+      // that day's current program, which may not exist if the exercise was
+      // since renamed/retired - in that case it just renders as a plain
+      // rep-based table with no hold timer.
+      const loggedExercises = (entry.data.exercises || []).filter(e => e.sets && e.sets.some(s => s.weight || s.reps || s.done));
+      if (loggedExercises.length) {
+        loggedExercises.forEach(e => {
+          const exWrap = document.createElement('div');
+          exWrap.className = 'history-exercise';
+          exWrap.innerHTML = `<div class="history-exercise-name">${e.name}</div>`;
+          const def = DAYS[entry.dayKey] && DAYS[entry.dayKey].exercises.find(x => x.name === e.name);
+          exWrap.appendChild(buildSetTable(e, 0, {
+            onChange: persist,
+            allowRestTimer: false,
+            exerciseCat: def ? def.cat : null,
+            exerciseName: e.name,
+            durationTargetSeconds: def && isDurationBasedExercise(def) ? def.repRange[1] : null
+          }));
+          div.appendChild(exWrap);
+        });
+      } else {
+        const none = document.createElement('div');
+        none.style.cssText = 'color:var(--dim);font-family:\'DM Mono\',monospace;font-size:12px;padding:4px 0;';
+        none.textContent = 'not logged';
+        div.appendChild(none);
+      }
+
       if (entry.data.fillers.length > 0) {
         const fillerWrap = document.createElement('div');
         fillerWrap.className = 'filler-section filler-section-history';
         fillerWrap.innerHTML = `<div class="filler-section-title">Extra / Filler Work</div>`;
         const rowsWrap = document.createElement('div');
         fillerWrap.appendChild(rowsWrap);
-        const persist = () => debouncedPersistHistoryFiller(entry.dayKey, entry.data);
         entry.data.fillers.forEach(f => {
           const row = document.createElement('div');
           row.className = 'filler-row';
           row.innerHTML = `
-            <span class="filler-row-name">${f.exercise}</span>
-            <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
-            <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
-            <button class="filler-delete-btn" title="Delete">✕</button>
+            <div class="filler-row-main">
+              <span class="filler-row-name">${f.exercise}</span>
+              <input class="cell-input filler-input" type="number" inputmode="decimal" placeholder="wt" value="${f.weight}">
+              <input class="cell-input filler-input" type="number" inputmode="numeric" placeholder="reps" value="${f.reps}">
+              <button class="filler-delete-btn" title="Delete">✕</button>
+            </div>
           `;
           const [wtInput, repsInput] = row.querySelectorAll('input');
-          wtInput.addEventListener('input', () => { f.weight = wtInput.value; persist(); });
-          repsInput.addEventListener('input', () => { f.reps = repsInput.value; persist(); });
+          wtInput.addEventListener('input', () => { f.weight = wtInput.value; debouncedPersistHistoryEntry(entry.dayKey, entry.data); });
+          repsInput.addEventListener('input', () => { f.reps = repsInput.value; debouncedPersistHistoryEntry(entry.dayKey, entry.data); });
           row.querySelector('.filler-delete-btn').addEventListener('click', async () => {
             entry.data.fillers = entry.data.fillers.filter(x => x.id !== f.id);
             await window.storage.set(sessionKey(entry.dayKey, entry.data.timestamp), JSON.stringify(entry.data));
