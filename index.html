@@ -48,6 +48,14 @@
   h1 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.02em; line-height: 1; margin-top: 4px; }
   .sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dim); margin-top: 6px; }
 
+  .mode-toggle { display: flex; gap: 8px; margin: 14px 0 0 0; }
+  .mode-btn {
+    flex: 1; background: var(--iron-soft); color: var(--dim); border: 2px solid var(--line);
+    padding: 9px 4px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; cursor: pointer; text-transform: uppercase; border-radius: 5px;
+  }
+  .mode-btn.active { background: var(--chalk); border-color: var(--chalk); color: #fff; }
+
   .daybar { display: flex; gap: 8px; margin: 16px 0 0 0; }
   .daybtn {
     flex: 1; background: var(--iron-soft); color: var(--chalk); border: 2px solid var(--line);
@@ -345,7 +353,11 @@
   <div class="wrap">
     <div class="eyebrow">Push / Pull / Legs — Hypertrophy</div>
     <h1>PPL LOG</h1>
-    <div class="sub">6-day rotation · progressive overload</div>
+    <div class="sub" id="subLabel">6-day rotation · progressive overload</div>
+    <div class="mode-toggle" id="modeToggle">
+      <button class="mode-btn" data-mode="gym" id="modeGymBtn">GYM</button>
+      <button class="mode-btn" data-mode="home" id="modeHomeBtn">HOME</button>
+    </div>
     <div class="daybar" id="dayBar"></div>
   </div>
 </header>
@@ -520,6 +532,74 @@ const DAYS = {
 };
 const DAY_KEYS = ["pushA","pullA","legsA","pushB","pullB","legsB"];
 
+/* ============ HOME PROGRAM (dumbbells 5-30lb, one 53lb kettlebell,
+   flat bench, pull-up bar - no cables/machines/bands) ============
+   3 days, no A/B. Every exercise carries a FULL customScaling table
+   (all 7 bands, 0 meaning "not yet scheduled") so each one is a
+   "day-round promoted" entry per computeSessionPlan's own convention -
+   this means EVERY home exercise lands in that function's `scheduled`
+   array and NEVER touches its trim/grow budget-fit search at all. That's
+   why the home program can reuse computeSessionPlan completely unchanged:
+   there's no gym-style auto-trim/auto-grow here, just a fully fixed,
+   hand-authored schedule per band (30m/45m show a small fixed subset,
+   everything else first appears at 60m, then rises floor->ceiling through
+   120m) - exactly matching the budget-conscious intent of the trim/grow
+   system without needing to run it.
+   Floor/ceiling per category: compound 4/5, moderate 3/5, isolation 2/4,
+   burnout 2/6, core 2/4. `sets` on each exercise is its floor value
+   (matching the gym convention where `sets` is the base/reference count).
+   dbCapped: true marks a genuine dumbbell-loaded movement subject to the
+   30lb-per-dumbbell progression cap (see computeProgressionFromSets) -
+   never set on bodyweight or kettlebell-fixed-weight exercises, since
+   there's no heavier dumbbell to suggest and no lighter/heavier kettlebell
+   on hand either. No spinal-flexion exercises anywhere (back safety) -
+   core work here is Bird Dog, carries, and nothing else that loads flexion. */
+const HOME_DAYS = {
+  homePush: {
+    label: "Push",
+    exercises: [
+      { name: "Flat DB Press", sets: 4, repRange: [8,12], cat: "compound", dbCapped: true, customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "DB Overhead Press", sets: 3, repRange: [8,12], cat: "moderate", dbCapped: true, customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Feet-Elevated Push-Up", sets: 3, repRange: [10,15], cat: "moderate", customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "DB Flyes", sets: 2, repRange: [12,15], cat: "isolation", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "DB Overhead Tricep Extension", sets: 2, repRange: [10,12], cat: "isolation", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 4, 120: 4 } },
+      { name: "DB Lateral Raise", sets: 2, repRange: [12,15], cat: "burnout", dbCapped: true, customScaling: { 30: 2, 45: 3, 60: 4, 75: 5, 90: 6, 105: 6, 120: 6 } },
+      { name: "Suitcase Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", repNote: "per side", customScaling: { 30: 2, 45: 2, 60: 3, 75: 3, 90: 4, 105: 4, 120: 4 } }
+    ],
+    bonus: null,
+    extended: null
+  },
+  homePull: {
+    label: "Pull",
+    exercises: [
+      { name: "Pull-Ups", sets: 4, repRange: [6,10], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "Single-Arm DB Row", sets: 4, repRange: [8,12], cat: "compound", dbCapped: true, customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "DB Pullover", sets: 3, repRange: [10,12], cat: "moderate", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Standing DB Curl", sets: 2, repRange: [8,12], cat: "isolation", dbCapped: true, customScaling: { 30: 0, 45: 2, 60: 3, 75: 4, 90: 4, 105: 4, 120: 4 } },
+      { name: "Chest-Supported Rear Delt Flye (flat bench)", sets: 2, repRange: [12,15], cat: "burnout", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 5, 120: 6 } },
+      { name: "DB Shrugs", sets: 2, repRange: [10,15], cat: "burnout", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 5, 120: 6 } },
+      { name: "Bird Dog", sets: 2, repRange: [8,10], cat: "core", repNote: "per side", customScaling: { 30: 2, 45: 2, 60: 3, 75: 3, 90: 4, 105: 4, 120: 4 } }
+    ],
+    bonus: null,
+    extended: null
+  },
+  homeLegs: {
+    label: "Legs",
+    exercises: [
+      { name: "Goblet Squat", sets: 4, repRange: [8,12], cat: "compound", customScaling: { 30: 4, 45: 4, 60: 4, 75: 5, 90: 5, 105: 5, 120: 5 } },
+      { name: "DB Hip Thrust", sets: 3, repRange: [8,12], cat: "moderate", dbCapped: true, customScaling: { 30: 3, 45: 3, 60: 4, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "DB Bulgarian Split Squat", sets: 3, repRange: [8,12], cat: "moderate", repNote: "per leg", dbCapped: true, customScaling: { 30: 0, 45: 3, 60: 3, 75: 4, 90: 5, 105: 5, 120: 5 } },
+      { name: "Standing DB Calf Raise", sets: 2, repRange: [12,15], cat: "burnout", dbCapped: true, customScaling: { 30: 0, 45: 0, 60: 2, 75: 3, 90: 4, 105: 5, 120: 6 } },
+      { name: "Farmer's Carry", sets: 2, repRange: [30,40], cat: "core", repUnit: "sec", customScaling: { 30: 2, 45: 2, 60: 3, 75: 3, 90: 4, 105: 4, 120: 4 } }
+    ],
+    bonus: null,
+    extended: null
+  }
+};
+const HOME_DAY_KEYS = ["homePush","homePull","homeLegs"];
+Object.assign(DAYS, HOME_DAYS);
+const ALL_DAY_KEYS = DAY_KEYS.concat(HOME_DAY_KEYS);
+
 const REST_BY_CAT = {
   compound: 150,   // 2-3 min
   moderate: 105,   // 90s-2min
@@ -611,7 +691,38 @@ const EXERCISE_INFO = {
   "Standing DB Calf Raise (on a step)": { muscles: "Calves (gastrocnemius)", cue: "Balls of your feet on a step's edge, dumbbells at your sides — full stretch down, then rise as high as you can and pause at the top." },
   "DB Shoulder Press": { muscles: "Front/side delts, triceps", cue: "Press dumbbells straight overhead without flaring elbows too wide; avoid leaning back to press." },
   "Close-Grip DB Press (or DB Floor Press)": { muscles: "Triceps, chest", cue: "Elbows tucked close to your ribs, dumbbells nearly touching throughout the press — do it on the floor if you don't have a bench, which adds a natural lockout pause." },
-  "Standing Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward at the hips, lead with elbows, thumbs point down — same cue as the chest-supported version, just without a bench to brace your torso." }
+  "Standing Rear Delt Flye": { muscles: "Rear delts", cue: "Hinge forward at the hips, lead with elbows, thumbs point down — same cue as the chest-supported version, just without a bench to brace your torso." },
+
+  /* --- Home program exercises + alternatives --- Reused verbatim where
+     the name already exists above (Flat DB Press, DB Overhead Tricep
+     Extension, DB Lateral Raise, Suitcase Carry, Pull-Ups, DB Pullover,
+     Standing DB Curl, DB Bulgarian Split Squat, DB Shrugs, Hammer Curl,
+     Farmer's Carry); new entries only where no match existed.
+     "Chest-Supported Rear Delt Flye (flat bench)" and "Standing DB Calf
+     Raise" are deliberately named distinctly from their gym namesakes
+     ("Chest-Supported Rear Delt Flye" assumes a 30-45° INCLINE bench -
+     home only has a flat bench; "Standing DB Calf Raise (on a step)" is
+     only reachable as a gym Alt target) - using the exact same name would
+     have both described equipment the home user doesn't have AND silently
+     created cross-mode history-sharing the user didn't ask for. */
+  "DB Overhead Press": { muscles: "Front/side delts, triceps", cue: "Standing, feet shoulder-width, brace your core hard before each rep — press straight overhead without leaning back or flaring your ribs." },
+  "Feet-Elevated Push-Up": { muscles: "Chest, front delts, triceps", cue: "Feet up on a bench or step, hands under shoulders, lower until your chest nearly touches the floor — the elevation shifts more load onto your upper chest/shoulders than a standard push-up." },
+  "DB Flyes": { muscles: "Chest (inner/outer fibers)", cue: "Lying on a flat bench, slight bend in your elbows throughout, lower until you feel a stretch across your chest, then hug the dumbbells back together above your chest." },
+  "Single-Arm DB Row": { muscles: "Mid-back, lats, biceps", cue: "One hand and knee braced on the flat bench, pull the dumbbell up toward your hip, squeeze your shoulder blade at the top — keep your torso still, don't rotate toward the working side." },
+  "DB Hip Thrust": { muscles: "Glutes", cue: "Upper back braced on the edge of the bench, dumbbell or kettlebell held over your hips, drive through your heels and squeeze glutes hard at the top — chin tucked, don't hyperextend your lower back." },
+  "Bird Dog": { muscles: "Core (anti-rotation), glutes, shoulders", cue: "On hands and knees, extend one arm and the opposite leg straight out until they're in line with your torso, hold briefly, keep your hips and shoulders square the whole time — don't let your lower back sag or twist." },
+  "Goblet Squat": { muscles: "Quads, core", cue: "Hold the kettlebell vertically at your chest by the horns, elbows pointed down between your knees at the bottom — sit down and back, keep your chest tall." },
+  "Standing DB Calf Raise": { muscles: "Calves (gastrocnemius)", cue: "Balls of your feet on a bench or step edge, dumbbells at your sides — full stretch down, then rise as high as you can and pause at the top." },
+  "Chest-Supported Rear Delt Flye (flat bench)": { muscles: "Rear delts", cue: "Lie face-down on a flat bench (chest and hips supported, head off the end), let arms hang straight down, raise dumbbells out to the sides in an arc, squeeze shoulder blades together at the top." },
+  "Kettlebell Floor Press": { muscles: "Chest, front delts, triceps", cue: "Lying on the floor, press the kettlebell straight up from your chest — the floor stops the descent at roughly a 90° elbow bend, so no bench is needed." },
+  "Standard Push-Up": { muscles: "Chest, front delts, triceps", cue: "Hands under shoulders, body in a straight line from head to heels, lower until your chest nearly touches the floor, then press back up." },
+  "Pike Push-Up": { muscles: "Front/side delts, triceps", cue: "Hips raised into an inverted-V, hands and feet on the floor, lower the top of your head toward the floor between your hands, then press back up — the steeper your hips, the more it loads your shoulders like an overhead press." },
+  "Diamond Push-Up": { muscles: "Triceps, chest", cue: "Hands together under your chest, thumbs and index fingers touching to form a diamond, elbows stay close to your ribs as you lower — a narrower hand position than a standard push-up shifts more emphasis onto triceps." },
+  "Chin-Ups": { muscles: "Lats, biceps", cue: "Underhand (palms-facing-you) grip on the bar — same pulling motion as a pull-up, but the supinated grip recruits more biceps." },
+  "Dead Bug": { muscles: "Core (anti-extension), hip flexors", cue: "Lying on your back, knees bent at 90°, slowly extend one arm overhead and the opposite leg straight out while keeping your lower back pressed flat into the floor — return and switch sides." },
+  "Single-Leg Glute Bridge": { muscles: "Glutes, hamstrings", cue: "Lying on your back, one foot planted, the other leg extended straight — drive through the planted heel and squeeze your glute to lift your hips, keeping them level (don't let the raised-leg side dip)." },
+  "Bench Step-Up": { muscles: "Quads, glutes", cue: "Step one foot fully onto the bench, drive through that heel to stand all the way up without pushing off the trailing foot, then step back down with control." },
+  "Band Pull-Apart": { muscles: "Rear delts, upper back", cue: "Arms straight out in front at shoulder height, pull the band apart by driving your shoulder blades together, control the return — don't let the band snap back.", note: "Needs a resistance band — not part of the core dumbbell/kettlebell/bench/pull-up-bar equipment list." }
 };
 
 /* ============ ALTERNATIVE EXERCISES ============
@@ -671,8 +782,33 @@ const EXERCISE_ALTERNATIVES = {
   "Chest-Supported Rear Delt Flye": { name: "Standing Rear Delt Flye", reason: "No incline bench needed" },
   "45° Back Extension": { name: "Hip Thrust", reason: "No hyperextension bench needed — add extra sets to make up the volume" },
   "Hip Thrust": { name: "45° Back Extension", reason: "No barbell/bench setup needed" },
-  "Walking Lunge / Bulg. Split Squat": { name: "Leg Press", reason: "No open floor space needed" }
+  "Walking Lunge / Bulg. Split Squat": { name: "Leg Press", reason: "No open floor space needed" },
+
+  /* --- Home program alternatives --- */
+  "Feet-Elevated Push-Up": { name: "Standard Push-Up", reason: "Easier, for when fatigued" },
+  "DB Overhead Press": { name: "Pike Push-Up", reason: "No dumbbells needed" },
+  "DB Overhead Tricep Extension": { name: "Diamond Push-Up", reason: "No dumbbells needed" },
+  "Pull-Ups": { name: "Chin-Ups", reason: "Underhand, more biceps" },
+  "Standing DB Curl": { name: "Hammer Curl", reason: "No change in load needed - just a grip variation", dbCapped: true },
+  "Bird Dog": { name: "Dead Bug", reason: "Same anti-extension/anti-rotation demand, lying down instead of on hands and knees" },
+  "DB Hip Thrust": { name: "Single-Leg Glute Bridge", reason: "No dumbbell/kettlebell needed" },
+  "DB Bulgarian Split Squat": { name: "Bench Step-Up", reason: "No rear-foot elevation balance required" },
+  "Chest-Supported Rear Delt Flye (flat bench)": { name: "Band Pull-Apart", reason: "No bench needed" }
 };
+
+// "Flat DB Press" already has a GYM alt (Flat Barbell Press) in the map
+// above; home needs a different one for the exact same exercise name, so
+// this small override is consulted FIRST, but only while in home mode -
+// see altDefFor(). No other home exercise name collides with an existing
+// EXERCISE_ALTERNATIVES key, so this is the only entry needed here.
+const HOME_EXERCISE_ALTERNATIVES = {
+  "Flat DB Press": { name: "Kettlebell Floor Press", reason: "No bench needed" }
+};
+
+function altDefFor(exerciseName) {
+  if (currentMode === 'home' && HOME_EXERCISE_ALTERNATIVES[exerciseName]) return HOME_EXERCISE_ALTERNATIVES[exerciseName];
+  return EXERCISE_ALTERNATIVES[exerciseName];
+}
 
 // given a session's altSwaps map ({originalName: altName}) and an
 // exercise's own name, returns "Original (via: Alt)" if that name is
@@ -721,7 +857,15 @@ const EXERCISE_PRIMARY_MUSCLE_TAG = {
   "Weighted Plank": "core_extension", "Ab Wheel Rollout": "core_extension", "Farmer's Carry": "core_extension",
   "Overhead Press": "front_delts",
   "45° Back Extension": "glutes", "Hip Thrust": "glutes",
-  "Suitcase Carry": "core_lateral", "Side Plank": "core_lateral"
+  "Suitcase Carry": "core_lateral", "Side Plank": "core_lateral",
+
+  // Home program (Suitcase Carry/Farmer's Carry already tagged above)
+  "DB Overhead Press": "front_delts", "Feet-Elevated Push-Up": "chest", "DB Flyes": "chest",
+  "DB Overhead Tricep Extension": "triceps", "DB Lateral Raise": "side_delts",
+  "Pull-Ups": "lats", "Single-Arm DB Row": "mid_back", "DB Pullover": "lats", "Standing DB Curl": "biceps",
+  "Chest-Supported Rear Delt Flye (flat bench)": "rear_delts", "DB Shrugs": "traps",
+  "Bird Dog": "core_rotation", "Goblet Squat": "quads", "DB Hip Thrust": "glutes",
+  "DB Bulgarian Split Squat": "quads", "Standing DB Calf Raise": "calves"
 };
 
 function fillerOptionsFor(exerciseName) {
@@ -812,6 +956,7 @@ window.storage = {
 };
 
 let currentDay = "pushA";
+let currentMode = "gym"; // "gym" | "home" - persisted across sessions, see loadMode/saveMode
 let saveTimer = null;
 let currentData = null;
 let restTickInterval = null;
@@ -823,6 +968,17 @@ let restExerciseName = null;   // name of the exercise currently resting from, u
 
 let sessionLengthMinutes = 60;
 let showAllExercises = false; // per-day override to ignore the time-budget trim, reset on day switch or slider change
+
+async function loadMode() {
+  try {
+    const r = await window.storage.get('settings:mode');
+    if (r && (r.value === 'gym' || r.value === 'home')) currentMode = r.value;
+  } catch (e) { /* default to gym */ }
+}
+
+async function saveMode() {
+  try { await window.storage.set('settings:mode', currentMode); } catch (e) {}
+}
 
 /* ============ SESSION LENGTH / TIME-BUDGET TRIMMING ============ */
 
@@ -1065,9 +1221,21 @@ document.getElementById('sessionLengthSlider').addEventListener('change', async 
   await renderAll();
 });
 
-/* ============ SESSION STORAGE (ppl: prefix — separate from old bbb: keys) ============ */
-
-function sessionKey(dayKey, timestamp) { return `ppl:${dayKey}:${timestamp}`; }
+/* ============ SESSION STORAGE (ppl: prefix for gym, pplhome: for home —
+   separate from old bbb: keys) ============
+   Storage prefix is derived purely from dayKey (home day keys never
+   collide with gym ones, both live together in the single DAYS object),
+   so every function below - listDaySessions, loadSessionByTimestamp,
+   sessionKey itself - automatically resolves to the right namespace with
+   no separate "mode" parameter threaded through. "pplhome:" never
+   collides with the "ppl:" prefix despite the shared "ppl" substring,
+   since the gym prefix's listing/key format always has a colon
+   immediately after "ppl" (`ppl:dayKey:ts`), which "pplhome:dayKey:ts"
+   never matches. */
+function sessionKeyPrefixFor(dayKey) {
+  return (HOME_DAY_KEYS.includes(dayKey) ? 'pplhome' : 'ppl') + ':' + dayKey + ':';
+}
+function sessionKey(dayKey, timestamp) { return sessionKeyPrefixFor(dayKey) + timestamp; }
 
 function emptySessionData(dayKey) {
   const day = DAYS[dayKey];
@@ -1084,7 +1252,7 @@ function emptySessionData(dayKey) {
 
 // list all session timestamps for a day, most recent first
 async function listDaySessions(dayKey) {
-  const result = await window.storage.list(`ppl:${dayKey}:`);
+  const result = await window.storage.list(sessionKeyPrefixFor(dayKey));
   const timestamps = (result && result.keys ? result.keys : [])
     .map(k => parseInt(k.split(':')[2], 10))
     .filter(t => !isNaN(t));
@@ -1151,10 +1319,22 @@ function flushPendingSave() {
 
 /* ============ RENDER: TOP NAV ============ */
 
+function activeDayKeys() {
+  return currentMode === 'home' ? HOME_DAY_KEYS : DAY_KEYS;
+}
+
+function buildModeToggle() {
+  document.getElementById('modeGymBtn').classList.toggle('active', currentMode === 'gym');
+  document.getElementById('modeHomeBtn').classList.toggle('active', currentMode === 'home');
+  document.getElementById('subLabel').textContent = currentMode === 'home'
+    ? 'Push / Pull / Legs · dumbbells + kettlebell + bench + pull-up bar'
+    : '6-day rotation · progressive overload';
+}
+
 function buildDayBar() {
   const bar = document.getElementById('dayBar');
   bar.innerHTML = "";
-  DAY_KEYS.forEach(key => {
+  activeDayKeys().forEach(key => {
     const btn = document.createElement('button');
     btn.className = 'daybtn' + (key === currentDay ? ' active' : '');
     btn.textContent = DAYS[key].label;
@@ -1162,6 +1342,19 @@ function buildDayBar() {
     bar.appendChild(btn);
   });
 }
+
+async function switchMode(mode) {
+  if (mode === currentMode) return;
+  await flushPendingSave();
+  currentMode = mode;
+  await saveMode();
+  currentDay = activeDayKeys()[0];
+  showAllExercises = false;
+  await renderAll();
+}
+
+document.getElementById('modeGymBtn').addEventListener('click', () => switchMode('gym'));
+document.getElementById('modeHomeBtn').addEventListener('click', () => switchMode('home'));
 
 document.getElementById('startSessionBtn').addEventListener('click', async () => {
   await flushPendingSave();
@@ -1173,6 +1366,7 @@ document.getElementById('startSessionBtn').addEventListener('click', async () =>
 /* ============ RENDER: MAIN ============ */
 
 async function renderAll() {
+  buildModeToggle();
   buildDayBar();
   const day = DAYS[currentDay];
   document.getElementById('dayHeaderTitle').textContent = day.label;
@@ -1254,7 +1448,8 @@ async function renderFillerSection() {
       const { refText, badgeText } = computeProgressionFromSets(
         [{ weight: ref.weight, reps: ref.reps }],
         def ? def.repRange[1] : 15,
-        def ? def.cat : 'isolation'
+        def ? def.cat : 'isolation',
+        currentMode === 'home' // same filler list is DB-only either way; the 30lb cap only applies at home
       );
       refEl.textContent = refText || '';
       if (badgeText) {
@@ -1353,7 +1548,7 @@ const EXERCISE_RENAME_ALIASES = {
 async function findReferenceExercise(excludeDayKey, excludeTimestamp, exerciseName) {
   const acceptedNames = [exerciseName, ...(EXERCISE_RENAME_ALIASES[exerciseName] || [])];
   const candidates = [];
-  for (const dayKey of DAY_KEYS) {
+  for (const dayKey of ALL_DAY_KEYS) {
     const timestamps = await listDaySessions(dayKey);
     for (const ts of timestamps) {
       if (dayKey === excludeDayKey && ts === excludeTimestamp) continue;
@@ -1375,7 +1570,7 @@ async function findReferenceExercise(excludeDayKey, excludeTimestamp, exerciseNa
 // own timestamp, so a filler just logged this session isn't its own reference.
 async function findReferenceFiller(excludeTimestamp, fillerExerciseName) {
   const candidates = [];
-  for (const dayKey of DAY_KEYS) {
+  for (const dayKey of ALL_DAY_KEYS) {
     const timestamps = await listDaySessions(dayKey);
     for (const ts of timestamps) {
       if (ts === excludeTimestamp) continue;
@@ -1395,10 +1590,20 @@ async function findReferenceFiller(excludeTimestamp, fillerExerciseName) {
   return null;
 }
 
+// cap on home-mode dumbbell exercises - the equipment list tops out at a
+// 30lb dumbbell, so once that's being used for top-of-range reps there's
+// no heavier dumbbell to suggest. HOME_DB_WEIGHT_CAP is only ever checked
+// when the caller passes dbCapped=true (set per-exercise via DAYS'
+// dbCapped flag, or per-alt via EXERCISE_ALTERNATIVES/HOME_EXERCISE_
+// ALTERNATIVES' own dbCapped flag) - gym exercises and fillers logged in
+// gym mode never pass it, so gym's own progression suggestions are
+// completely unaffected.
+const HOME_DB_WEIGHT_CAP = 30;
+
 // shared progression-suggestion logic used by both programmed exercises
 // (an array of sets from a past session) and filler entries (a single
 // {weight,reps} pair, wrapped in a one-element array by the caller)
-function computeProgressionFromSets(sets, repRangeTop, cat) {
+function computeProgressionFromSets(sets, repRangeTop, cat, dbCapped) {
   if (!sets || !sets.length) return { refText: null, badgeText: null };
   const refText = `Last: ${sets.map(s => `${s.weight || '-'}×${s.reps || '-'}`).join(', ')}`;
   const allHitTop = sets.every(s => {
@@ -1409,9 +1614,13 @@ function computeProgressionFromSets(sets, repRangeTop, cat) {
   if (allHitTop) {
     const weights = sets.map(s => parseFloat(s.weight)).filter(w => !isNaN(w));
     const lastWeight = weights.length ? Math.max(...weights) : 0;
-    const inc = suggestedIncrement(cat);
-    const suggestedText = lastWeight ? `try ${lastWeight + inc} lbs` : `add ${inc} lbs`;
-    badgeText = `↑ READY TO ADD WEIGHT — ${suggestedText}`;
+    if (dbCapped && lastWeight >= HOME_DB_WEIGHT_CAP) {
+      badgeText = `↑ READY TO PROGRESS — try tempo (slower lowering), a pause at the bottom, or a single-arm variation (${HOME_DB_WEIGHT_CAP} lb dumbbell cap)`;
+    } else {
+      const inc = suggestedIncrement(cat);
+      const suggestedText = lastWeight ? `try ${lastWeight + inc} lbs` : `add ${inc} lbs`;
+      badgeText = `↑ READY TO ADD WEIGHT — ${suggestedText}`;
+    }
   }
   return { refText, badgeText };
 }
@@ -1426,7 +1635,7 @@ async function updateProgressionUI(block, ex, slot) {
     refEl.textContent = 'No previous data — pick a starting weight';
     return;
   }
-  const { refText, badgeText } = computeProgressionFromSets(refExercise.sets, ex.repRange[1], ex.cat);
+  const { refText, badgeText } = computeProgressionFromSets(refExercise.sets, ex.repRange[1], ex.cat, ex.dbCapped);
   refEl.textContent = refText;
   if (badgeText) {
     const badge = document.createElement('span');
@@ -1629,10 +1838,13 @@ async function renderExerciseBlock(content, ex, plannedSets, slot) {
   // this slot has been swapped, the block renders/logs/tracks as the
   // alternative exercise (its own name, its own history) instead of the
   // programmed one, for this session only
-  const altDef = EXERCISE_ALTERNATIVES[ex.name];
+  const altDef = altDefFor(ex.name);
   const swappedAltName = currentData.altSwaps && currentData.altSwaps[ex.name];
   const isSwapped = !!(altDef && swappedAltName);
-  const effectiveEx = isSwapped ? Object.assign({}, ex, { name: swappedAltName }) : ex;
+  // dbCapped is explicitly overridden (not inherited from ex) since an
+  // alt's own equipment may not be dumbbell-based at all, e.g. swapping
+  // Flat DB Press (dbCapped) to Kettlebell Floor Press (not dbCapped)
+  const effectiveEx = isSwapped ? Object.assign({}, ex, { name: swappedAltName, dbCapped: !!(altDef && altDef.dbCapped) }) : ex;
 
   const entry = getOrCreateExerciseEntry(effectiveEx.name, plannedSets);
 
@@ -1947,8 +2159,10 @@ function showImportStatus(message, kind) {
 }
 
 async function exportData() {
-  const result = await window.storage.list('ppl:');
-  const keyNames = (result && result.keys ? result.keys : []).sort();
+  // one unified export file covers BOTH gym ("ppl:") and home ("pplhome:")
+  // sessions, so a single export/import round-trip always carries both
+  const [gymResult, homeResult] = await Promise.all([window.storage.list('ppl:'), window.storage.list('pplhome:')]);
+  const keyNames = [...(gymResult && gymResult.keys ? gymResult.keys : []), ...(homeResult && homeResult.keys ? homeResult.keys : [])].sort();
   if (keyNames.length === 0) {
     showImportStatus('No logged sessions yet — nothing to export.', 'error');
     return;
@@ -1993,7 +2207,7 @@ function validateExportPayload(payload) {
     return 'That file has no sessions in it.';
   }
   for (const [key, value] of entries) {
-    if (!/^ppl:[A-Za-z0-9]+:\d+$/.test(key)) {
+    if (!/^ppl(home)?:[A-Za-z0-9]+:\d+$/.test(key)) {
       return `Unexpected key "${key}" — this doesn't match the PPL Log session format.`;
     }
     if (typeof value !== 'string') {
@@ -2183,14 +2397,16 @@ function debouncedPersistHistoryEntry(dayKey, data) {
 async function renderHistory(container) {
   container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">loading…</div>';
   try {
-    const result = await window.storage.list('ppl:');
+    // mode-scoped: history shows the CURRENT mode's own logged sessions,
+    // same way the day bar only shows that mode's own days
+    const result = await window.storage.list(currentMode === 'home' ? 'pplhome:' : 'ppl:');
     if (!result || !result.keys || result.keys.length === 0) {
       container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--dim);padding:10px 0;">No entries yet.</div>';
       return;
     }
     const entries = [];
     for (const key of result.keys) {
-      const parts = key.split(':'); // ppl:dayKey:timestamp
+      const parts = key.split(':'); // ppl:dayKey:timestamp or pplhome:dayKey:timestamp
       if (parts.length < 3) continue;
       try {
         const r = await window.storage.get(key);
@@ -2315,6 +2531,8 @@ window.addEventListener('pagehide', () => {
 (async () => {
   await loadPlateSettings();
   await loadSessionLength();
+  await loadMode();
+  if (!activeDayKeys().includes(currentDay)) currentDay = activeDayKeys()[0];
   document.getElementById('sessionLengthSlider').value = sessionLengthMinutes;
   document.getElementById('sessionLengthValue').textContent = `${sessionLengthMinutes} min`;
   renderAll();
